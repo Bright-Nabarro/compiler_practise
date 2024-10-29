@@ -29,5 +29,6 @@ Number			[0-9]+
 					yylval.int_val = std::atoi(yytext);
 					return INT_LITERAL;
 				}
+.				{ return yytext[0]; }
 %%
 

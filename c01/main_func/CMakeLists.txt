@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.25)
-project(xx LANGUAGES CXX VERSION 0.0.1)
+project(parse_main LANGUAGES CXX VERSION 0.0.1)
 
 option(DEBUG_MODE ON)
 

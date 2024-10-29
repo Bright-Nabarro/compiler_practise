@@ -16,22 +16,24 @@ class Block;
 class Type;
 class Param;
 class ParamList;
+class FuncDef;
 class CompUnit;
 
 class ASTVisitor
 {
 public:
 	//如果没有定义对应类型，则退化为基类节点
-	virtual void visit(BaseAST&) {}
-	virtual void visit(Number&) = 0;
-	virtual void visit(Ident&) = 0;
-	virtual void visit(Expr&) = 0;
-	virtual void visit(Stmt&) = 0;
-	virtual void visit(Block&) = 0;
-	virtual void visit(Type&) = 0;
-	virtual void visit(Param&) = 0;
-	virtual void visit(ParamList&) = 0;
-	virtual void visit(CompUnit&) = 0;
+	virtual void visit(const BaseAST&) {}
+	virtual void visit(const Number&) = 0;
+	virtual void visit(const Ident&) = 0;
+	virtual void visit(const Expr&) = 0;
+	virtual void visit(const Stmt&) = 0;
+	virtual void visit(const Block&) = 0;
+	virtual void visit(const Type&) = 0;
+	virtual void visit(const Param&) = 0;
+	virtual void visit(const ParamList&) = 0;
+	virtual void visit(const FuncDef&) = 0;
+	virtual void visit(const CompUnit&) = 0;
 };
 
 

@@ -18,7 +18,8 @@ add_flex_bison_dependency(lexer parser)
 
 add_library(front OBJECT ${BISON_OUTPUT} ${FLEX_OUTPUT})
 
-target_link_libraries(front ${FLEX_LIBRARIES})
+message(STATUS "flex libs: ${FLEX_LIBRARIES}")
+#target_link_libraries(front PUBLIC lexer parser ${FLEX_LIBRARIES})
 
 # 导入bison生成的.hpp文件
 target_include_directories(front PUBLIC
