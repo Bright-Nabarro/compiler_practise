@@ -1,7 +1,10 @@
+%option noyywrap
+%option nounput
+
 %{
 
 #include <string>
-#include "parser.tab.hpp"
+#include "parser.bison.hpp"
 
 %}
 
@@ -23,7 +26,7 @@ Number			[0-9]+
 					return IDENT;
 				}
 {Number}		{
-					yylval.int_val = strtol(yytext);
+					yylval.int_val = std::atoi(yytext);
 					return INT_LITERAL;
 				}
 %%

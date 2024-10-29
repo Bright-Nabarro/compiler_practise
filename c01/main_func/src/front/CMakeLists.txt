@@ -11,7 +11,8 @@ message(STATUS "flex output source file: ${FLEX_OUTPUT}")
 message(STATUS "bison output source file: ${BISON_OUTPUT}")
 
 flex_target(lexer ${FLEX_INPUT} ${FLEX_OUTPUT})
-bison_target(parser ${BISON_INPUT} ${BISON_OUTPUT})
+bison_target(parser ${BISON_INPUT} ${BISON_OUTPUT}
+			 DEFINES_FILE ${CMAKE_CURRENT_BINARY_DIR}/parser.bison.hpp)
 
 add_flex_bison_dependency(lexer parser)
 

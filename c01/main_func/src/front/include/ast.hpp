@@ -68,14 +68,14 @@ private:
 class Ident: public BaseAST
 {
 public:
-	Ident(std::string id): m_id { std::move(id) } {}
+	Ident(std::string* id): m_id { id } {}
 	auto get_id() const -> std::string_view
-	{ return m_id; }
+	{ return *m_id; }
 
 	DEFINE_VISIT;
 
 private:
-	std::string m_id;
+	std::unique_ptr<std::string> m_id;
 };
 
 

@@ -10,6 +10,10 @@ target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC
     "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${trg}>"
 )
 
+target_link_libraries(${trg}
+	front
+)
+
 #include(Doxygen)
 #Doxygen("${CMAKE_CURRENT_SOURCE_DIR}/app" "${CMAKE_SOURCE_DIR}/docs")
 #

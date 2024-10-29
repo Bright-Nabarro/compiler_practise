@@ -1,6 +1,7 @@
 %code requires {
 #include <memory>
 #include <string>
+#include "ast.hpp"
 }
 
 %{
@@ -8,6 +9,8 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <cassert>
+#include "ast.hpp"
 
 int yylex();
 void yyerror(std::unique_ptr<ast::BaseAST>& ast, const char* s);
@@ -63,7 +66,7 @@ FuncDef
 			std::move(ident_uptr),
 			std::move(param_list_uptr),
 			std::move(block_uptr)
-		}
+		};
 	};
 
 ParamList   
@@ -77,7 +80,10 @@ ParamList
 		$$ = new ast::ParamList { std::move(vec) };
 	}
 	| ParamList ',' Param {
-		auto param_list_ptr = $1;
+		auto param_list_ptr = dynamic_cast<ast::ParamList*>($1);
+		if (param_list_ptr == nullptr)
+			throw std::logic_error { "paramList cast error" };
+		
 		auto param_uptr = unique_ptr_dynamic_cast<ast::Param>($3);
 		param_list_ptr->add_param(std::move(param_uptr));
 		$$ = param_list_ptr;
@@ -101,7 +107,7 @@ Type
 Block
 	: '{' Stmt '}'{
 		//这里暂时之匹配单个表达式
-		auto stmt_uptr = std::unique_ptr_dynamic_cast<ast::Stmt>($2);
+		auto stmt_uptr = unique_ptr_dynamic_cast<ast::Stmt>($2);
 		ast::Block::Vector vec;
 		vec.push_back(std::move(stmt_uptr));
 		$$ = new ast::Block { std::move(vec) };
@@ -109,17 +115,17 @@ Block
 
 Stmt
 	: KW_RETURN Expr ';' {
-		auto expr_uptr = std::unique_ptr_dynamic_cast<ast::Expr>($2);
+		auto expr_uptr = unique_ptr_dynamic_cast<ast::Expr>($2);
 		$$ = new ast::Stmt { std::move(expr_uptr) };
 	};
 Expr
 	: Number {
-		auto number_uptr = std::unique_ptr_dynamic_cast<ast::Number>($1);
+		auto number_uptr = unique_ptr_dynamic_cast<ast::Number>($1);
 		$$ = new ast::Expr { std::move(number_uptr) };
 	}
 	| Ident {
-		auto ident_uptr = std::unique_ptr_dynamic_cast<ast::Ident>($1);
-		$$ = new ast::Expr { std::move(number_uptr) };
+		auto ident_uptr = unique_ptr_dynamic_cast<ast::Ident>($1);
+		$$ = new ast::Expr { std::move(ident_uptr) };
 
 	};
 Number
