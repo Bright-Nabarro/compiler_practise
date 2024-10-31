@@ -27,11 +27,12 @@ auto main(int argc, char* argv[]) -> int
 	}
 
 	int ret = yyparse(base);
+	OutputVisitor visiter;
+	base->accept(visiter);
 	if (ret)
 	{
 		std::println(stderr, "parse error");
 		return 1;
 	}
-	
 }
 

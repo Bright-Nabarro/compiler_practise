@@ -19,21 +19,21 @@ public:
 	{
 		std::println("Expr:");
 		auto& value = ast.get_value();
-		std::visit([](const auto& value) {
-			std::cout<<'<'<<value<<'>'<<" ";
+		std::visit([this](const auto& value) {
+			this->visit(*value.get());
 		}, value);
 	}
 
 	void visit(const ast::Stmt& ast) override
 	{
-		std::println("Stmt:");
+		std::print("Stmt: ");
 		visit(*ast.get_expr());
 	}
 
 	void visit(const ast::Block& ast) override
 	{
 		//目前默认只有一个Expr
-		std::println("Block: ");
+		std::print("Block: ");
 		visit(*(ast.cbegin()->get()));
 	}
 
@@ -68,7 +68,7 @@ public:
 
 	void visit(const ast::FuncDef& ast) override
 	{
-		std::println("FuncDef:");
+		std::print("FuncDef: ");
 		visit(*ast.get_type());
 		visit(*ast.get_ident());
 		visit(*ast.get_paramlist());
@@ -77,9 +77,8 @@ public:
 
 	void visit(const ast::CompUnit& ast) override
 	{
-		std::println("CompUnit:");
+		std::print("CompUnit: ");
 		visit(*ast.get_func_def());
 	}
-
 };
 
