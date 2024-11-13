@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.25)
-project(parse_main LANGUAGES CXX VERSION 0.0.1)
+project(parse_main VERSION 0.0.1)
 
 option(DEBUG_MODE ON)
 
@@ -27,8 +27,14 @@ else()
 	)
 endif()
 
+find_package(LLVM REQUIRED CONFIG)
+
 enable_testing()
 include(Utils)
+
+if (NOT LLVM_ENABLE_RTTI)
+	add_compile_options(-fno-rtti)
+endif()
 
 add_subdirectory("src/front")
 add_subdirectory("src/back")
