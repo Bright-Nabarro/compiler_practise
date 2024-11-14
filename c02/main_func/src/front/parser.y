@@ -1,12 +1,14 @@
 %require "3.8.2"
 %language "c++"
 %skeleton "lalr1.cc"
-%defines
+%header
 %define api.value.type variant
-
 %define parse.trace
 %define parse.error verbose
 %define api.token.constructor
+
+//由cmake命令指定
+//%header "bison_parser.hpp"
 
 %code requires
 {

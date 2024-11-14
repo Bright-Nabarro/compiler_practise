@@ -1,0 +1,28 @@
+BasedOnStyle: LLVM
+
+Language: Cpp
+Standard: c++20
+
+ColumnLimit: 80
+IndentWidth: 4
+UseTab: Always
+TabWidth: 4
+
+BreakBeforeBraces: Allman
+PointerAlignment: Left
+
+IndentCaseLabels: false
+AlignConsecutiveMacros: true
+AccessModifierOffset: -4
+
+AlwaysBreakTemplateDeclarations: Yes
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: Empty
+
+IndentRequiresClause: true
+NamespaceIndentation: None
+FixNamespaceComments: true
+
+EmptyLineBeforeAccessModifier: Always
+
+

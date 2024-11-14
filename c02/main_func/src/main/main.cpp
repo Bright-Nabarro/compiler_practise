@@ -1,11 +1,8 @@
 #include "llvm/Support/CommandLine.h"
 #include "llvm/Support/InitLLVM.h"
 #include "ast.hpp"
+#include "parser.bison.hpp"
 #include <print>
-
-extern auto yyparse(std::unique_ptr<tinyc::BaseAST>& ast) -> int;
-
-extern FILE* yyin;
 
 // 定义命令行选项
 static llvm::cl::opt<std::string> input_filename{
