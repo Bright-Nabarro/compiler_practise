@@ -27,10 +27,10 @@ public:
 	void scan_end();
 
 	void set_trace(bool value)
-	{ m_result = value; }
+	{ m_trace_parsing = value; }
 
 	auto get_trace() -> bool
-	{ return m_result; }
+	{ return m_trace_parsing; }
 
 	void set_result(int value)
 	{ m_result = value; }

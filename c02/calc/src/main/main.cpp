@@ -7,7 +7,7 @@ auto main(int argc, char* argv[]) -> int
 	int ret = 0;
 	
 	Driver driver;
-	for (int i = 0; i < argc; i++)
+	for (int i = 1; i < argc; i++)
 	{
 		if (argv[i] == std::string{"-p"})
 		{
