@@ -17,7 +17,7 @@ auto main(int argc, char* argv[]) -> int
 		{
 			driver.set_trace(true);
 		}
-		else if (!driver.parse(argv[i]))
+		else if (!(ret = driver.parse(argv[i])))
 		{
 			std::println("{}",driver.get_result());
 		}

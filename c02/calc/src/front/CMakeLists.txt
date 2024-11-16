@@ -9,9 +9,10 @@ set(bison_file parser.yy)
 string(REPLACE ".ll" ".flex.cpp" flex_output ${flex_file})
 string(REPLACE ".yy" ".bison.cpp" bison_output ${bison_file})
 
+set(output_header ${CMAKE_CURRENT_BINARY_DIR}/bison_parser.hpp)
 flex_target(lexer ${flex_file} ${flex_output})
 bison_target(parser ${bison_file} ${bison_output}
-	DEFINES_FILE ${CMAKE_CURRENT_BINARY_DIR}/bison_parser.hpp)
+	DEFINES_FILE ${output_header})
 
 add_flex_bison_dependency(lexer parser)
 
@@ -21,6 +22,12 @@ add_library(front OBJECT ${SRC} ${flex_output} ${bison_output})
 target_include_directories(front PUBLIC
 	"include"
 	${CMAKE_CURRENT_BINARY_DIR}
+)
+
+include(Doxygen)
+Doxygen("${CMAKE_SOURCE_DIR}/docs"
+	"." ${flex_output} ${bison_output} ${output_header}
+	"${CMAKE_CURRENT_BINARY_DIR}/location.hh"
 )
 
 

@@ -1,4 +1,4 @@
-function(Doxygen input output)
+function(Doxygen output input1)
 	find_package(Doxygen)	#include function `doxygen_add_docs`
 	if (NOT DOXYGEN_FOUND)
 		add_custom_target(doxygen
@@ -15,7 +15,8 @@ function(Doxygen input output)
 	UseDoxygenAwesomeCss()
 
 	doxygen_add_docs(doxygen ${readme}
-		${input} 
+		${input1} 
+		${ARGN}
 		COMMENT "Generate HTML documentation"
 	)
 endfunction()
