@@ -4,22 +4,17 @@ function(ChgExeOutputDir target)
 	)
 endfunction()
 
-macro(AddTrgLibrary name)
+macro(AddLLVMTrgLibrary name libtype)
 	if (TARGET ${name})
 		message(WARNING "Target ${name} already exists. Skipping AddTrgLibrary")
 		return()
 	endif()
 
-	set (LIBTYPE STATIC)
-	if (BUILD_SHARED_LIBS)
-		set(LIBTYPE SHARED)
-	endif()
-
-	llvm_add_library(${name} ${LIBTYPE} ${ARGN})
+	llvm_add_library(${name} ${libtype} ${ARGN})
 	target_link_libraries(${name} PUBLIC ${LLVM_COMMON_LIBS})
 endmacro()
 
-macro(AddTrgExe name)
+macro(AddLLVMTrgExe name)
 	add_llvm_executable(${name} ${ARGN})
 	#target_include_directories(${name} PUBLIC
 	#	"$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${trg}>"

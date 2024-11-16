@@ -17,7 +17,8 @@ bison_target(parser ${bison_file} ${bison_output}
 add_flex_bison_dependency(lexer parser)
 
 include(Utils)
-add_library(front OBJECT ${SRC} ${flex_output} ${bison_output})
+#add_library(front OBJECT ${SRC} ${flex_output} ${bison_output})
+AddLLVMTrgLibrary(front OBJECT ${SRC} ${flex_output} ${bison_output})
 
 target_include_directories(front PUBLIC
 	"include"

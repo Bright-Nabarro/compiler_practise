@@ -45,8 +45,12 @@ blank	[ \t\r]+
 {int}		return make_NUMBER(yytext, loc);
 {id}		return yy::parser::make_IDENTIFIER(yytext, loc);
 .			{
-				throw yy::parser::syntax_error
-					(loc, "invalid character: "+std::string{yytext});
+				//throw yy::parser::syntax_error
+				//	(loc, "invalid character: "+std::string{yytext});
+				yy::parser::make_YYerror(loc);
+			}
+"b"			{
+				yy::parser::make_YYerror(loc);
 			}
 <<EOF>>		return yy::parser::make_YYEOF(loc);
 %%

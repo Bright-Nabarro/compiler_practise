@@ -4,11 +4,18 @@
 %define api.token.raw  			// 禁止在文法推导中使用字符字面量 
 %define api.token.constructor 	// 将symbol作为一个类型
 %define api.value.type variant 	// 使用variant代替union
-%define parse.assert			// 辅助检查不变量，无法在禁用了rtti的情况下使用
+//%define parse.assert			// 辅助检查不变量，无法在禁用了rtti的情况下使用
 
 %code requires {
 #include <string>
 class Driver;
+
+
+//namespace yy
+//{
+//	void report_error(const location_type& loc, const std::string& m);
+//}	//namespace yy
+
 }
 
 %param { Driver& drive }		// 影响 yylex 和 yyparse
@@ -63,12 +70,20 @@ exp:
    | exp "-" exp  { $$ = $1 - $3; }
    | exp "*" exp  { $$ = $1 * $3; }
    | exp "/" exp  { $$ = $1 / $3; }
+   | exp error exp { $$ = $1; }
    | "(" exp ")"  { $$ = $2; }
 
 %%
 
 void yy::parser::error(const location_type& loc, const std::string& m)
 {
+
 	std::cerr<<loc<<": "<<m<<std::endl;
 }
+
+//void yy::report_error(const location_type& loc, const std::string& m)
+//{
+//	//location只提供了operator<<的便捷输出方法
+//	std::cerr<<loc<<": "<<m<<std::endl;
+//}
 

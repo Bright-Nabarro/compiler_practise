@@ -25,6 +25,8 @@ add_compile_options(
 )
 
 #set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lc++ -lc++abi")
+find_package(LLVM REQUIRED CONFIG)
+include(AddLLVM)
 
 add_subdirectory("src")
 

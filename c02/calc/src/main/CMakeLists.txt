@@ -3,7 +3,8 @@ file(GLOB SRC "*.cpp")
 set(trg ${CMAKE_PROJECT_NAME})
 
 include(Utils)
-add_executable(${trg} ${SRC})
+#add_executable(${trg} ${SRC})
+AddLLVMTrgExe(${trg} ${SRC})
 
 ChgExeOutputDir(${trg})
 target_include_directories(${trg} PRIVATE
