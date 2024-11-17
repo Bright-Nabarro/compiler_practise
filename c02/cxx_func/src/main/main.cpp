@@ -1,23 +1,33 @@
-#include "llvm/Support/CommandLine.h"
-#include "llvm/Support/InitLLVM.h"
+#include <llvm/Support/CommandLine.h>
+#include <llvm/Support/InitLLVM.h>
 #include <print>
+#include "driver.hpp"
 
 // 定义命令行选项
-static llvm::cl::opt<std::string> input_filename{
+static llvm::cl::opt<std::string> input_file{
 	llvm::cl::Positional, // 位置参数，无需用 "--" 指定
 	llvm::cl::desc("<input file>"),
-	//llvm::cl::init("-") // 默认值为 "-"
+	llvm::cl::init("") // 默认值为 empty
 };
 
-static llvm::cl::opt<std::string> output_filename{
+static llvm::cl::opt<std::string> output_file{
 	"o", // 使用 -o 指定
 	llvm::cl::desc("Specify output filename"), llvm::cl::value_desc("filename"),
-	llvm::cl::init("output.txt")};
+	llvm::cl::init("output.txt")
+};
 
 static llvm::cl::opt<bool> emit_llvm{
-	"emit-llvm", // 使用 --emit-llvm 启用
+	"emit-llvm", 
 	llvm::cl::desc("Emit LLVM IR code instead of machine code"),
-	llvm::cl::init(false)};
+	llvm::cl::init(false)
+};
+
+/// 开启debug追踪
+static llvm::cl::opt<bool> debug_trace{
+	"trace",
+	llvm::cl::desc("Enable flex debug trace"),
+	llvm::cl::init(false)
+};
 
 auto main(int argc, char* argv[]) -> int
 {
@@ -25,12 +35,8 @@ auto main(int argc, char* argv[]) -> int
 	// 解析命令行选项
 	llvm::cl::ParseCommandLineOptions(argc, argv,
 									  "Simple LLVM CommandLine Example\n");
-
-	// 打印解析后的参数值
-	std::println("Input file: {}", input_filename.getValue());
-	std::println("Output file: {}", output_filename.getValue());
-	std::println("Emit LLVM IR: {}", emit_llvm.getValue());
-
+	tinyc::Driver driver;
+	driver.prase(output_file.getValue());
 	return 0;
 }
 

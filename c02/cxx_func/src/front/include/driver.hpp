@@ -7,7 +7,9 @@
 #include "file_manager.hpp"
 
 #define YY_DECL \
-	auto yylex(tinyc::Driver& driver) -> yy::parser::symbol_type;
+	auto yylex(tinyc::Driver& driver) -> yy::parser::symbol_type
+
+YY_DECL;
 
 namespace tinyc
 {
@@ -17,7 +19,8 @@ class Driver
 public:
 	Driver();
 	auto parse(std::string_view file_name) -> bool;
-	auto get_location() -> yy::location&;
+	auto get_location() -> yy::location&
+	{ return m_location; }
 	
 	//CompUnit为根节点
 	void set_ast(std::unique_ptr<CompUnit> ast)
@@ -30,6 +33,10 @@ public:
 	{ m_debug_trace = debug_trace; }
 	auto get_trace() -> bool
 	{ return m_debug_trace; }
+
+private:
+	auto scan_begin() -> bool;
+	auto scan_end() -> bool;
 
 private:
 	std::shared_ptr<FileManager> m_file_manager;

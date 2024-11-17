@@ -7,12 +7,15 @@
 %code requires {
 #include <memory>
 #include <string>
-#include "driver.hpp"
+#include <string_view>
+//前向声明
+namespace tinyc { class Driver; }
 }
 
-%param { Driver& drive }
+%param { tinyc::Driver& drive }
 
 %locations	//生成location定位
+%define api.filename.type { std::string_view }
 %define parse.trace
 %define parse.error detailed
 %define parse.lac full	//启用lac前瞻
@@ -46,7 +49,7 @@
 
 %%
 
-%start CompUnit
+%start CompUnit;
 
 CompUnit:
 	FuncDef 

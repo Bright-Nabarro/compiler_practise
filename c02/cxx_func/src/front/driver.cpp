@@ -21,10 +21,14 @@ auto Driver::parse(std::string_view file_name) -> bool
 		std::println(stderr, "{}", ret.error());
 		return false;
 	}
+	m_location.initialize(&file_name);
+	scan_begin();
+	yy::parser parse(*this);
+	parse.set_debug_level(this->get_trace());
+	int parse_ret = parse();
+	scan_end();
 
-
+	return parse_ret == 0;
 }
-
-auto Driver::get_location() -> yy::location&;
 
 }	//namespace tinyc

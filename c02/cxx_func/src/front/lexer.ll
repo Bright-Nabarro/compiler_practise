@@ -9,11 +9,12 @@
 %option noyywrap nounput noinput batch debug
 
 blank	 		[ \t\r]+
-LineComment		//.*\n
+LineComment		\/\/[^\n]\n
 Ident			[a-zA-Z_][0-9a-zA-Z_]*
 Number			[0-9]+
 
 %%
+
 %{
 	//在%% %%中间插入的代码每次yylex执行时调用
 	yy::location& loc = driver.get_location();
@@ -31,17 +32,17 @@ Number			[0-9]+
 					loc.lines(1);
 					loc.step();
 				}
-"int"			return yy::parser::make_KW_INT();
-"void"			return yy::parser::make_KW_VOID();
-"return"		return yy::parser::make_KW_RETURN();
+"int"			return yy::parser::make_KW_INT(loc);
+"void"			return yy::parser::make_KW_VOID(loc);
+"return"		return yy::parser::make_KW_RETURN(loc);
 
 {Ident}			{
 					yylval->emplace(std::string{yytext});
-					return yy::parser::make_IDENT();
+					return yy::parser::make_IDENT(loc);
 				}
 {Number}		{
 					yylval->emplace(std::atoi(yytext));
-					return yy::parser::make_INT_LITERAL();
+					return yy::parser::make_INT_LITERAL(loc);
 				}
 .				return yy::parser::make_YYerror(loc);
 <<EOF>>			return yy::parser::make_YYEOF(loc);
