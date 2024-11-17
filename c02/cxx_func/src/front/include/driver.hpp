@@ -35,8 +35,7 @@ public:
 	{ return m_debug_trace; }
 
 private:
-	auto scan_begin() -> bool;
-	auto scan_end() -> bool;
+	void set_flex(std::FILE* handle);
 
 private:
 	std::shared_ptr<FileManager> m_file_manager;

@@ -18,12 +18,15 @@ add_flex_bison_dependency(lexer parser)
 
 include(Utils)
 #add_library(front OBJECT ${SRC} ${flex_output} ${bison_output})
+message("flex generate file:  ${flex_output}")
+message("bison generate file:  ${bison_output}")
 AddLLVMTrgLibrary(front OBJECT ${SRC} ${flex_output} ${bison_output})
 
 target_include_directories(front PUBLIC
 	"include"
 	${CMAKE_CURRENT_BINARY_DIR}
 )
+
 
 include(Doxygen)
 Doxygen("${CMAKE_SOURCE_DIR}/docs"

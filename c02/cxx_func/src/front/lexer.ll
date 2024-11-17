@@ -37,15 +37,25 @@ Number			[0-9]+
 "return"		return yy::parser::make_KW_RETURN(loc);
 
 {Ident}			{
-					yylval->emplace(std::string{yytext});
-					return yy::parser::make_IDENT(loc);
+					return yy::parser::make_IDENT(std::string{yytext}, loc);
 				}
 {Number}		{
-					yylval->emplace(std::atoi(yytext));
-					return yy::parser::make_INT_LITERAL(loc);
+					return yy::parser::make_INT_LITERAL(std::atoi(yytext), loc);
 				}
 .				return yy::parser::make_YYerror(loc);
 <<EOF>>			return yy::parser::make_YYEOF(loc);
 
 %%
+
+
+namespace tinyc
+{
+
+void Driver::set_flex(std::FILE* handle)
+{
+	yy_flex_debug = this->get_trace();
+	yyin = handle;
+}
+
+}	//namespace tinyc
 

@@ -5,6 +5,10 @@ set(trg ${CMAKE_PROJECT_NAME})
 AddLLVMTrgExe(${trg} ${src})
 ChgExeOutputDir(${trg})
 
+target_link_libraries(${trg} PUBLIC
+	front
+)
+
 #include(Doxygen)
 #Doxygen("${CMAKE_CURRENT_SOURCE_DIR}/app" "${CMAKE_SOURCE_DIR}/docs")
 #

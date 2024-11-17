@@ -8,6 +8,8 @@
 #include <memory>
 #include <string>
 #include <string_view>
+#include <iostream>
+#include "ast.hpp"
 //前向声明
 namespace tinyc { class Driver; }
 }
@@ -27,7 +29,7 @@ namespace tinyc { class Driver; }
 #include <llvm/Support/Casting.h>
 #include "driver.hpp"
 #define assert_same_ptr(Type, ptr) \
-	static_assert(std::is_same_v<Type, typename decltype(ptr)::element_type>)
+	static_assert(std::is_same_v<Type, typename std::decay_t<decltype(ptr)>::element_type>)
 
 }
 
@@ -72,7 +74,7 @@ FuncDef :
 			std::move($1), std::move($2), std::move($4), std::move($6)
 		);
 
-		$$ = std::move($1);
+		$$ = std::move(funcdef_ptr);
 	};
 
 ParamList :
@@ -93,7 +95,7 @@ ParamList :
 		assert_same_ptr(tinyc::Param, $3);
 
 		auto param_list_ptr = std::move($1);
-		param_list_ptr->add_param($3);
+		param_list_ptr->add_param(std::move($3));
 		$$ = std::move(param_list_ptr);
 	}
 
@@ -130,14 +132,14 @@ Stmt
 
 Expr
 	: Number {
-		assert_same_ptr(tinyc::Number $1);
-		auto number_uptr = std::make_unique<tinyc::Number>($1);
-		$$ = std::move(number_uptr);
+		assert_same_ptr(tinyc::Number, $1);
+		auto expr_ptr = std::make_unique<tinyc::Expr>(std::move($1));
+		$$ = std::move(expr_ptr);
 	}
 	| Ident {
-		assert_same_ptr(tinyc::Number $1);
-		auto ident_uptr = std::make_unique<tinyc::Ident>($1);
-		$$ = std::move(ident_uptr);
+		assert_same_ptr(tinyc::Ident, $1);
+		auto expr_ptr = std::make_unique<tinyc::Expr>(std::move($1));
+		$$ = std::move(expr_ptr);
 	};
 
 Number
@@ -151,4 +153,14 @@ Ident
 	};
 
 %%
+
+namespace yy
+{
+
+void parser::error(const location_type& loc, const std::string& m)
+{
+	std::cerr<<loc<<": "<<m<<std::endl;
+}
+
+}	//namespace yy
 

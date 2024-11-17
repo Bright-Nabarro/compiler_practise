@@ -15,20 +15,23 @@ Driver::Driver():
 
 auto Driver::parse(std::string_view file_name) -> bool
 {
-	auto ret = m_file_manager->read_file_c(file_name);
-	if (!ret)
+	auto handle = m_file_manager->read_file(file_name);
+	if (!handle)
 	{
-		std::println(stderr, "{}", ret.error());
+		std::println(stderr, "{}", handle.error());
 		return false;
 	}
 	m_location.initialize(&file_name);
-	scan_begin();
+	set_flex(handle.value());
+
 	yy::parser parse(*this);
 	parse.set_debug_level(this->get_trace());
 	int parse_ret = parse();
-	scan_end();
+
+	m_file_manager->close_file(handle.value());
 
 	return parse_ret == 0;
 }
 
 }	//namespace tinyc
+

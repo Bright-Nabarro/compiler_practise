@@ -36,7 +36,8 @@ auto main(int argc, char* argv[]) -> int
 	llvm::cl::ParseCommandLineOptions(argc, argv,
 									  "Simple LLVM CommandLine Example\n");
 	tinyc::Driver driver;
-	driver.prase(output_file.getValue());
+	auto file = input_file.getValue();
+	driver.parse(file);
 	return 0;
 }
 
