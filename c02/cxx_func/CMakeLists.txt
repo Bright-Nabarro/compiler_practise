@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.25)
-project(app VERSION 0.0.1)
+project(tinyc VERSION 0.0.1)
 
 option(DEBUG_MODE ON)
 option(ENABLE_TEST OFF)
 
 # llvm项目使用clang作为编译器
-set(CMAKE_C_COMPILER /usr/bin/clang)
-set(CMAKE_CXX_COMPILER /usr/bin/clang++)
+#set(CMAKE_C_COMPILER clang)
+#set(CMAKE_CXX_COMPILER clang++)
 
 execute_process(
     COMMAND ${CMAKE_CXX_COMPILER} --version
@@ -43,7 +43,7 @@ message(STATUS "LLVM version: ${LLVM_PACKAGE_VERSION}")
 include(FetchContent)
 FetchContent_Declare(yq_easylog
 	GIT_REPOSITORY https://github.com/Bright-Nabarro/easylog.git
-	GIT_TAG fix_fetch_content
+	GIT_TAG main
 )
 FetchContent_MakeAvailable(yq_easylog)
 

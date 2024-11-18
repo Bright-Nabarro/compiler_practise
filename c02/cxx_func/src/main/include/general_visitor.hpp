@@ -6,12 +6,12 @@
 namespace tinyc
 {
 
-class OutputVisitor: public ASTVisitor
+class GeneralVisitor: public ASTVisitor
 {
 public:
-	OutputVisitor(bool enable_display);
+	GeneralVisitor();
 	/// 只支持根节点输出
-	auto visit(BaseAST* ast) -> bool;
+	auto visit(BaseAST* ast) -> bool override;
 
 private:
 	void handle(const CompUnit& node);
@@ -20,6 +20,10 @@ private:
 	void handle(const Ident& node);
 	void handle(const ParamList& node);
 	void handle(const Block& node);
+	void handle(const Param& node);
+	void handle(const Stmt& node);
+	void handle(const Expr& expr);
+	void handle(const Number& num);
 
 private:
 	yq::logger<yq::log_level::error> m_error_log;

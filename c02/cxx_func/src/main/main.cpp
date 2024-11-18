@@ -2,9 +2,10 @@
 #include <llvm/Support/InitLLVM.h>
 #include <print>
 #include "driver.hpp"
+#include "general_visitor.hpp"
 
 // 定义命令行选项
-static llvm::cl::opt<std::string> input_file{
+static llvm::cl::opt<std::string> input_file {
 	llvm::cl::Positional, // 位置参数，无需用 "--" 指定
 	llvm::cl::desc("<input file>"),
 	llvm::cl::init("") // 默认值为 empty
@@ -38,6 +39,10 @@ auto main(int argc, char* argv[]) -> int
 	tinyc::Driver driver;
 	auto file = input_file.getValue();
 	driver.parse(file);
+	
+	tinyc::GeneralVisitor visitor;
+	visitor.visit(driver.get_ast_ptr());
+
 	return 0;
 }
 

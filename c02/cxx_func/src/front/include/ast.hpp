@@ -94,7 +94,7 @@ public:
 	Ident(std::string value) : BaseAST{ast_ident}, m_value{std::move(value)}{}
 	
 	[[nodiscard]]
-	auto get_value() -> std::string
+	auto get_value() const -> std::string
 	{ return m_value; }
 
 	FILL_CLASSOF(ast_ident)
@@ -184,10 +184,10 @@ public:
 
 	FILL_CLASSOF(ast_block);
 
-	auto cbegin() const -> Vector::const_iterator
+	auto begin() const -> Vector::const_iterator
 	{ return m_stmts.cbegin(); }
 
-	auto cend() const -> Vector::const_iterator
+	auto end() const -> Vector::const_iterator
 	{ return m_stmts.cend(); }
 	
 	auto get_exprs() const -> const Vector&
@@ -220,6 +220,19 @@ public:
 
 	auto get_type() const -> TypeEnum
 	{ return m_type; }
+
+	auto get_type_str() const -> const char*
+	{
+		switch(get_type())
+		{
+		case ast_int:
+			return "int";
+		case ast_void:
+			return "void";
+		default:
+			return "unkown";
+		}
+	}
 
 private:
 	TypeEnum m_type;
@@ -264,12 +277,12 @@ public:
 
 	FILL_CLASSOF(ast_paramlist);
 
-	auto cbegin() const -> Vector::const_iterator
+	auto begin() const -> Vector::const_iterator
 	{
 		return m_params.cbegin();
 	}
 
-	auto cend() const -> Vector::const_iterator
+	auto end() const -> Vector::const_iterator
 	{
 		return m_params.cend();
 	}

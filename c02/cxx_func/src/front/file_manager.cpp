@@ -18,7 +18,7 @@ FileManager::~FileManager()
 
 auto FileManager::read_file(std::string_view file_name) -> std::expected<FILE*, std::string>
 {
-	if (file_name.empty())
+	if (file_name.empty() || file_name == "-")
 		return stdin;
 	auto handle = std::fopen(file_name.data(), "r");
 	if (handle == nullptr)

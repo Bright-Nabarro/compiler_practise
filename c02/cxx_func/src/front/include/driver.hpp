@@ -27,6 +27,8 @@ public:
 	{ m_ast = std::move(ast); }
 	auto get_ast() const -> const CompUnit&
 	{ return *m_ast; }
+	auto get_ast_ptr() -> CompUnit*
+	{ return m_ast.get(); }
 
 	//设置是否输出debug调用栈
 	void set_trace(bool debug_trace)
