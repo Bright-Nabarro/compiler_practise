@@ -1,5 +1,4 @@
 #pragma once
-#include <string_view>
 #include <string>
 #include <variant>
 #include <memory>
@@ -14,7 +13,10 @@ class ASTVisitor
 {
 public:
 	virtual
-	void visit(BaseAST*) = 0;
+	~ASTVisitor() = default;
+
+	virtual
+	auto visit(BaseAST*) -> bool = 0;
 };
 
 /// 使用llvm-rtti进行动态转换

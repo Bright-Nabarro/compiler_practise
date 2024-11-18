@@ -5,8 +5,12 @@ set(trg ${CMAKE_PROJECT_NAME})
 AddLLVMTrgExe(${trg} ${src})
 ChgExeOutputDir(${trg})
 
-target_link_libraries(${trg} PUBLIC
-	front
+target_link_libraries(${trg} PRIVATE
+	front easylog
+)
+
+target_include_directories(${trg} PRIVATE
+	"include"
 )
 
 #include(Doxygen)

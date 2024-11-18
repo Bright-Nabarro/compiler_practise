@@ -30,7 +30,7 @@ target_include_directories(front PUBLIC
 
 include(Doxygen)
 Doxygen("${CMAKE_SOURCE_DIR}/docs"
-	"." ${flex_output} ${bison_output} ${output_header}
+	"." "include" ${flex_output} ${bison_output} ${output_header}
 	"${CMAKE_CURRENT_BINARY_DIR}/location.hh"
 )
 

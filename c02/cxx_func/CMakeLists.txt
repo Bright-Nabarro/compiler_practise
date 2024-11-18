@@ -5,8 +5,8 @@ option(DEBUG_MODE ON)
 option(ENABLE_TEST OFF)
 
 # llvm项目使用clang作为编译器
-set(CMAKE_C_COMPILER clang)
-set(CMAKE_CXX_COMPILER clang++)
+set(CMAKE_C_COMPILER /usr/bin/clang)
+set(CMAKE_CXX_COMPILER /usr/bin/clang++)
 
 execute_process(
     COMMAND ${CMAKE_CXX_COMPILER} --version
@@ -40,6 +40,19 @@ add_compile_options(
 find_package(LLVM REQUIRED CONFIG)
 message(STATUS "LLVM version: ${LLVM_PACKAGE_VERSION}")
 
+include(FetchContent)
+FetchContent_Declare(yq_easylog
+	GIT_REPOSITORY https://github.com/Bright-Nabarro/easylog.git
+	GIT_TAG fix_fetch_content
+)
+FetchContent_MakeAvailable(yq_easylog)
+
+get_target_property(easylog_type easylog TYPE)
+message(STATUS "easylog type: ${easylog_type}")
+
+#[[
+# 	正式构建程序
+#]]
 add_subdirectory("src")
 
 if (ENABLE_TEST)
