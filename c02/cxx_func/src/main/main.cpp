@@ -37,11 +37,14 @@ auto main(int argc, char* argv[]) -> int
 	llvm::cl::ParseCommandLineOptions(argc, argv,
 									  "Simple LLVM CommandLine Example\n");
 	tinyc::Driver driver;
+	//driver.set_trace(true);
 	auto file = input_file.getValue();
 	driver.parse(file);
 	
 	tinyc::GeneralVisitor visitor;
-	visitor.visit(driver.get_ast_ptr());
+	bool ret = visitor.visit(driver.get_ast_ptr());
+	if (!ret)
+		return 1;
 
 	return 0;
 }

@@ -9,7 +9,7 @@
 %option noyywrap nounput noinput batch debug
 
 blank	 		[ \t\r]+
-LineComment		\/\/[^\n]\n
+LineComment		\/\/[^\n]*\n
 Ident			[a-zA-Z_][0-9a-zA-Z_]*
 Number			[0-9]+
 
@@ -42,7 +42,15 @@ Number			[0-9]+
 {Number}		{
 					return yy::parser::make_INT_LITERAL(std::atoi(yytext), loc);
 				}
+"("				return yy::parser::make_DELIM_LPAREN(loc);				
+")"				return yy::parser::make_DELIM_RPAREN(loc);
+"{"				return yy::parser::make_DELIM_LBRACE(loc);				
+"}"				return yy::parser::make_DELIM_RBRACE(loc);				
+","				return yy::parser::make_DELIM_COMMA(loc);				
+";"				return yy::parser::make_DELIM_SEMICOLON(loc);				
+
 .				return yy::parser::make_YYerror(loc);
+				
 <<EOF>>			return yy::parser::make_YYEOF(loc);
 
 %%

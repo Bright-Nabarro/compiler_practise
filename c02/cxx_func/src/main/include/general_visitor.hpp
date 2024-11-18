@@ -1,5 +1,7 @@
 #pragma once
 
+#include <llvm/IR/Module.h>
+#include <llvm/IR/IRBuilder.h>
 #include <easylog.hpp>
 #include "ast.hpp"
 
@@ -28,6 +30,8 @@ private:
 private:
 	yq::logger<yq::log_level::error> m_error_log;
 	yq::logger<yq::log_level::debug> m_debug_log;
+	llvm::Module* m_module;
+	llvm::IRBuilder<> m_builder;
 	
 };
 

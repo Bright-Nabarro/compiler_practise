@@ -17,7 +17,8 @@ auto GeneralVisitor::visit(BaseAST* ast) -> bool
 {
 	if (ast == nullptr)
 	{
-		//m_error_log(yq::loc(), "
+		m_error_log(yq::loc(), "visit paramater is null");
+		return false;
 	}
 
 	auto comp_unit_ptr = llvm::dyn_cast<CompUnit>(ast);
