@@ -118,10 +118,10 @@ Param :
 
 Type        
 	: KW_INT {
-		$$ = std::make_unique<tinyc::Type>(tinyc::Type::ast_int);
+		$$ = std::make_unique<tinyc::Type>(tinyc::Type::ty_int);
 	}
 	| KW_VOID {
-		$$ = std::make_unique<tinyc::Type>(tinyc::Type::ast_void);
+		$$ = std::make_unique<tinyc::Type>(tinyc::Type::ty_void);
 	};
 
 Block

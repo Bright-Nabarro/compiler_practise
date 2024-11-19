@@ -5,13 +5,17 @@
 namespace tinyc
 {
 
-GeneralVisitor::GeneralVisitor():
+GeneralVisitor::GeneralVisitor(llvm::LLVMContext& context):
 	m_error_log {},
-	m_debug_log {}
+	m_debug_log {},
+	m_llvm_context { context },
+	m_module { std::make_shared<llvm::Module>("tinyc.expr", m_llvm_context) },
+	m_builder { m_module->getContext() },
+	m_void_ty { llvm::Type::getVoidTy(m_module->getContext()) },
+	m_int32_ty { llvm::Type::getInt32Ty(m_module->getContext()) }
 {
 	m_error_log.set_enable_flush(true);
 }
-
 
 auto GeneralVisitor::visit(BaseAST* ast) -> bool
 {
@@ -42,30 +46,53 @@ void GeneralVisitor::handle(const CompUnit& node)
 void GeneralVisitor::handle(const FuncDef& node)
 {
 	m_debug_log("FuncDef:");
-	handle(node.get_type());
-	handle(node.get_ident());
-	handle(node.get_paramlist());
+	auto return_type = handle(node.get_type());
+	auto func_name = handle(node.get_ident());
+	auto param_types = handle(node.get_paramlist());
 	handle(node.get_block());
+
+	auto func_type = llvm::FunctionType::get(return_type, param_types, false);
+	auto func =
+		llvm::Function::Create(func_type, llvm::GlobalValue::ExternalLinkage,
+							   func_name, m_module.get());
+
 }
 
-void GeneralVisitor::handle(const Type& node)
+auto GeneralVisitor::handle(const Type& node) -> llvm::Type*
 {
 	m_debug_log("Type: {}", node.get_type_str());
+	switch(node.get_type())
+	{
+	case tinyc::Type::ty_int:
+		return m_int32_ty;
+	case tinyc::Type::ty_void:
+		return m_void_ty;
+	default:
+		yq::fatal(yq::loc(), "Unkown TypeEnum int tinyc::Type when handling "
+				 "tinyc::Type to llvm::Type*");
+		return nullptr;
+	}
 }
 
-void GeneralVisitor::handle(const Ident& node)
+auto GeneralVisitor::handle(const Ident& node) -> std::string
 {
 	m_debug_log("Ident: {}", node.get_value());
+	return node.get_value();
 }
 
-void GeneralVisitor::handle(const ParamList& node)
+auto GeneralVisitor::handle(const ParamList& node) -> std::vector<llvm::Type*>
 {
 	m_debug_log("ParamList: ");
+	std::vector<llvm::Type*> type_list;
+	type_list.reserve(node.get_params().size());
+
 	for (const auto& param : node)
 	{
 		assert(param != nullptr);
-		handle(*param);
+		type_list.push_back(handle(*param));
 	}
+
+	return type_list;
 }
 
 void GeneralVisitor::handle(const Block& node)
@@ -98,11 +125,13 @@ void GeneralVisitor::handle(const Number& node)
 	m_debug_log("Number: {}", node.get_int_literal());
 }
 
-void GeneralVisitor::handle(const Param& node)
+auto GeneralVisitor::handle(const Param& node) -> llvm::Type*
 {
 	m_debug_log("Param: ");
-	handle(node.get_type());
+	auto type = handle(node.get_type());
 	handle(node.get_ident());
+
+	return type;
 }
 
 }	//namespace tinyc

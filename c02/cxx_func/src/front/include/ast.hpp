@@ -209,8 +209,8 @@ class Type : public BaseAST
 public:
 	enum TypeEnum
 	{
-		ast_int,
-		ast_void
+		ty_int,
+		ty_void
 	};
 
 	Type(TypeEnum type): BaseAST { ast_type }, m_type { type }
@@ -225,9 +225,9 @@ public:
 	{
 		switch(get_type())
 		{
-		case ast_int:
+		case ty_int:
 			return "int";
-		case ast_void:
+		case ty_void:
 			return "void";
 		default:
 			return "unkown";
