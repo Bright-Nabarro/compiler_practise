@@ -128,7 +128,9 @@ Block
 	: "{" Stmt "}"{
 		assert_same_ptr(tinyc::Stmt, $2);
 		//这里暂时只匹配单个表达式
-		$$ = std::make_unique<tinyc::Block>();
+		auto block_ptr = std::make_unique<tinyc::Block>();
+		block_ptr->add_stmt(std::move($2));
+		$$ = std::move(block_ptr);
 	};
 
 Stmt
