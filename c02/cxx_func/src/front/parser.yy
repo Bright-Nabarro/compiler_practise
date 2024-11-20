@@ -14,7 +14,7 @@
 namespace tinyc { class Driver; }
 }
 
-%param { tinyc::Driver& drive }
+%param { tinyc::Driver& driver }
 
 %locations	//生成location定位
 %define api.filename.type { std::string_view }
@@ -36,6 +36,13 @@ namespace tinyc { class Driver; }
 %token KW_INT KW_VOID KW_RETURN
 %token <std::string> IDENT
 %token <int> INT_LITERAL
+// 字面量标识分隔符
+%token DELIM_LPAREN "("
+%token DELIM_RPAREN ")"
+%token DELIM_LBRACE "{"
+%token DELIM_RBRACE "}"
+%token DELIM_COMMA ","
+%token DELIM_SEMICOLON ";"
 
 %nterm <std::unique_ptr<tinyc::Number>> Number
 %nterm <std::unique_ptr<tinyc::Ident>> Ident
@@ -59,11 +66,12 @@ CompUnit:
 		//llvm::isa足够智能，能够区分裸指针和智能指针的情况
 		assert_same_ptr(tinyc::FuncDef, $1);
 		auto comp_unit_ptr = std::make_unique<tinyc::CompUnit>(std::move($1));
+		driver.set_ast(std::move(comp_unit_ptr));
 	};
 
 FuncDef :
 //   1	   2 	3      4   	  5   6
-	Type Ident '(' ParamList ')' Block
+	Type Ident "(" ParamList ")" Block
 	{
 		assert_same_ptr(tinyc::Type,$1);
 		assert_same_ptr(tinyc::Ident, $2);
@@ -89,7 +97,7 @@ ParamList :
 		param_list_ptr->add_param(std::move($1));
 		$$ = std::move(param_list_ptr);
 	}
-	| ParamList ',' Param
+	| ParamList "," Param
 	{
 		assert_same_ptr(tinyc::ParamList, $1);
 		assert_same_ptr(tinyc::Param, $3);
@@ -110,21 +118,23 @@ Param :
 
 Type        
 	: KW_INT {
-		$$ = std::make_unique<tinyc::Type>(tinyc::Type::ast_int);
+		$$ = std::make_unique<tinyc::Type>(tinyc::Type::ty_int);
 	}
 	| KW_VOID {
-		$$ = std::make_unique<tinyc::Type>(tinyc::Type::ast_void);
+		$$ = std::make_unique<tinyc::Type>(tinyc::Type::ty_void);
 	};
 
 Block
-	: '{' Stmt '}'{
+	: "{" Stmt "}"{
 		assert_same_ptr(tinyc::Stmt, $2);
 		//这里暂时只匹配单个表达式
-		$$ = std::make_unique<tinyc::Block>();
+		auto block_ptr = std::make_unique<tinyc::Block>();
+		block_ptr->add_stmt(std::move($2));
+		$$ = std::move(block_ptr);
 	};
 
 Stmt
-	: KW_RETURN Expr ';' {
+	: KW_RETURN Expr ";" {
 		assert_same_ptr(tinyc::Expr, $2);
 		auto stmt_ptr = std::make_unique<tinyc::Stmt>(std::move($2));
 		$$ = std::move(stmt_ptr);
