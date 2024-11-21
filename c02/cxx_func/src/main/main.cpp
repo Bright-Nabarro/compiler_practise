@@ -44,6 +44,12 @@ static llvm::cl::opt<std::string> mtriple {
 	llvm::cl::desc("Override target triple for module")
 };
 
+static llvm::cl::opt<bool> trace_debug {
+	"trace_debug",
+	llvm::cl::desc("Enable bison status shift output"),
+	llvm::cl::init(false)
+};
+
 auto create_target_machine() -> llvm::TargetMachine*
 {
 	//三元组包括: 架构, 供应商, 操作系统环境
@@ -83,7 +89,6 @@ auto main(int argc, char* argv[]) -> int
 {
 	// 初始化LLVM的目标支持组件
 	llvm::InitLLVM X(argc, argv);
-    llvm::InitializeAllTargetInfos();
 	llvm::InitializeAllTargets();
 	llvm::InitializeAllTargetMCs();
 	llvm::InitializeAllAsmPrinters();
@@ -99,9 +104,10 @@ auto main(int argc, char* argv[]) -> int
 
 	llvm::LLVMContext ctx;
 	tinyc::Driver driver;
-	//driver.set_trace(true);
+	driver.set_trace(trace_debug);
 	auto file = input_file.getValue();
-	driver.parse(file);
+	if (!driver.parse(file))
+		return 1;
 	
 	tinyc::GeneralVisitor visitor(ctx, emit_llvm, output_file, tm);
 	bool ret = visitor.visit(driver.get_ast_ptr());
