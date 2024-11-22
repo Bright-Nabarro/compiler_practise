@@ -6,6 +6,8 @@
 namespace tinyc
 {
 
+
+
 Driver::Driver():
 	m_file_manager { std::make_shared<FileManager>() },
 	m_ast { nullptr },
@@ -30,7 +32,17 @@ auto Driver::parse(std::string_view file_name) -> bool
 
 	m_file_manager->close_file(handle.value());
 
-	return parse_ret == 0;
+	if (parse_ret != 0)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void report_error(yy::parser::location_type loc, const std::string& msg)
+{
+	std::cerr<<loc<<": "<<msg.data()<<std::endl;
 }
 
 }	//namespace tinyc

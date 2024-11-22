@@ -1,6 +1,7 @@
 int main()
 {
 	// 一条注释
-	indfidsf
+	/* sdfsfs */
+	int
 	return 0;
 }

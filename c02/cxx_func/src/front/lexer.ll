@@ -4,6 +4,12 @@
 #include <cstdlib>
 #include "driver.hpp"
 #include "bison_parser.hpp"
+
+//namespace tinyc
+//{
+//	void report_error(const yy::parser::location_type& loc, std::string_view msg);
+//};
+
 %}
 
 %option noyywrap nounput noinput batch debug
@@ -49,7 +55,11 @@ Number			[0-9]+
 ","				return yy::parser::make_DELIM_COMMA(loc);				
 ";"				return yy::parser::make_DELIM_SEMICOLON(loc);				
 
-.				return yy::parser::make_YYerror(loc);
+.				{
+					tinyc::report_error(loc, "flex error");
+
+					return yy::parser::make_YYerror(loc);
+				}
 				
 <<EOF>>			return yy::parser::make_YYEOF(loc);
 
