@@ -1,6 +1,7 @@
 %skeleton "lalr1.cc"	// use LALR-1, C++ language
 %require "3.8.2"
 %header
+%define api.token.raw  			// 禁止在文法推导中使用字符字面量 
 %define api.token.constructor 	// 将symbol作为一个类型
 %define api.value.type variant 	// 使用variant代替union
 
@@ -10,6 +11,7 @@
 #include <string_view>
 #include <iostream>
 #include "ast.hpp"
+#include "location_range.hpp"
 //前向声明
 namespace tinyc { class Driver; }
 }
@@ -17,7 +19,8 @@ namespace tinyc { class Driver; }
 %param { tinyc::Driver& driver }
 
 %locations	//生成location定位
-%define api.filename.type { std::string_view }
+%define api.location.type { tinyc::LocationRange }	//使用自定义location类型
+//%define api.filename.type { std::string_view }
 %define parse.trace
 %define parse.error detailed
 %define parse.lac full	//启用lac前瞻
@@ -54,7 +57,6 @@ namespace tinyc { class Driver; }
 %nterm <std::unique_ptr<tinyc::ParamList>> ParamList
 %nterm <std::unique_ptr<tinyc::FuncDef>> FuncDef
 %nterm <std::unique_ptr<tinyc::CompUnit>> CompUnit
-
 
 %%
 
@@ -169,7 +171,8 @@ namespace yy
 
 void parser::error(const location_type& loc, const std::string& m)
 {
-	std::cerr<<loc<<": "<<m<<std::endl;
+	loc.report(this->driver.get_src_mgr(),
+		llvm::SourceMgr::DK_Error, m);
 }
 
 }	//namespace yy

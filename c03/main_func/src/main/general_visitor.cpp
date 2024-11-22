@@ -15,8 +15,6 @@ namespace tinyc
 
 GeneralVisitor::GeneralVisitor(llvm::LLVMContext& context, bool emit_llvm,
 				   std::string_view output_file, llvm::TargetMachine* tm):
-	m_error_log {},
-	m_debug_log {},
 	m_module { std::make_shared<llvm::Module>("tinyc.expr", context) },
 	m_builder { m_module->getContext() },
 	m_void_ty { llvm::Type::getVoidTy(m_module->getContext()) },
@@ -25,14 +23,13 @@ GeneralVisitor::GeneralVisitor(llvm::LLVMContext& context, bool emit_llvm,
 	m_output_file { output_file },
 	m_target_machine { tm }
 {
-	m_error_log.set_enable_flush(true);
 }
 
 auto GeneralVisitor::visit(BaseAST* ast) -> bool
 {
 	if (ast == nullptr)
 	{
-		m_error_log(yq::loc(), "visit paramater is null");
+		yq::error(yq::loc(), "visit paramater is null");
 		return false;
 	}
 
@@ -40,7 +37,7 @@ auto GeneralVisitor::visit(BaseAST* ast) -> bool
 
 	if (comp_unit_ptr == nullptr)
 	{
-		m_error_log(yq::loc(), "output visitor paramater should be a CompUnit");
+		yq::error(yq::loc(), "output visitor paramater should be a CompUnit");
 		return false;
 	}
 	
@@ -74,7 +71,7 @@ auto GeneralVisitor::emit() -> bool
 	llvm::raw_fd_ostream os{output_file_name, ec, open_flags };
 	if (ec)
 	{
-		m_error_log ("Could not open file {}: {}", m_output_file.data(), ec.message());
+		yq::error("Could not open file {}: {}", m_output_file.data(), ec.message());
 		return false;
 	}
 
@@ -90,7 +87,7 @@ auto GeneralVisitor::emit() -> bool
 	{
 		if (m_target_machine->addPassesToEmitFile(pm, os, nullptr, file_type))
 		{
-			m_error_log(yq::loc(), "No support for file type");
+			yq::error(yq::loc(), "No support for file type");
 			return false;
 		}
 		//llvm::WriteBitcodeToFile(*m_module, os);
@@ -102,13 +99,13 @@ auto GeneralVisitor::emit() -> bool
 
 void GeneralVisitor::handle(const CompUnit& node)
 {
-	m_debug_log("CompUnit:");
+	yq::debug("CompUnit:");
 	handle(node.get_func_def());
 }
 
 void GeneralVisitor::handle(const FuncDef& node)
 {
-	m_debug_log("FuncDef:");
+	yq::debug("FuncDef:");
 	auto return_type = handle(node.get_type());
 	auto func_name = handle(node.get_ident());
 	auto param_types = handle(node.get_paramlist());
@@ -125,7 +122,7 @@ void GeneralVisitor::handle(const FuncDef& node)
 
 auto GeneralVisitor::handle(const Type& node) -> llvm::Type*
 {
-	m_debug_log("Type: {}", node.get_type_str());
+	yq::debug("Type: {}", node.get_type_str());
 	switch(node.get_type())
 	{
 	case tinyc::Type::ty_int:
@@ -141,13 +138,13 @@ auto GeneralVisitor::handle(const Type& node) -> llvm::Type*
 
 auto GeneralVisitor::handle(const Ident& node) -> std::string
 {
-	m_debug_log("Ident: {}", node.get_value());
+	yq::debug("Ident: {}", node.get_value());
 	return node.get_value();
 }
 
 auto GeneralVisitor::handle(const ParamList& node) -> std::vector<llvm::Type*>
 {
-	m_debug_log("ParamList: ");
+	yq::debug("ParamList: ");
 	std::vector<llvm::Type*> type_list;
 	type_list.reserve(node.get_params().size());
 
@@ -163,7 +160,7 @@ auto GeneralVisitor::handle(const ParamList& node) -> std::vector<llvm::Type*>
 auto GeneralVisitor::handle(const Block& node, llvm::Function* func,
 							std::string_view block_name) -> llvm::BasicBlock*
 {
-	m_debug_log("Block: ");
+	yq::debug("Block: ");
 
 	auto basic_block =
 		llvm::BasicBlock::Create(m_module->getContext(), block_name.data(), func);
@@ -180,7 +177,7 @@ auto GeneralVisitor::handle(const Block& node, llvm::Function* func,
 
 void GeneralVisitor::handle(const Stmt& node)
 {
-	m_debug_log("Stmt:");
+	yq::debug("Stmt:");
 	auto value = handle(node.get_expr());
 	assert(value != nullptr);
 	
@@ -189,7 +186,7 @@ void GeneralVisitor::handle(const Stmt& node)
 
 auto GeneralVisitor::handle(const Expr& node) -> llvm::Value*
 {
-	m_debug_log("Expr:");
+	yq::debug("Expr:");
 	if (node.has_number())
 	{
 		auto const_int = handle(node.get_number());
@@ -205,22 +202,17 @@ auto GeneralVisitor::handle(const Expr& node) -> llvm::Value*
 
 auto GeneralVisitor::handle(const Number& node) -> int
 {
-	m_debug_log("Number: {}", node.get_int_literal());
+	yq::debug("Number: {}", node.get_int_literal());
 	return node.get_int_literal();
 }
 
 auto GeneralVisitor::handle(const Param& node) -> llvm::Type*
 {
-	m_debug_log("Param: ");
+	yq::debug("Param: ");
 	auto type = handle(node.get_type());
 	handle(node.get_ident());
 
 	return type;
-}
-
-void GeneralVisitor::generate_objectfile()
-{
-	//llvm::leg
 }
 
 }	//namespace tinyc

@@ -43,9 +43,16 @@ auto main(int argc, char* argv[]) -> int
 	unsigned bufferid = source_mgr.AddNewSourceBuffer(std::move(*buffer_or_error), llvm::SMLoc());
 	const char* buffer_start = source_mgr.getMemoryBuffer(bufferid)->getBufferStart();
 
-	llvm::SMLoc error_location = llvm::SMLoc::getFromPointer(buffer_start);
+	llvm::SMLoc error_start = llvm::SMLoc::getFromPointer(buffer_start);
+	llvm::SMLoc error_end = llvm::SMLoc::getFromPointer(buffer_start + 5);
+	llvm::SMRange range { error_start, error_end };
 
-	source_mgr.PrintMessage(error_location, llvm::SourceMgr::DK_Error, "hello error");
+	std::string str_buf;
+	llvm::raw_string_ostream os { str_buf }; 
+
+	source_mgr.PrintMessage(os, error_start, llvm::SourceMgr::DK_Error, "hello error", range);
+	std::println("{}", str_buf);
+	//source_mgr.PrintMessage(error_start, llvm::SourceMgr::DK_Error, "hello error");
 
 	return 0;
 }
