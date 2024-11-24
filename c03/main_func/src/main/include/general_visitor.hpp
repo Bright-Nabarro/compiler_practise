@@ -33,14 +33,17 @@ private:
 	void handle(const CompUnit& node);
 	void handle(const FuncDef& node);
 	auto handle(const Type& node) -> llvm::Type*;
-	auto handle(const Ident& node) -> std::string;
+	auto handle(const Ident& node) -> llvm::Value*;
 	auto handle(const ParamList& node) -> std::vector<llvm::Type*>;
 	auto handle(const Block& node, llvm::Function* func,
 				std::string_view block_name) -> llvm::BasicBlock*;
 	auto handle(const Param& node) -> llvm::Type*;
 	void handle(const Stmt& node);
 	auto handle(const Expr& expr) -> llvm::Value*;
-	auto handle(const Number& num) -> int;
+	auto handle(const PrimaryExpr& node) -> llvm::Value*;
+	auto handle(const UnaryExpr& node) -> llvm::Value*;
+	void handle(const UnaryOp& op);
+	auto handle(const Number& num) -> llvm::Value*;
 
 
 private:

@@ -53,7 +53,9 @@ Number			[0-9]+
 "}"				{ LOC_UPDATE_RET_ACTION(loc, yy::parser::make_DELIM_RBRACE(loc)); }
 ","				{ LOC_UPDATE_RET_ACTION(loc, yy::parser::make_DELIM_COMMA(loc));	}
 ";"				{ LOC_UPDATE_RET_ACTION(loc, yy::parser::make_DELIM_SEMICOLON(loc)); }
-
+"+"				LOC_UPDATE_RET_ACTION(loc, yy::parser::make_OP_ADD(loc);
+"-" 			LOC_UPDATE_RET_ACTION(loc, yy::parser::make_OP_SUB(loc);
+"!" 			LOC_UPDATE_RET_ACTION(loc, yy::parser::make_OP_NOT(loc);
 .				{
 					driver.get_parser().error(loc, "expect token");
 					return yy::parser::make_YYerror(loc);

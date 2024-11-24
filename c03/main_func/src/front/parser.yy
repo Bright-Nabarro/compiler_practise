@@ -46,6 +46,10 @@ namespace tinyc { class Driver; }
 %token DELIM_RBRACE "}"
 %token DELIM_COMMA ","
 %token DELIM_SEMICOLON ";"
+// 操作符
+%token OP_ADD "+"
+%token OP_SUB "-"
+%token OP_NOT "!"
 
 %nterm <std::unique_ptr<tinyc::Number>> Number
 %nterm <std::unique_ptr<tinyc::Ident>> Ident
@@ -57,6 +61,9 @@ namespace tinyc { class Driver; }
 %nterm <std::unique_ptr<tinyc::ParamList>> ParamList
 %nterm <std::unique_ptr<tinyc::FuncDef>> FuncDef
 %nterm <std::unique_ptr<tinyc::CompUnit>> CompUnit
+%nterm <std::unique_ptr<tinyc::UnaryExpr>> UnaryExpr
+%nterm <std::unique_ptr<tinyc::UnaryOp>> UnaryOp
+%nterm <std::unique_ptr<tinyc::PrimaryExpr>> PrimaryExpr
 
 %%
 
@@ -143,15 +150,45 @@ Stmt
 	};
 
 Expr
-	: Number {
+	: UnaryExpr {
+		assert_same_ptr(tinyc::UnaryExpr, $1);
+		$$ = std::make_unique<tinyc::Expr>(std::move($1));
+	};
+
+PrimaryExpr
+	: "(" Expr ")" {
+		assert_same_ptr(tinyc::Expr, $1);
+		$$ = std::make_unique<tinyc::PrimaryExpr>(std::move($1));
+	}
+	| Number {
 		assert_same_ptr(tinyc::Number, $1);
-		auto expr_ptr = std::make_unique<tinyc::Expr>(std::move($1));
-		$$ = std::move(expr_ptr);
+		$$ = std::make_unique<tinyc::PrimaryExpr>(std::move($1));
 	}
 	| Ident {
 		assert_same_ptr(tinyc::Ident, $1);
-		auto expr_ptr = std::make_unique<tinyc::Expr>(std::move($1));
-		$$ = std::move(expr_ptr);
+		$$ = std::make_unique<tinyc::PrimaryExpr>(std::move($1));
+	};
+
+UnaryExpr
+	: PrimaryExpr {
+		assert_same_ptr(tinyc::PrimaryExpr, $1);
+		$$ = std::make_unique<tinyc::UnaryExpr>(std::move($1));
+	}
+	| UnaryOp UnaryExpr {
+		assert_same_ptr(tinyc::UnaryOp, $1);
+		assert_same_ptr(tinyc::UnaryExpr, $2);
+		$$ = std::make_unique<tinyc::UnaryOp>(std::move($1), std::move($2));
+	};
+
+UnaryOp
+	: "+" {
+		$$ = std::make_unique<tinyc::UnaryOp>(tinyc::UnaryOp::op_add);
+	}
+	| "-" {
+		$$ = std::make_unique<tinyc::UnaryOp>(tinyc::UnaryOp::op_sub);
+	} 
+	| "!" {
+		$$ = std::make_unique<tinyc::UnaryOp>(tinyc::UnaryOp::op_not);
 	};
 
 Number

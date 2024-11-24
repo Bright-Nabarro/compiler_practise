@@ -99,13 +99,14 @@ auto GeneralVisitor::emit() -> bool
 
 void GeneralVisitor::handle(const CompUnit& node)
 {
-	yq::debug("CompUnit:");
+	yq::debug("CompUnitBegin:");
 	handle(node.get_func_def());
+	yq::debug("CompUnitEnd");
 }
 
 void GeneralVisitor::handle(const FuncDef& node)
 {
-	yq::debug("FuncDef:");
+	yq::debug("FuncDefBegin:");
 	auto return_type = handle(node.get_type());
 	auto func_name = handle(node.get_ident());
 	auto param_types = handle(node.get_paramlist());
@@ -117,34 +118,41 @@ void GeneralVisitor::handle(const FuncDef& node)
 							   func_name, m_module.get());
 	handle(node.get_block(), func, "entry");
 
-	
+	yq::debug("FuncDefEnd");
 }
 
 auto GeneralVisitor::handle(const Type& node) -> llvm::Type*
 {
-	yq::debug("Type: {}", node.get_type_str());
+	yq::debug("Type[{}]Begin: ", node.get_type_str());
+	llvm::Type* ret;
 	switch(node.get_type())
 	{
 	case tinyc::Type::ty_int:
-		return m_int32_ty;
+		ret = m_int32_ty;
 	case tinyc::Type::ty_void:
-		return m_void_ty;
+		ret = m_void_ty;
 	default:
 		yq::fatal(yq::loc(), "Unkown TypeEnum int tinyc::Type when handling "
 				 "tinyc::Type to llvm::Type*");
-		return nullptr;
+		ret = nullptr;
 	}
+	yq::debug("Type[{}]End", node.get_type_str());
+	
+	return ret;
 }
 
-auto GeneralVisitor::handle(const Ident& node) -> std::string
+auto GeneralVisitor::handle(const Ident& node) -> llvm::Value*
 {
-	yq::debug("Ident: {}", node.get_value());
-	return node.get_value();
+	yq::debug("Ident[{}]Begin:", node.get_value());
+	auto ret = nullptr;
+	yq::debug("Ident[{}]End:", node.get_value());
+
+	return ret;
 }
 
 auto GeneralVisitor::handle(const ParamList& node) -> std::vector<llvm::Type*>
 {
-	yq::debug("ParamList: ");
+	yq::debug("ParamListBegin: ");
 	std::vector<llvm::Type*> type_list;
 	type_list.reserve(node.get_params().size());
 
@@ -154,13 +162,15 @@ auto GeneralVisitor::handle(const ParamList& node) -> std::vector<llvm::Type*>
 		type_list.push_back(handle(*param));
 	}
 
+	yq::debug("ParamListEnd");
+
 	return type_list;
 }
 
 auto GeneralVisitor::handle(const Block& node, llvm::Function* func,
 							std::string_view block_name) -> llvm::BasicBlock*
 {
-	yq::debug("Block: ");
+	yq::debug("BlockBegin: ");
 
 	auto basic_block =
 		llvm::BasicBlock::Create(m_module->getContext(), block_name.data(), func);
@@ -171,46 +181,63 @@ auto GeneralVisitor::handle(const Block& node, llvm::Function* func,
 		assert(stmt != nullptr);
 		handle(*stmt);
 	}
+	yq::debug("BlockEnd");
 
 	return basic_block;
 }
 
 void GeneralVisitor::handle(const Stmt& node)
 {
-	yq::debug("Stmt:");
+	yq::debug("StmtBegin:");
 	auto value = handle(node.get_expr());
 	assert(value != nullptr);
 	
 	m_builder.CreateRet(value);
+	yq::debug("StmtEnd");
 }
 
 auto GeneralVisitor::handle(const Expr& node) -> llvm::Value*
 {
-	yq::debug("Expr:");
-	if (node.has_number())
-	{
-		auto const_int = handle(node.get_number());
-		return llvm::ConstantInt::get(m_module->getContext(), llvm::APInt(32, const_int));
-	}
-	else if (node.has_ident())
-	{
-		handle(node.get_ident());
-	}
+	yq::debug("ExprBegin:");
+	auto ret = handle(node.get_unary_expr());
+	yq::debug("ExprEnd");
 
-	return nullptr;
+	return ret;
 }
 
-auto GeneralVisitor::handle(const Number& node) -> int
+auto GeneralVisitor::handle(const PrimaryExpr& node) -> llvm::Value*
 {
-	yq::debug("Number: {}", node.get_int_literal());
-	return node.get_int_literal();
+	yq::debug("PrimaryExprBegin: ");
+
+	auto func = [this](auto& v) {
+		auto ret = this->handle(v);
+		static_assert(std::is_same_v<std::decay_t<decltype(ret)>, llvm::Value*>);
+		return ret;
+	};
+
+	node.visit(func);
+
+	yq::debug("PrimaryExprEnd");
+}
+
+auto GeneralVisitor::handle(const UnaryExpr& node) -> llvm::Value*
+{
+}
+
+auto GeneralVisitor::handle(const Number& node) -> llvm::Value*
+{
+	yq::debug("Number[{}] Begin: ", node.get_int_literal());
+	yq::debug("Number End");
+
+	//return node.get_int_literal();
 }
 
 auto GeneralVisitor::handle(const Param& node) -> llvm::Type*
 {
-	yq::debug("Param: ");
+	yq::debug("ParamBegin: ");
 	auto type = handle(node.get_type());
 	handle(node.get_ident());
+	yq::debug("ParamEnd");
 
 	return type;
 }

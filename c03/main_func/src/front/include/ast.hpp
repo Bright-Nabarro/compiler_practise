@@ -3,6 +3,10 @@
 #include <variant>
 #include <memory>
 #include <vector>
+#include <cassert>
+#include <concepts>
+#include <type_traits>
+#include "utility.hpp"
 
 namespace tinyc
 {
@@ -28,6 +32,10 @@ public:
 		ast_number,
 		ast_ident,
 		ast_expr,
+		ast_primary_expr,
+		ast_unary_expr,
+		ast_expr_end,
+		ast_unary_op,
 		ast_stmt,
 		ast_block,
 		ast_type,
@@ -103,59 +111,198 @@ private:
 };
 
 
+class UnaryExpr;
+
 /**
- * Expr ::= Number | Ident ;
- **/
+ * Expr ::= UnaryExpr;
+ */
 class Expr: public BaseAST
 {
 public:
-	using NumPtr = std::unique_ptr<Number>;
-	using IdPtr = std::unique_ptr<Ident>;
-	using Variant =
-		std::variant<NumPtr, IdPtr>;
+	FILL_CLASSOF(ast_expr)
 
-	Expr(NumPtr uptr)
-		: BaseAST{ast_expr}, m_value{std::move(uptr)}
-	{ }
+	Expr(std::unique_ptr<UnaryExpr> uptr);
+	~Expr();
+	
+	auto get_unary_expr() const -> const UnaryExpr&
+	{ return *m_value; }
 
-	Expr(IdPtr uptr)
-		: BaseAST{ast_expr}, m_value{std::move(uptr)}
-	{ }
+private:
+	std::unique_ptr<UnaryExpr> m_value;
+
+};
+
+template<typename Func, typename... Args>
+concept Callable = requires(Func func, Args... args)
+{
+	func(args...);
+};
+
+/**
+ * PrimaryExpr  ::= "(" Expr ")" | Number | Ident;
+ */
+class PrimaryExpr: public BaseAST
+{
+public:
+	FILL_CLASSOF(ast_primary_expr);
+	using ExprPtr = std::unique_ptr<Expr>;
+	using NumberPtr = std::unique_ptr<Number>;
+	using IdentPtr = std::unique_ptr<Ident>;
+	using Variant = std::variant<ExprPtr, NumberPtr, IdentPtr>;
+
+	PrimaryExpr(ExprPtr expr_ptr):
+		BaseAST(ast_primary_expr),
+		m_value { std::move(expr_ptr) }
+	{}
+
+	PrimaryExpr(NumberPtr number_ptr):
+		BaseAST(ast_primary_expr),
+		m_value { std::move(number_ptr) }
+	{}
+
+	PrimaryExpr(IdentPtr ident_ptr):
+		BaseAST(ast_primary_expr),
+		m_value { std::move(ident_ptr) }
+	{}
+
+	[[nodiscard]]
+	auto has_expr() const -> bool
+	{
+		return std::holds_alternative<ExprPtr>(m_value);
+	}
 
 	[[nodiscard]]
 	auto has_number() const -> bool
 	{
-		return std::holds_alternative<NumPtr>(m_value);
+		 return std::holds_alternative<NumberPtr>(m_value);
 	}
 
 	[[nodiscard]]
 	auto has_ident() const -> bool
 	{
-		return std::holds_alternative<IdPtr>(m_value);
+		return std::holds_alternative<IdentPtr>(m_value);
 	}
 
-	[[nodiscard]]
-	auto get_number() const -> const Number&
+	template <typename Func>
+	auto visit(Func&& func) const //-> util::uptr_store_visit_ret_t<Func, Variant>
 	{
-		return *std::get<NumPtr>(m_value);
+		return std::visit(util::uptr_deref_func<Func, Variant>::func(
+							  std::forward<Func>(func)),
+						  m_value);
 	}
 	
-	[[nodiscard]]
-	auto get_ident() const -> const Ident&
+	auto get_expr() const -> const Expr&
 	{
-		return *std::get<IdPtr>(m_value);
+		return *std::get<ExprPtr>(m_value);
 	}
 
-	FILL_CLASSOF(ast_expr)
+	auto get_ident() const -> const Ident&
+	{
+		return *std::get<IdentPtr>(m_value);
+	}
 
+	auto get_number() const -> const Number&
+	{
+		return *std::get<NumberPtr>(m_value);
+	}
+	
 private:
 	Variant m_value;
 };
+
+
+/**
+ * UnaryOp ::= "+" | "-" | "!";
+ */
+class UnaryOp: public BaseAST
+{
+public:
+	FILL_CLASSOF(ast_unary_op);
+	enum TypeOp
+	{
+		op_add,
+		op_sub,
+		op_not,
+	};
+
+	UnaryOp(TypeOp type):
+		BaseAST { ast_unary_op }, 
+		m_type { type }
+	{}
 	
+	[[nodiscard]]
+	auto get_type() const -> TypeOp
+	{ return m_type; }
+
+private:
+	TypeOp m_type;
+};
+
+
+/**
+ * UnaryExpr ::= PrimaryExpr | UnaryOp UnaryExpr;
+ */
+class UnaryExpr: public BaseAST
+{
+public:
+	using PrmExpPtr = std::unique_ptr<PrimaryExpr>;
+	using PackPtr = std::pair<std::unique_ptr<UnaryOp>, std::unique_ptr<UnaryExpr>>;
+	using Variant = std::variant<PrmExpPtr, PackPtr>;
+
+	FILL_CLASSOF(ast_unary_expr);
+
+	UnaryExpr(PrmExpPtr primary_expr):
+		BaseAST { ast_unary_expr },
+		m_value { std::move(primary_expr) }
+	{}
+
+	UnaryExpr(std::unique_ptr<UnaryOp> unary_op,
+			std::unique_ptr<UnaryExpr> unary_expr):
+		BaseAST { ast_unary_expr }, 
+		m_value { PackPtr { std::move(unary_op), std::move(unary_expr) } }
+	{}
+
+	[[nodiscard]]
+	auto has_primary_expr() const -> bool
+	{
+		return std::holds_alternative<PrmExpPtr>(m_value);
+	}
+
+	[[nodiscard]]
+	auto has_unary_expr() const -> bool
+	{
+		return std::holds_alternative<PackPtr>(m_value);
+	}
+
+	[[nodiscard]]
+	auto get_primary_expr() const -> const PrimaryExpr&
+	{
+		assert(has_primary_expr());
+		return *std::get<PrmExpPtr>(m_value);
+	}
+
+	[[nodiscard]]
+	auto get_unary_op() const -> const UnaryOp&
+	{
+		assert(has_unary_expr());
+		return *(std::get<PackPtr>(m_value).first);
+	}
+
+	[[nodiscard]]
+	auto get_unary_expr() const -> const UnaryExpr&
+	{
+		assert(has_unary_expr());
+		return *(std::get<PackPtr>(m_value).second);
+	}
+
+private:
+	Variant m_value;
+	
+};
 
 /**
  * Stmt ::= "return" Expr ";";
- **/
+ */
 class Stmt: public BaseAST
 {
 public:
