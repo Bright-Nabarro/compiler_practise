@@ -108,10 +108,14 @@ void GeneralVisitor::handle(const FuncDef& node)
 {
 	yq::debug("FuncDefBegin:");
 	auto return_type = handle(node.get_type());
-	auto func_name = handle(node.get_ident());
+	auto func_name = handle(node.get_ident()).second;
 	auto param_types = handle(node.get_paramlist());
 
 	auto func_type = llvm::FunctionType::get(return_type, param_types, false);
+
+	//auto func =
+	//	llvm::Function::Create(func_type, llvm::GlobalValue::ExternalLinkage,
+	//						   func_name, m_module.get());
 
 	auto func =
 		llvm::Function::Create(func_type, llvm::GlobalValue::ExternalLinkage,
@@ -129,25 +133,30 @@ auto GeneralVisitor::handle(const Type& node) -> llvm::Type*
 	{
 	case tinyc::Type::ty_int:
 		ret = m_int32_ty;
+		break;
 	case tinyc::Type::ty_void:
 		ret = m_void_ty;
+		break;
 	default:
 		yq::fatal(yq::loc(), "Unkown TypeEnum int tinyc::Type when handling "
 				 "tinyc::Type to llvm::Type*");
 		ret = nullptr;
+		break;
 	}
 	yq::debug("Type[{}]End", node.get_type_str());
 	
 	return ret;
 }
 
-auto GeneralVisitor::handle(const Ident& node) -> llvm::Value*
+auto GeneralVisitor::handle(const Ident& node) -> std::pair<llvm::Value*, std::string>
 {
 	yq::debug("Ident[{}]Begin:", node.get_value());
-	auto ret = nullptr;
-	yq::debug("Ident[{}]End:", node.get_value());
+	
+	llvm::Value* value = nullptr;
+	std::string name = node.get_value();
 
-	return ret;
+	yq::debug("Ident[{}]End:", node.get_value());
+	return { value, name };
 }
 
 auto GeneralVisitor::handle(const ParamList& node) -> std::vector<llvm::Type*>
@@ -209,27 +218,113 @@ auto GeneralVisitor::handle(const PrimaryExpr& node) -> llvm::Value*
 {
 	yq::debug("PrimaryExprBegin: ");
 
-	auto func = [this](auto& v) {
-		auto ret = this->handle(v);
-		static_assert(std::is_same_v<std::decay_t<decltype(ret)>, llvm::Value*>);
-		return ret;
-	};
-
-	node.visit(func);
+	// ast 搁置了对visit的实现
+	//auto func = [this](auto& v) {
+	//	auto ret = this->handle(v);
+	//	static_assert(std::is_same_v<std::decay_t<decltype(ret)>, llvm::Value*>);
+	//	return ret;
+	//};
+	//node.visit(func);
+	
+	llvm::Value* result = nullptr;
+	if (node.has_expr())
+	{
+		result = handle(node.get_expr());	
+	}
+	else if (node.has_ident())
+	{
+		result = handle(node.get_ident()).first;
+	}
+	else if (node.has_number())
+	{
+		result = handle(node.get_number());
+	}
 
 	yq::debug("PrimaryExprEnd");
+	return result;
 }
 
 auto GeneralVisitor::handle(const UnaryExpr& node) -> llvm::Value*
 {
+	yq::debug("UnaryExpr Begin:");
+
+	llvm::Value* result = nullptr;
+	if (node.has_unary_expr())
+	{
+		result = handle(node.get_unary_expr());
+		result = handle(node.get_unary_op(), result);
+	}
+	else if (node.has_primary_expr())
+	{
+		result = handle(node.get_primary_expr());
+	}
+	else
+	{
+		assert(false && "UnaryExpr has an unkown type in its variant");
+	}
+
+	yq::debug("UnaryExpr End");
+	return result;
 }
 
 auto GeneralVisitor::handle(const Number& node) -> llvm::Value*
 {
 	yq::debug("Number[{}] Begin: ", node.get_int_literal());
-	yq::debug("Number End");
 
-	//return node.get_int_literal();
+	llvm::Value* result = llvm::ConstantInt::get(m_int32_ty, node.get_int_literal());
+
+	yq::debug("Number End");
+	return result;
+}
+
+auto GeneralVisitor::handle(const UnaryOp& op, llvm::Value* operand)
+	-> llvm::Value*
+{
+	yq::debug("UnaryOp[{}] Begin:",op.get_type_str());
+
+	llvm::Type* type = operand->getType();
+
+	llvm::Value* result = nullptr;
+
+	if (!type->isIntegerTy() && !type->isFloatingPointTy())
+	{
+		yq::error("Expected type in UnaryOp");
+		return nullptr;
+	}
+
+	switch(op.get_type())
+	{
+	case UnaryOp::op_add:
+		result = operand;
+		break;
+	case UnaryOp::op_sub:
+		if (type->isIntegerTy())
+			result = m_builder.CreateNeg(operand);
+		else 
+			result = m_builder.CreateFNeg(operand);
+		break;
+	/// not操作将操作数转换为bool类型
+	case UnaryOp::op_not: {
+		llvm::Value* zero = llvm::ConstantInt::get(type, 0);
+		llvm::Value* casted_bool = nullptr;
+		if (type->isIntegerTy())
+			casted_bool = m_builder.CreateICmpNE(operand, zero);
+		else
+			casted_bool = m_builder.CreateFCmpUNE(operand, zero);
+
+		result = m_builder.CreateNot(casted_bool);
+
+		break;
+	}
+	default:
+		yq::error("Unkown operation: {}, category: {}",
+				  static_cast<int>(op.get_type()), op.get_type_str());
+		result = nullptr;
+	}
+	
+	yq::debug("UnaryOp End");
+
+	return result;
 }
 
 auto GeneralVisitor::handle(const Param& node) -> llvm::Type*

@@ -38,24 +38,24 @@ Number			[0-9]+
 	loc.step();
 %}
 
-{blank}			{ LOC_UPDATE_NORMAL(loc); }
-{LineComment}	{ LOC_UPDATE_NORMAL(loc); }
+{blank}			LOC_UPDATE_NORMAL(loc);
+{LineComment}	LOC_UPDATE_NORMAL(loc);
 {LegacyComment} LOC_UPDATE_NORMAL(loc);
-"int"			{ LOC_UPDATE_RET_ACTION(loc, yy::parser::make_KW_INT(loc)); }
-"void"			{ LOC_UPDATE_RET_ACTION(loc, yy::parser::make_KW_VOID(loc)); }
-"return"		{ LOC_UPDATE_RET_ACTION(loc, yy::parser::make_KW_RETURN(loc)); }
+"int"			LOC_UPDATE_RET_ACTION(loc, yy::parser::make_KW_INT(loc));
+"void"			LOC_UPDATE_RET_ACTION(loc, yy::parser::make_KW_VOID(loc));
+"return"		LOC_UPDATE_RET_ACTION(loc, yy::parser::make_KW_RETURN(loc)); 
 
-{Ident}			{ LOC_UPDATE_RET_ACTION(loc, yy::parser::make_IDENT(std::string{yytext}, loc)); }
-{Number}		{ LOC_UPDATE_RET_ACTION(loc, yy::parser::make_INT_LITERAL(std::atoi(yytext), loc)); }
-"("				{ LOC_UPDATE_RET_ACTION(loc, yy::parser::make_DELIM_LPAREN(loc)); }
-")"				{ LOC_UPDATE_RET_ACTION(loc, yy::parser::make_DELIM_RPAREN(loc)); }
-"{"				{ LOC_UPDATE_RET_ACTION(loc, yy::parser::make_DELIM_LBRACE(loc)); }
-"}"				{ LOC_UPDATE_RET_ACTION(loc, yy::parser::make_DELIM_RBRACE(loc)); }
-","				{ LOC_UPDATE_RET_ACTION(loc, yy::parser::make_DELIM_COMMA(loc));	}
-";"				{ LOC_UPDATE_RET_ACTION(loc, yy::parser::make_DELIM_SEMICOLON(loc)); }
-"+"				LOC_UPDATE_RET_ACTION(loc, yy::parser::make_OP_ADD(loc);
-"-" 			LOC_UPDATE_RET_ACTION(loc, yy::parser::make_OP_SUB(loc);
-"!" 			LOC_UPDATE_RET_ACTION(loc, yy::parser::make_OP_NOT(loc);
+{Ident}			LOC_UPDATE_RET_ACTION(loc, yy::parser::make_IDENT(std::string{yytext}, loc));
+{Number}		LOC_UPDATE_RET_ACTION(loc, yy::parser::make_INT_LITERAL(std::atoi(yytext), loc));
+"("				LOC_UPDATE_RET_ACTION(loc, yy::parser::make_DELIM_LPAREN(loc));
+")"				LOC_UPDATE_RET_ACTION(loc, yy::parser::make_DELIM_RPAREN(loc));
+"{"				LOC_UPDATE_RET_ACTION(loc, yy::parser::make_DELIM_LBRACE(loc));
+"}"				LOC_UPDATE_RET_ACTION(loc, yy::parser::make_DELIM_RBRACE(loc));
+","				LOC_UPDATE_RET_ACTION(loc, yy::parser::make_DELIM_COMMA(loc));
+";"				LOC_UPDATE_RET_ACTION(loc, yy::parser::make_DELIM_SEMICOLON(loc));
+"+"				LOC_UPDATE_RET_ACTION(loc, yy::parser::make_OP_ADD(loc));
+"-" 			LOC_UPDATE_RET_ACTION(loc, yy::parser::make_OP_SUB(loc));
+"!" 			LOC_UPDATE_RET_ACTION(loc, yy::parser::make_OP_NOT(loc));
 .				{
 					driver.get_parser().error(loc, "expect token");
 					return yy::parser::make_YYerror(loc);

@@ -6,8 +6,9 @@
 #include <cassert>
 #include <concepts>
 #include <type_traits>
-#include "utility.hpp"
+//#include "utility.hpp"
 
+//
 namespace tinyc
 {
 
@@ -183,13 +184,18 @@ public:
 		return std::holds_alternative<IdentPtr>(m_value);
 	}
 
-	template <typename Func>
-	auto visit(Func&& func) const //-> util::uptr_store_visit_ret_t<Func, Variant>
-	{
-		return std::visit(util::uptr_deref_func<Func, Variant>::func(
-							  std::forward<Func>(func)),
-						  m_value);
-	}
+	// 暂时搁置对于visit的实现
+	// 需要详细了解std::invoke_result_t中对于lambda表达式和仿函数参数的区别
+	// 并且这里的Variant存储类型为unique_ptr, 这个信息需要对用户屏蔽，
+	// 让用户传入的回调函数直接处理对应类型
+	
+	//template <typename Func>
+	//auto visit(Func&& func) const -> util::nf_visit_result_t<Func, Variant>
+	//{
+	//	//return std::visit(util::uptr_deref_func<Func, Variant>::func(
+	//	//					  std::forward<Func>(func)),
+	//	//				  m_value);
+	//}
 	
 	auto get_expr() const -> const Expr&
 	{
@@ -233,6 +239,22 @@ public:
 	[[nodiscard]]
 	auto get_type() const -> TypeOp
 	{ return m_type; }
+
+	[[nodiscard]]
+	auto get_type_str() const -> const char*
+	{
+		switch(get_type())
+		{
+		case op_add:
+			return "add";
+		case op_sub:
+			return "sub";
+		case op_not:
+			return "not";
+		default:
+			return "unkown";
+		}
+	}
 
 private:
 	TypeOp m_type;

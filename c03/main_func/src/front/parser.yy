@@ -157,8 +157,8 @@ Expr
 
 PrimaryExpr
 	: "(" Expr ")" {
-		assert_same_ptr(tinyc::Expr, $1);
-		$$ = std::make_unique<tinyc::PrimaryExpr>(std::move($1));
+		assert_same_ptr(tinyc::Expr, $2);
+		$$ = std::make_unique<tinyc::PrimaryExpr>(std::move($2));
 	}
 	| Number {
 		assert_same_ptr(tinyc::Number, $1);
@@ -177,7 +177,7 @@ UnaryExpr
 	| UnaryOp UnaryExpr {
 		assert_same_ptr(tinyc::UnaryOp, $1);
 		assert_same_ptr(tinyc::UnaryExpr, $2);
-		$$ = std::make_unique<tinyc::UnaryOp>(std::move($1), std::move($2));
+		$$ = std::make_unique<tinyc::UnaryExpr>(std::move($1), std::move($2));
 	};
 
 UnaryOp
