@@ -1,7 +1,9 @@
 #pragma once
 
 #include "ast.hpp"
+#include "c_type_manager.hpp"
 #include <easylog.hpp>
+#include <memory>
 #include <expected>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/LLVMContext.h>
@@ -47,10 +49,9 @@ private:
 
 
 private:
-	std::shared_ptr<llvm::Module> m_module;
+	std::unique_ptr<llvm::Module> m_module;
 	llvm::IRBuilder<> m_builder;
-	llvm::Type* m_void_ty;
-	llvm::Type* m_int32_ty;
+	std::shared_ptr<CTypeManager> m_type_mgr;
 	
 	bool m_emit_llvm;
 	std::string_view m_output_file;

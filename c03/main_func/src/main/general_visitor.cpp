@@ -15,10 +15,9 @@ namespace tinyc
 
 GeneralVisitor::GeneralVisitor(llvm::LLVMContext& context, bool emit_llvm,
 				   std::string_view output_file, llvm::TargetMachine* tm):
-	m_module { std::make_shared<llvm::Module>("tinyc.expr", context) },
+	m_module { std::make_unique<llvm::Module>("tinyc.expr", context) },
 	m_builder { m_module->getContext() },
-	m_void_ty { llvm::Type::getVoidTy(m_module->getContext()) },
-	m_int32_ty { llvm::Type::getInt32Ty(m_module->getContext()) },
+	m_type_mgr { std::make_shared<CTypeManager>(m_module->getContext(), tm) },
 	m_emit_llvm { emit_llvm },
 	m_output_file { output_file },
 	m_target_machine { tm }
@@ -132,10 +131,10 @@ auto GeneralVisitor::handle(const Type& node) -> llvm::Type*
 	switch(node.get_type())
 	{
 	case tinyc::Type::ty_int:
-		ret = m_int32_ty;
+		ret = m_type_mgr->get_signed_int();
 		break;
 	case tinyc::Type::ty_void:
-		ret = m_void_ty;
+		ret = m_type_mgr->get_void();
 		break;
 	default:
 		yq::fatal(yq::loc(), "Unkown TypeEnum int tinyc::Type when handling "
@@ -271,7 +270,8 @@ auto GeneralVisitor::handle(const Number& node) -> llvm::Value*
 {
 	yq::debug("Number[{}] Begin: ", node.get_int_literal());
 
-	llvm::Value* result = llvm::ConstantInt::get(m_int32_ty, node.get_int_literal());
+	llvm::Value* result = llvm::ConstantInt::get(m_type_mgr->get_signed_int(),
+												 node.get_int_literal());
 
 	yq::debug("Number End");
 	return result;
@@ -303,17 +303,21 @@ auto GeneralVisitor::handle(const UnaryOp& op, llvm::Value* operand)
 		else 
 			result = m_builder.CreateFNeg(operand);
 		break;
-	/// not操作将操作数转换为bool类型
+	/// c语言not操作将操作数转换为int类型
 	case UnaryOp::op_not: {
 		llvm::Value* zero = llvm::ConstantInt::get(type, 0);
-		llvm::Value* casted_bool = nullptr;
+		llvm::Value* is_nonzero = nullptr;
 		if (type->isIntegerTy())
-			casted_bool = m_builder.CreateICmpNE(operand, zero);
+		{
+			is_nonzero = m_builder.CreateICmpNE(operand, zero);
+		}
 		else
-			casted_bool = m_builder.CreateFCmpUNE(operand, zero);
+		{
+			is_nonzero = m_builder.CreateFCmpUNE(operand, zero);
+		}
+		llvm::Value* int_value = m_builder.CreateZExt(is_nonzero, m_type_mgr->get_signed_int());
 
-		result = m_builder.CreateNot(casted_bool);
-
+		result = m_builder.CreateNot(int_value);
 		break;
 	}
 	default:
