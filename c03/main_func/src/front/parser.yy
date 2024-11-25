@@ -50,6 +50,9 @@ namespace tinyc { class Driver; }
 %token OP_ADD "+"
 %token OP_SUB "-"
 %token OP_NOT "!"
+%token OP_MUL "*"
+%token OP_DIV "/"
+%token OP_MOD "%"
 
 %nterm <std::unique_ptr<tinyc::Number>> Number
 %nterm <std::unique_ptr<tinyc::Ident>> Ident

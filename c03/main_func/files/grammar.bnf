@@ -15,18 +15,18 @@ Block       ::= "{" Stmt* "}";
 # 语句
 Stmt        ::= "return" Expr ";";
 #[[ Expr        ::= Number | Ident ; ]]
-Expr        ::= UnaryExpr;
+Expr        ::= AddExpr;
 
 # 以下优先级从高到低
 ## 1
 PrimaryExpr  ::= "(" Expr ")" | Number | Ident;
 ## 2 一元表达式
 UnaryExpr    ::= PrimaryExpr | UnaryOp UnaryExpr;
-UnaryOp     ::= "+" | "-" | "!";
-### 3 乘，除，取余表达式
-#MulExpr      ::= UnaryExpr | MulExpr ("*" | "/" | "%") UnaryExpr;
+UnaryOp      ::= "+" | "-" | "!";
+## 3 乘，除，取余表达式
+MulExpr      ::= UnaryExpr | MulExpr ("*" | "/" | "%") UnaryExpr;
 ### 4 加, 减表达式
-#AddExpr      ::= MulExpr | AddExpr ("+" | "-") MulExpr;
+AddExpr      ::= MulExpr | AddExpr ("+" | "-") MulExpr;
 ### 5
 #RelExpr      ::= AddExpr | RelExpr ("<" | ">" | "<=" | ">=") AddExpr;
 ### 6

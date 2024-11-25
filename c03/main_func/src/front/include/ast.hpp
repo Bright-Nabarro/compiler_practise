@@ -322,6 +322,30 @@ private:
 	
 };
 
+
+/**
+ * MulExpr ::= UnaryExpr | MulExpr ("*" | "/" | "%") UnaryExpr;
+ */
+class MulExpr: public BaseAST
+{
+public:
+	using Variant = std::variant<>;
+private:
+	
+	
+};
+
+
+/**
+ * AddExpr ::= MulExpr | AddExpr ("+" | "-") MulExpr;
+ */
+class AddExpr: public BaseAST
+{
+public:
+private:
+};
+
+
 /**
  * Stmt ::= "return" Expr ";";
  */
@@ -339,6 +363,7 @@ public:
 private:
 	std::unique_ptr<Expr> m_expr;
 };
+
 
 /**
  * Block ::= "{" Stmt* "}";
