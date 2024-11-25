@@ -8,7 +8,6 @@
 #include <llvm/Target/TargetMachine.h>
 #include <llvm/TargetParser/Host.h>
 #include <llvm/TargetParser/Triple.h>
-#include <print>
 
 //帮助codegen 生成target_options
 static llvm::codegen::RegisterCodeGenFlags CGF;
@@ -103,14 +102,26 @@ auto main(int argc, char* argv[]) -> int
 		return 1;
 
 	llvm::LLVMContext ctx;
-	tinyc::Driver driver;
-	driver.set_trace(trace_debug);
+	llvm::SourceMgr src_mgr;
+	tinyc::DriverFactory driver_factory { src_mgr };
+	
+
 	auto file = input_file.getValue();
-	if (!driver.parse(file))
+	
+	auto driver_or_error = driver_factory.produce_driver(file);
+	if (!driver_or_error)
+	{
+		yq::error("{}", driver_or_error.error());
+		return 1;
+	}
+	auto driver = std::move(*driver_or_error);
+
+	driver->set_trace(trace_debug);
+	if (!driver->parse())
 		return 1;
 	
 	tinyc::GeneralVisitor visitor(ctx, emit_llvm, output_file, tm);
-	bool ret = visitor.visit(driver.get_ast_ptr());
+	bool ret = visitor.visit(driver->get_ast_ptr());
 	if (!ret)
 		return 1;
 	if (!visitor.emit())

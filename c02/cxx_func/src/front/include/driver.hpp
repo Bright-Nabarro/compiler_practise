@@ -14,6 +14,8 @@ YY_DECL;
 namespace tinyc
 {
 
+void report_error(yy::parser::location_type loc, const std::string& m);
+
 class Driver
 {
 public:
@@ -35,6 +37,8 @@ public:
 	{ m_debug_trace = debug_trace; }
 	auto get_trace() -> bool
 	{ return m_debug_trace; }
+	
+	void flex_fatal_error(std::string_view msg);
 
 private:
 	void set_flex(std::FILE* handle);
@@ -47,3 +51,5 @@ private:
 };
 
 }	//namespace tinyc
+
+
