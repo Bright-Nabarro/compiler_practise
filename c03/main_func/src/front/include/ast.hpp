@@ -4,11 +4,9 @@
 #include <memory>
 #include <vector>
 #include <cassert>
-#include <concepts>
-#include <type_traits>
+#include <easylog.hpp>
 //#include "utility.hpp"
 
-//
 namespace tinyc
 {
 
@@ -34,9 +32,15 @@ public:
 		ast_ident,
 		ast_expr,
 		ast_primary_expr,
-		ast_unary_expr,
+		ast_unary_expr,	//l2 expr
+		ast_l3expr,
+		ast_l4expr,
 		ast_expr_end,
-		ast_unary_op,
+		ast_op,
+		ast_unary_op,	// l2_op
+		ast_l3op,
+		ast_l4op,
+		ast_op_end,
 		ast_stmt,
 		ast_block,
 		ast_type,
@@ -133,11 +137,6 @@ private:
 
 };
 
-template<typename Func, typename... Args>
-concept Callable = requires(Func func, Args... args)
-{
-	func(args...);
-};
 
 /**
  * PrimaryExpr  ::= "(" Expr ")" | Number | Ident;
@@ -217,33 +216,42 @@ private:
 };
 
 
-/**
- * UnaryOp ::= "+" | "-" | "!";
- */
-class UnaryOp: public BaseAST
+/// 所有操作符的基类
+class Operation: public BaseAST
 {
 public:
-	FILL_CLASSOF(ast_unary_op);
-	enum TypeOp
+	[[nodiscard]]
+	static auto classof(const BaseAST* ast) -> bool
+	{
+		return ast->get_kind() > ast_op &&
+			   ast->get_kind() < ast_op_end;
+	}
+
+	enum OperationType
 	{
 		op_add,
 		op_sub,
 		op_not,
+		op_mul,
+		op_div,
+		op_mod,
 	};
-
-	UnaryOp(TypeOp type):
-		BaseAST { ast_unary_op }, 
-		m_type { type }
-	{}
 	
-	[[nodiscard]]
-	auto get_type() const -> TypeOp
-	{ return m_type; }
-
-	[[nodiscard]]
-	auto get_type_str() const -> const char*
+	Operation(AstKind ast_kind, OperationType type) :
+		BaseAST { ast_kind },
+		m_type { type }
 	{
-		switch(get_type())
+		assert(ast_kind > ast_op && ast_kind < ast_op_end);
+	}
+
+	auto get_type() -> OperationType
+	{
+		return m_type;
+	}
+
+	auto get_type_str() -> const char*
+	{
+		switch(m_type)
 		{
 		case op_add:
 			return "add";
@@ -251,13 +259,35 @@ public:
 			return "sub";
 		case op_not:
 			return "not";
-		default:
+		case op_mul:
+			return "mul";
+		case op_div:
+			return "div";
+		case op_mod:
+			return "mod";
+		defualt:
 			return "unkown";
-		}
+		};
 	}
 
-private:
-	TypeOp m_type;
+protected:
+	OperationType m_type;
+};
+
+/**
+ * UnaryOp ::= "+" | "-" | "!";
+ */
+class UnaryOp: public Operation
+{
+public:
+	FILL_CLASSOF(ast_unary_op);
+
+	UnaryOp(OperationType type):
+		Operation { ast_unary_op, type}
+	{
+		if (type < op_add || type > op_not)
+			yq::fatal("Invalid UnaryOp");
+	}
 };
 
 
@@ -323,15 +353,21 @@ private:
 };
 
 
+/// L4Op ::= "+" | "-"
+class L4Op: public BaseAST
+{
+};
+
 /**
  * MulExpr ::= UnaryExpr | MulExpr ("*" | "/" | "%") UnaryExpr;
  */
-class MulExpr: public BaseAST
+class ExprL3: public BaseAST
 {
 public:
+	using UnaryExprPtr = std::unique_ptr<UnaryExpr>;
 	using Variant = std::variant<>;
+
 private:
-	
 	
 };
 

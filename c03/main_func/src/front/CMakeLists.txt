@@ -27,6 +27,10 @@ target_include_directories(front PUBLIC
 	${CMAKE_CURRENT_BINARY_DIR}
 )
 
+target_link_libraries(front PUBLIC
+	easylog
+)
+
 
 include(Doxygen)
 Doxygen("${CMAKE_SOURCE_DIR}/docs"
