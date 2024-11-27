@@ -59,6 +59,14 @@ Number			[0-9]+
 "*"				LOC_UPDATE_RET_ACTION(loc, yy::parser::make_OP_MUL(loc));
 "/"				LOC_UPDATE_RET_ACTION(loc, yy::parser::make_OP_DIV(loc));
 "%"				LOC_UPDATE_RET_ACTION(loc, yy::parser::make_OP_MOD(loc));
+"<"				LOC_UPDATE_RET_ACTION(loc, yy::parser::make_OP_LT(loc));
+"<="			LOC_UPDATE_RET_ACTION(loc, yy::parser::make_OP_LE(loc));
+">"				LOC_UPDATE_RET_ACTION(loc, yy::parser::make_OP_GT(loc));
+">="			LOC_UPDATE_RET_ACTION(loc, yy::parser::make_OP_GE(loc));
+"=="			LOC_UPDATE_RET_ACTION(loc, yy::parser::make_OP_EQ(loc));
+"!="			LOC_UPDATE_RET_ACTION(loc, yy::parser::make_OP_NE(loc));
+"&&"			LOC_UPDATE_RET_ACTION(loc, yy::parser::make_OP_LAND(loc));
+"||"			LOC_UPDATE_RET_ACTION(loc, yy::parser::make_OP_LOR(loc));
 .				{
 					driver.get_parser().error(loc, "expect token");
 					return yy::parser::make_YYerror(loc);

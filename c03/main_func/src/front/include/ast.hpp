@@ -5,6 +5,7 @@
 #include <vector>
 #include <cassert>
 #include <easylog.hpp>
+#include <tuple>
 //#include "utility.hpp"
 
 namespace tinyc
@@ -30,17 +31,28 @@ public:
 	{
 		ast_number,
 		ast_ident,
+		// expration
 		ast_expr,
 		ast_primary_expr,
 		ast_unary_expr,	//l2 expr
 		ast_l3expr,
 		ast_l4expr,
+		ast_l6expr,
+		ast_l7expr,
+		ast_land_expr,
+		ast_lor_expr,
 		ast_expr_end,
+		// operation
 		ast_op,
 		ast_unary_op,	// l2_op
 		ast_l3op,
 		ast_l4op,
+		ast_l6op,
+		ast_l7op,
+		ast_land_op,
+		ast_lor_op,
 		ast_op_end,
+
 		ast_stmt,
 		ast_block,
 		ast_type,
@@ -64,6 +76,9 @@ public:
 	[[nodiscard]]
 	auto get_kind() const -> AstKind
 	{ return m_kind; }
+
+	[[nodiscard]]
+	auto get_kind_str() const -> const char*;
 
 private:
 	AstKind m_kind;
@@ -116,24 +131,44 @@ private:
 };
 
 
-class UnaryExpr;
+class BaseExpr: public BaseAST
+{
+public:
+	BaseExpr(AstKind ast_kind):
+		BaseAST(ast_kind)
+	{
+		assert(ast_kind >= ast_expr && ast_kind < ast_expr_end);
+	}
+
+	[[nodiscard]] static
+	auto classof(const BaseAST* ast) -> bool
+	{
+		return ast->get_kind() >= ast_expr &&
+			   ast->get_kind() < ast_op_end;
+	}
+};
+
+
+class LOrExpr;
+using LowExpr = LOrExpr;
+
 
 /**
- * Expr ::= UnaryExpr;
+ * Expr ::= ExprL4;
  */
-class Expr: public BaseAST
+class Expr: public BaseExpr
 {
 public:
 	FILL_CLASSOF(ast_expr)
 
-	Expr(std::unique_ptr<UnaryExpr> uptr);
+	Expr(std::unique_ptr<LowExpr> uptr);
 	~Expr();
 	
-	auto get_unary_expr() const -> const UnaryExpr&
+	auto get_low_expr() const -> const LowExpr&
 	{ return *m_value; }
 
 private:
-	std::unique_ptr<UnaryExpr> m_value;
+	std::unique_ptr<LowExpr> m_value;
 
 };
 
@@ -141,7 +176,7 @@ private:
 /**
  * PrimaryExpr  ::= "(" Expr ")" | Number | Ident;
  */
-class PrimaryExpr: public BaseAST
+class PrimaryExpr: public BaseExpr
 {
 public:
 	FILL_CLASSOF(ast_primary_expr);
@@ -151,17 +186,17 @@ public:
 	using Variant = std::variant<ExprPtr, NumberPtr, IdentPtr>;
 
 	PrimaryExpr(ExprPtr expr_ptr):
-		BaseAST(ast_primary_expr),
+		BaseExpr(ast_primary_expr),
 		m_value { std::move(expr_ptr) }
 	{}
 
 	PrimaryExpr(NumberPtr number_ptr):
-		BaseAST(ast_primary_expr),
+		BaseExpr(ast_primary_expr),
 		m_value { std::move(number_ptr) }
 	{}
 
 	PrimaryExpr(IdentPtr ident_ptr):
-		BaseAST(ast_primary_expr),
+		BaseExpr(ast_primary_expr),
 		m_value { std::move(ident_ptr) }
 	{}
 
@@ -216,7 +251,10 @@ private:
 };
 
 
-/// 所有操作符的基类
+/**
+ * @brief 所有操作符的基类
+ * @note 在各个派生类的构造函数中，需要检查type是否合法
+ */
 class Operation: public BaseAST
 {
 public:
@@ -235,6 +273,14 @@ public:
 		op_mul,
 		op_div,
 		op_mod,
+		op_lt,
+		op_le,
+		op_gt,
+		op_ge,
+		op_eq,
+		op_ne,
+		op_land,
+		op_lor,
 	};
 	
 	Operation(AstKind ast_kind, OperationType type) :
@@ -244,12 +290,12 @@ public:
 		assert(ast_kind > ast_op && ast_kind < ast_op_end);
 	}
 
-	auto get_type() -> OperationType
+	auto get_type() const -> OperationType
 	{
 		return m_type;
 	}
 
-	auto get_type_str() -> const char*
+	auto get_type_str() const -> const char*
 	{
 		switch(m_type)
 		{
@@ -265,7 +311,7 @@ public:
 			return "div";
 		case op_mod:
 			return "mod";
-		defualt:
+		default:
 			return "unkown";
 		};
 	}
@@ -273,6 +319,7 @@ public:
 protected:
 	OperationType m_type;
 };
+
 
 /**
  * UnaryOp ::= "+" | "-" | "!";
@@ -294,7 +341,7 @@ public:
 /**
  * UnaryExpr ::= PrimaryExpr | UnaryOp UnaryExpr;
  */
-class UnaryExpr: public BaseAST
+class UnaryExpr: public BaseExpr
 {
 public:
 	using PrmExpPtr = std::unique_ptr<PrimaryExpr>;
@@ -304,13 +351,13 @@ public:
 	FILL_CLASSOF(ast_unary_expr);
 
 	UnaryExpr(PrmExpPtr primary_expr):
-		BaseAST { ast_unary_expr },
+		BaseExpr { ast_unary_expr },
 		m_value { std::move(primary_expr) }
 	{}
 
 	UnaryExpr(std::unique_ptr<UnaryOp> unary_op,
 			std::unique_ptr<UnaryExpr> unary_expr):
-		BaseAST { ast_unary_expr }, 
+		BaseExpr { ast_unary_expr }, 
 		m_value { PackPtr { std::move(unary_op), std::move(unary_expr) } }
 	{}
 
@@ -349,38 +396,240 @@ public:
 
 private:
 	Variant m_value;
-	
+};
+
+
+template<typename SelfExpr, typename HigherExpr, typename Operation>
+class BinaryExpr: public BaseExpr
+{
+public:
+	using SelfExprPtr = std::unique_ptr<SelfExpr>;
+	using HigherExprPtr = std::unique_ptr<HigherExpr>;
+	using OpPtr = std::unique_ptr<Operation>;
+
+	using CombinedExpr = std::tuple<
+		SelfExprPtr,
+		OpPtr,
+		HigherExprPtr
+	>;
+	using CombinedExprRef = std::tuple<
+		std::reference_wrapper<const SelfExpr>,
+		std::reference_wrapper<const Operation>,
+		std::reference_wrapper<const HigherExpr>
+	>;
+	using Variant = std::variant<HigherExprPtr, CombinedExpr>;
+
+	explicit
+	BinaryExpr(AstKind kind, HigherExprPtr ptr):
+		BaseExpr { kind },
+		m_value { std::move(ptr) }
+	{}
+
+	BinaryExpr(AstKind kind, SelfExprPtr self_ptr,
+			   OpPtr op_ptr, HigherExprPtr higher_ptr)
+		: BaseExpr{kind},
+		  m_value{CombinedExpr{std::move(self_ptr), std::move(op_ptr),
+							   std::move(higher_ptr)}}
+	{}
+
+	~BinaryExpr() = 0;
+
+	[[nodiscard]]
+	auto has_higher_expr() const -> bool
+	{
+		return std::holds_alternative<HigherExprPtr>(m_value);
+	}
+
+	[[nodiscard]]
+	auto has_combined_expr() const -> bool
+	{
+		return std::holds_alternative<CombinedExpr>(m_value);
+	}
+
+	[[nodiscard]]
+	auto get_higher_expr() const -> const HigherExpr&
+	{
+		return *std::get<HigherExprPtr>(m_value);
+	}
+
+	[[nodiscard]]
+	auto get_combined_expr() const -> CombinedExprRef
+	{
+		const auto& combined_ptr = std::get<CombinedExpr>(m_value);
+
+		return CombinedExprRef {
+			std::cref(*std::get<0>(combined_ptr)),
+			std::cref(*std::get<1>(combined_ptr)),
+			std::cref(*std::get<2>(combined_ptr)),
+		};
+	}
+
+private:
+	Variant m_value;
+};
+
+#define BINARY_EXPR_FILL_CONSTRUCTORS(expr_kind, expr_name)                    \
+	FILL_CLASSOF(expr_kind)                                                    \
+	expr_name(HigherExprPtr ptr) : BinaryExpr{expr_kind, std::move(ptr)} {}    \
+	expr_name(SelfExprPtr self_ptr, OpPtr op_ptr, HigherExprPtr higher_ptr)    \
+		: BinaryExpr{expr_kind, std::move(self_ptr), std::move(op_ptr),        \
+					 std::move(higher_ptr)}                                    \
+	{}
+
+/// L3Op ::= "*" | "/" | "%"
+class L3Op: public Operation
+{
+public:
+	FILL_CLASSOF(ast_l3op);
+
+	L3Op(OperationType type):
+		Operation(ast_l3op, type)
+	{
+		if (get_type() < op_mul || get_type() > op_mod)
+			yq::fatal("Invalid L3Op");
+	}
+};
+
+
+
+/// L3Expr ::= UnaryExpr | L3Expr L3Op UnaryExpr;
+class L3Expr: public BinaryExpr<L3Expr, UnaryExpr, L3Op>
+{
+public:
+	BINARY_EXPR_FILL_CONSTRUCTORS(ast_l3expr, L3Expr)
 };
 
 
 /// L4Op ::= "+" | "-"
-class L4Op: public BaseAST
+class L4Op: public Operation
 {
+public:
+	FILL_CLASSOF(ast_l4op);
+
+	L4Op(OperationType type):
+		Operation(ast_l4op, type)
+	{
+		if (get_type() < op_add || get_type() > op_not)
+			yq::fatal("Invalid L4Op");
+	}
+};
+
+
+
+/// L4Expr ::= L3Expr | L4Expr L4Op L3Expr;
+class L4Expr: public BinaryExpr<L4Expr, L3Expr, L4Op>
+{
+public:
+	BINARY_EXPR_FILL_CONSTRUCTORS(ast_l4expr, L4Expr)
+};
+
+
+/**
+ * L6Op	::= "<" | ">" | "<=" | ">="
+ */
+class L6Op: public Operation
+{
+public:
+	FILL_CLASSOF(ast_l6op);
+
+	L6Op(OperationType type):
+		Operation(ast_l6op, type)
+	{
+		if (get_type() < op_lt || get_type() > op_ge)
+			yq::fatal("Invalid L6Op");
+	}
+};
+
+
+/**
+ *	L6Expr ::= L4Expr | L6Expr L6Op L4Expr;
+ */
+class L6Expr: public BinaryExpr<L6Expr, L4Expr, L6Op>
+{
+public:
+	BINARY_EXPR_FILL_CONSTRUCTORS(ast_l6expr, L6Expr)
+};
+
+
+/**
+ * L7Op	::= "==" | "!="
+ */
+class L7Op : public Operation
+{
+public:
+	FILL_CLASSOF(ast_l7op)
+
+	L7Op(OperationType type) : Operation(ast_l7op, type)
+	{
+		if (get_type() < op_eq || get_type() > op_ne)
+			yq::fatal("Invalid L7Op");
+	}
 };
 
 /**
- * MulExpr ::= UnaryExpr | MulExpr ("*" | "/" | "%") UnaryExpr;
+ * L7Expr ::= L6Expr | L7Expr L7Op L6Expr;
  */
-class ExprL3: public BaseAST
+class L7Expr: public BinaryExpr<L7Expr, L6Expr, L7Op>
 {
 public:
-	using UnaryExprPtr = std::unique_ptr<UnaryExpr>;
-	using Variant = std::variant<>;
-
-private:
-	
+	BINARY_EXPR_FILL_CONSTRUCTORS(ast_l7expr, L7Expr);
 };
 
 
 /**
- * AddExpr ::= MulExpr | AddExpr ("+" | "-") MulExpr;
+ * LAndOp		::= "&&"
  */
-class AddExpr: public BaseAST
+class LAndOp: public Operation
 {
 public:
-private:
+	FILL_CLASSOF(ast_land_op);
+	LAndOp(OperationType type): Operation { ast_land_op, type }
+	{
+		if (get_type() != op_land)
+			yq::fatal("Invalid LAndOp");
+	}
 };
 
+
+/**
+ * LAndExpr	::= L7Expr | LAndExpr LAndOp L7Expr;
+ */
+class LAndExpr: public BinaryExpr<LAndExpr, L7Expr, LAndOp>
+{
+public:
+	BINARY_EXPR_FILL_CONSTRUCTORS(ast_land_expr, LAndExpr)
+};
+
+
+/**
+ * LOrOp		::= "||"
+ */
+class LOrOp: public Operation
+{
+public:
+	FILL_CLASSOF(ast_lor_op);
+	LOrOp(OperationType type): Operation { ast_lor_op, type }
+	{
+		if (get_type() != op_lor)
+			yq::fatal("Invalid LOrOp");
+	}
+};
+
+
+/**
+ * LOrExpr		::= LAndExpr | LOrExpr LOrOp LAndExpr;
+ */
+class LOrExpr: public BinaryExpr<LOrExpr, LAndExpr, LOrOp>
+{
+public:
+	BINARY_EXPR_FILL_CONSTRUCTORS(ast_lor_expr, LOrExpr)
+};
+
+
+template <typename SelfExpr, typename HigherExpr, typename Operation>
+BinaryExpr<SelfExpr, HigherExpr, Operation>::~BinaryExpr()
+{
+}
 
 /**
  * Stmt ::= "return" Expr ";";
@@ -590,6 +839,6 @@ private:
 
 
 #undef FILL_CLASSOF
-
+#undef BINARY_EXPR_FILL_CONSTRUCTORS
 } //namespace tinyc
 

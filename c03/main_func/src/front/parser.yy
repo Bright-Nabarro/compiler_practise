@@ -40,33 +40,54 @@ namespace tinyc { class Driver; }
 %token <std::string> IDENT
 %token <int> INT_LITERAL
 // 字面量标识分隔符
-%token DELIM_LPAREN "("
-%token DELIM_RPAREN ")"
-%token DELIM_LBRACE "{"
-%token DELIM_RBRACE "}"
-%token DELIM_COMMA ","
-%token DELIM_SEMICOLON ";"
+%token DELIM_LPAREN		"("
+%token DELIM_RPAREN		")"
+%token DELIM_LBRACE		"{"
+%token DELIM_RBRACE		"}"
+%token DELIM_COMMA 		","
+%token DELIM_SEMICOLON	";"
 // 操作符
-%token OP_ADD "+"
-%token OP_SUB "-"
-%token OP_NOT "!"
-%token OP_MUL "*"
-%token OP_DIV "/"
-%token OP_MOD "%"
+%token OP_ADD	"+"
+%token OP_SUB	"-"
+%token OP_NOT	"!"
+%token OP_MUL	"*"
+%token OP_DIV	"/"
+%token OP_MOD	"%"
+%token OP_LT	"<"
+%token OP_LE	"<="
+%token OP_GT	">"
+%token OP_GE	">="
+%token OP_EQ	"=="
+%token OP_NE	"!="
+%token OP_LAND	"&&"
+%token OP_LOR	"||"
 
-%nterm <std::unique_ptr<tinyc::Number>> Number
-%nterm <std::unique_ptr<tinyc::Ident>> Ident
-%nterm <std::unique_ptr<tinyc::Expr>> Expr
-%nterm <std::unique_ptr<tinyc::Stmt>> Stmt
-%nterm <std::unique_ptr<tinyc::Block>> Block
-%nterm <std::unique_ptr<tinyc::Type>> Type
-%nterm <std::unique_ptr<tinyc::Param>> Param
-%nterm <std::unique_ptr<tinyc::ParamList>> ParamList
-%nterm <std::unique_ptr<tinyc::FuncDef>> FuncDef
-%nterm <std::unique_ptr<tinyc::CompUnit>> CompUnit
-%nterm <std::unique_ptr<tinyc::UnaryExpr>> UnaryExpr
-%nterm <std::unique_ptr<tinyc::UnaryOp>> UnaryOp
-%nterm <std::unique_ptr<tinyc::PrimaryExpr>> PrimaryExpr
+%nterm <std::unique_ptr<tinyc::Number>>			Number
+%nterm <std::unique_ptr<tinyc::Ident>>			Ident
+%nterm <std::unique_ptr<tinyc::Expr>>			Expr
+%nterm <std::unique_ptr<tinyc::Stmt>>			Stmt
+%nterm <std::unique_ptr<tinyc::Block>>			Block
+%nterm <std::unique_ptr<tinyc::Type>>			Type
+%nterm <std::unique_ptr<tinyc::Param>>			Param
+%nterm <std::unique_ptr<tinyc::ParamList>>		ParamList
+%nterm <std::unique_ptr<tinyc::FuncDef>>		FuncDef
+%nterm <std::unique_ptr<tinyc::CompUnit>>		CompUnit
+%nterm <std::unique_ptr<tinyc::UnaryExpr>>		UnaryExpr
+%nterm <std::unique_ptr<tinyc::UnaryOp>>		UnaryOp
+%nterm <std::unique_ptr<tinyc::PrimaryExpr>>	PrimaryExpr
+%nterm <std::unique_ptr<tinyc::L3Expr>> 		L3Expr
+%nterm <std::unique_ptr<tinyc::L3Op>> 			L3Op
+%nterm <std::unique_ptr<tinyc::L4Expr>>			L4Expr
+%nterm <std::unique_ptr<tinyc::L4Op>>			L4Op
+%nterm <std::unique_ptr<tinyc::L6Expr>>			L6Expr
+%nterm <std::unique_ptr<tinyc::L6Op>>			L6Op
+%nterm <std::unique_ptr<tinyc::L7Expr>>			L7Expr
+%nterm <std::unique_ptr<tinyc::L7Op>>			L7Op
+%nterm <std::unique_ptr<tinyc::LAndExpr>>		LAndExpr
+%nterm <std::unique_ptr<tinyc::LAndOp>>			LAndOp
+%nterm <std::unique_ptr<tinyc::LOrExpr>>		LOrExpr
+%nterm <std::unique_ptr<tinyc::LOrOp>>			LOrOp
+
 
 %%
 
@@ -153,8 +174,8 @@ Stmt
 	};
 
 Expr
-	: UnaryExpr {
-		assert_same_ptr(tinyc::UnaryExpr, $1);
+	: LOrExpr {
+		assert_same_ptr(tinyc::LOrExpr, $1);
 		$$ = std::make_unique<tinyc::Expr>(std::move($1));
 	};
 
@@ -192,6 +213,129 @@ UnaryOp
 	} 
 	| "!" {
 		$$ = std::make_unique<tinyc::UnaryOp>(tinyc::UnaryOp::op_not);
+	};
+
+L3Expr
+	: UnaryExpr {
+		assert_same_ptr(tinyc::UnaryExpr, $1);
+		$$ = std::make_unique<tinyc::L3Expr>(std::move($1));
+	}
+	| L3Expr L3Op UnaryExpr {
+		assert_same_ptr(tinyc::L3Expr, $1);
+		assert_same_ptr(tinyc::L3Op, $2);
+		assert_same_ptr(tinyc::UnaryExpr, $3);
+		$$ = std::make_unique<tinyc::L3Expr>(std::move($1), std::move($2), std::move($3));
+	};
+
+L3Op
+	: "*"  {
+		$$ = std::make_unique<tinyc::L3Op>(tinyc::Operation::op_mul);
+	}
+	| "/"  {
+		$$ = std::make_unique<tinyc::L3Op>(tinyc::Operation::op_div);
+	}
+	| "%" {
+		$$ = std::make_unique<tinyc::L3Op>(tinyc::Operation::op_mod);
+	};
+
+L4Expr
+	: L3Expr {
+		assert_same_ptr(tinyc::L3Expr, $1);
+		$$ = std::make_unique<tinyc::L4Expr>(std::move($1));
+	}
+	| L4Expr L4Op L3Expr {
+		assert_same_ptr(tinyc::L4Expr, $1);
+		assert_same_ptr(tinyc::L4Op, $2);
+		assert_same_ptr(tinyc::L3Expr, $3);
+		$$ = std::make_unique<tinyc::L4Expr>(std::move($1), std::move($2), std::move($3));
+	};
+
+L4Op
+	: "+" {
+		$$ = std::make_unique<tinyc::L4Op>(tinyc::Operation::op_add);
+	}
+	| "-" {
+		$$ = std::make_unique<tinyc::L4Op>(tinyc::Operation::op_sub);
+	};
+
+L6Expr
+	: L4Expr {
+		assert_same_ptr(tinyc::L4Expr, $1);
+		$$ = std::make_unique<tinyc::L6Expr>(std::move($1));
+	}
+	| L6Expr L6Op L4Expr {
+		assert_same_ptr(tinyc::L6Expr, $1);
+		assert_same_ptr(tinyc::L6Op, $2);
+		assert_same_ptr(tinyc::L4Expr, $3);
+		$$ = std::make_unique<tinyc::L6Expr>(std::move($1), std::move($2), std::move($3));
+	};
+
+L6Op
+	: "<" {
+		$$ = std::make_unique<tinyc::L6Op>(tinyc::Operation::op_lt);
+	}
+	| ">" {
+		$$ = std::make_unique<tinyc::L6Op>(tinyc::Operation::op_gt);
+	}
+	| "<=" {
+		$$ = std::make_unique<tinyc::L6Op>(tinyc::Operation::op_le);
+	}
+	| ">=" {
+		$$ = std::make_unique<tinyc::L6Op>(tinyc::Operation::op_ge);
+	};
+
+L7Expr      
+	: L6Expr {
+		assert_same_ptr(tinyc::L6Expr, $1);
+		$$ = std::make_unique<tinyc::L7Expr>(std::move($1));
+	}
+	| L7Expr L7Op L6Expr {
+		assert_same_ptr(tinyc::L7Expr, $1);
+		assert_same_ptr(tinyc::L7Op, $2);
+		assert_same_ptr(tinyc::L6Expr, $3);
+		$$ = std::make_unique<tinyc::L7Expr>(std::move($1), std::move($2), std::move($3));
+	};
+
+L7Op		
+	: "==" {
+		$$ = std::make_unique<tinyc::L7Op>(tinyc::Operation::op_eq);
+	}
+	| "!=" {
+		$$ = std::make_unique<tinyc::L7Op>(tinyc::Operation::op_ne);
+	};
+
+LAndExpr	
+	: L7Expr {
+		assert_same_ptr(tinyc::L7Expr, $1);
+		$$ = std::make_unique<tinyc::LAndExpr>(std::move($1));
+	}
+	| LAndExpr LAndOp L7Expr{
+		assert_same_ptr(tinyc::LAndExpr, $1);
+		assert_same_ptr(tinyc::LAndOp, $2);
+		assert_same_ptr(tinyc::L7Expr, $3);
+		$$ = std::make_unique<tinyc::LAndExpr>(std::move($1), std::move($2), std::move($3));
+	};
+
+LAndOp		
+	: "&&" {
+		$$ = std::make_unique<tinyc::LAndOp>(tinyc::Operation::op_land);
+	}
+
+LOrExpr
+	: LAndExpr {
+		assert_same_ptr(tinyc::LAndExpr, $1);
+		$$ = std::make_unique<tinyc::LOrExpr>(std::move($1));
+	}
+	| LOrExpr LOrOp LAndExpr {
+		assert_same_ptr(tinyc::LOrExpr, $1);
+		assert_same_ptr(tinyc::LOrOp, $2);
+		assert_same_ptr(tinyc::LAndExpr, $3);
+		$$ = std::make_unique<tinyc::LOrExpr>(std::move($1), std::move($2), std::move($3));
+	};
+
+LOrOp	
+	: "||" {
+		$$ = std::make_unique<tinyc::LOrOp>(tinyc::Operation::op_lor);
 	};
 
 Number

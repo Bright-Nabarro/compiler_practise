@@ -207,7 +207,7 @@ void GeneralVisitor::handle(const Stmt& node)
 auto GeneralVisitor::handle(const Expr& node) -> llvm::Value*
 {
 	yq::debug("ExprBegin:");
-	auto ret = handle(node.get_unary_expr());
+	auto ret = handle(node.get_low_expr());
 	yq::debug("ExprEnd");
 
 	return ret;
@@ -340,6 +340,101 @@ auto GeneralVisitor::handle(const Param& node) -> llvm::Type*
 
 	return type;
 }
+
+template<typename BinaryExpr>
+auto GeneralVisitor::handle(const BinaryExpr& node) -> llvm::Value*
+{
+	yq::debug("{} begin:", node.get_kind_str());
+
+	llvm::Value* result = nullptr;
+
+	if (node.has_higher_expr())
+	{
+		result = handle(node.get_higher_expr());
+	}
+	else if (node.has_combined_expr())
+	{
+		auto [ self_expr_ref, op, higher_expr_ref ] = node.get_combined_expr();
+		auto left = handle(self_expr_ref.get());
+		auto right = handle(higher_expr_ref.get());
+		
+		result = binary_operate(left, op, right);
+	}
+	else
+	{
+		yq::fatal("{}'s Variant has an unkown type", node.get_kind_str());
+	}
+
+	yq::debug("{} end", node.get_kind_str());
+	return result;
+}
+
+
+auto GeneralVisitor::binary_operate(llvm::Value* left, const Operation& op,
+									llvm::Value* right) -> llvm::Value*
+{
+	yq::debug("{} [{}] Begin:", op.get_kind_str(), op.get_type_str());
+
+	llvm::Value* result = nullptr;
+	
+	switch(op.get_type())
+	{
+	case Operation::op_add:
+		result = m_builder.CreateAdd(left, right);
+		break;
+	case Operation::op_sub:
+		result = m_builder.CreateSub(left, right);
+		break;
+	case Operation::op_mul:
+		result = m_builder.CreateMul(left, right);
+		break;
+	case Operation::op_div:
+		result = m_builder.CreateSDiv(left, right);
+		break;
+	case Operation::op_mod:
+		result = m_builder.CreateSRem(left, right);
+		break;
+	case Operation::op_lt:
+		result = m_builder.CreateICmpSLT(left, right);
+		break;
+	case Operation::op_le:
+		result = m_builder.CreateICmpSLE(left, right);
+		break;
+	case Operation::op_gt:
+		result = m_builder.CreateICmpSGT(left, right);
+		break;
+	case Operation::op_ge:
+		result = m_builder.CreateICmpSGE(left, right);
+		break;
+	case Operation::op_eq:
+		result = m_builder.CreateICmpEQ(left, right);
+		break;
+	case Operation::op_ne:
+		result = m_builder.CreateICmpNE(left, right);
+		break;
+	case Operation::op_land:
+		left = m_builder.CreateTrunc(left, llvm::Type::getInt1Ty(m_module->getContext()));
+		right = m_builder.CreateTrunc(right, llvm::Type::getInt1Ty(m_module->getContext()));
+		result = m_builder.CreateLogicalAnd(left, right);
+		break;
+	case Operation::op_lor:
+		left = m_builder.CreateTrunc(left, llvm::Type::getInt1Ty(m_module->getContext()));
+		right = m_builder.CreateTrunc(right, llvm::Type::getInt1Ty(m_module->getContext()));
+		result = m_builder.CreateLogicalOr(left, right);
+		break;
+	default:
+		//在二元运算符中
+		yq::fatal(yq::loc(), "Unprocessed binary operate");
+	}
+
+	assert(result != nullptr);
+	m_builder.CreateZExt(result, m_type_mgr->get_signed_int());
+
+	yq::debug("{} [{}] End", op.get_kind_str(), op.get_type_str());
+
+	return result;
+}
+
 
 }	//namespace tinyc
 

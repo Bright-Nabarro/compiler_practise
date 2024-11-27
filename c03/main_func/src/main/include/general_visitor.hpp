@@ -47,6 +47,13 @@ private:
 	auto handle(const UnaryOp& op, llvm::Value* operand) -> llvm::Value*;
 	auto handle(const Number& num) -> llvm::Value*;
 
+	/// @note 在上层会传入所有的BinaryExpr, 无需在实现文件中显式实例化声明
+	template<typename BinaryExpr>
+	auto handle(const BinaryExpr& node) -> llvm::Value*;
+
+	/// @brief 二元运算符通用处理函数
+	auto binary_operate(llvm::Value* left, const Operation& op,
+						llvm::Value* right) -> llvm::Value*;
 
 private:
 	std::unique_ptr<llvm::Module> m_module;
