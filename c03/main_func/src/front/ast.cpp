@@ -6,8 +6,8 @@ namespace tinyc
 // 让unique_ptr的析构函数知道UnaryExpr的定义
 Expr::~Expr() {}
 
-Expr::Expr(std::unique_ptr<LowExpr> uptr)
-	: BaseExpr{ast_expr}, m_value{std::move(uptr)}
+Expr::Expr(const LocationRange& location, std::unique_ptr<LowExpr> uptr)
+	: BaseExpr{ ast_expr, location }, m_value{std::move(uptr)}
 {
 }
 

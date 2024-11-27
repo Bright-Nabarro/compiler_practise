@@ -98,7 +98,7 @@ CompUnit:
 	{
 		//llvm::isa足够智能，能够区分裸指针和智能指针的情况
 		assert_same_ptr(tinyc::FuncDef, $1);
-		auto comp_unit_ptr = std::make_unique<tinyc::CompUnit>(std::move($1));
+		auto comp_unit_ptr = std::make_unique<tinyc::CompUnit>(@$, std::move($1));
 		driver.set_ast(std::move(comp_unit_ptr));
 	};
 
@@ -111,7 +111,7 @@ FuncDef :
 		assert_same_ptr(tinyc::ParamList, $4);
 		assert_same_ptr(tinyc::Block, $6);
 
-		auto funcdef_ptr = std::make_unique<tinyc::FuncDef>(
+		auto funcdef_ptr = std::make_unique<tinyc::FuncDef>( @$,
 			std::move($1), std::move($2), std::move($4), std::move($6)
 		);
 
@@ -121,12 +121,12 @@ FuncDef :
 ParamList :
 	/* empty */
 	{
-		$$ = std::make_unique<tinyc::ParamList>();
+		$$ = std::make_unique<tinyc::ParamList>(@$);
 	}
 	| Param
 	{
 		assert_same_ptr(tinyc::Param, $1);
-		auto param_list_ptr = std::make_unique<tinyc::ParamList>();
+		auto param_list_ptr = std::make_unique<tinyc::ParamList>(@$);
 		param_list_ptr->add_param(std::move($1));
 		$$ = std::move(param_list_ptr);
 	}
@@ -145,23 +145,23 @@ Param :
 	{
 		assert_same_ptr(tinyc::Type, $1);
 		assert_same_ptr(tinyc::Ident, $2);
-		auto param_ptr = std::make_unique<tinyc::Param>(std::move($1), std::move($2));
+		auto param_ptr = std::make_unique<tinyc::Param>(@$, std::move($1), std::move($2));
 		$$ = std::move(param_ptr);
 	}
 
 Type        
 	: KW_INT {
-		$$ = std::make_unique<tinyc::Type>(tinyc::Type::ty_int);
+		$$ = std::make_unique<tinyc::Type>(@$, tinyc::Type::ty_int);
 	}
 	| KW_VOID {
-		$$ = std::make_unique<tinyc::Type>(tinyc::Type::ty_void);
+		$$ = std::make_unique<tinyc::Type>(@$, tinyc::Type::ty_void);
 	};
 
 Block
 	: "{" Stmt "}"{
 		assert_same_ptr(tinyc::Stmt, $2);
 		//这里暂时只匹配单个表达式
-		auto block_ptr = std::make_unique<tinyc::Block>();
+		auto block_ptr = std::make_unique<tinyc::Block>(@$);
 		block_ptr->add_stmt(std::move($2));
 		$$ = std::move(block_ptr);
 	};
@@ -169,183 +169,183 @@ Block
 Stmt
 	: KW_RETURN Expr ";" {
 		assert_same_ptr(tinyc::Expr, $2);
-		auto stmt_ptr = std::make_unique<tinyc::Stmt>(std::move($2));
+		auto stmt_ptr = std::make_unique<tinyc::Stmt>(@$, std::move($2));
 		$$ = std::move(stmt_ptr);
 	};
 
 Expr
 	: LOrExpr {
 		assert_same_ptr(tinyc::LOrExpr, $1);
-		$$ = std::make_unique<tinyc::Expr>(std::move($1));
+		$$ = std::make_unique<tinyc::Expr>(@$, std::move($1));
 	};
 
 PrimaryExpr
 	: "(" Expr ")" {
 		assert_same_ptr(tinyc::Expr, $2);
-		$$ = std::make_unique<tinyc::PrimaryExpr>(std::move($2));
+		$$ = std::make_unique<tinyc::PrimaryExpr>(@$, std::move($2));
 	}
 	| Number {
 		assert_same_ptr(tinyc::Number, $1);
-		$$ = std::make_unique<tinyc::PrimaryExpr>(std::move($1));
+		$$ = std::make_unique<tinyc::PrimaryExpr>(@$, std::move($1));
 	}
 	| Ident {
 		assert_same_ptr(tinyc::Ident, $1);
-		$$ = std::make_unique<tinyc::PrimaryExpr>(std::move($1));
+		$$ = std::make_unique<tinyc::PrimaryExpr>(@$, std::move($1));
 	};
 
 UnaryExpr
 	: PrimaryExpr {
 		assert_same_ptr(tinyc::PrimaryExpr, $1);
-		$$ = std::make_unique<tinyc::UnaryExpr>(std::move($1));
+		$$ = std::make_unique<tinyc::UnaryExpr>(@$, std::move($1));
 	}
 	| UnaryOp UnaryExpr {
 		assert_same_ptr(tinyc::UnaryOp, $1);
 		assert_same_ptr(tinyc::UnaryExpr, $2);
-		$$ = std::make_unique<tinyc::UnaryExpr>(std::move($1), std::move($2));
+		$$ = std::make_unique<tinyc::UnaryExpr>(@$, std::move($1), std::move($2));
 	};
 
 UnaryOp
 	: "+" {
-		$$ = std::make_unique<tinyc::UnaryOp>(tinyc::UnaryOp::op_add);
+		$$ = std::make_unique<tinyc::UnaryOp>(@$, tinyc::UnaryOp::op_add);
 	}
 	| "-" {
-		$$ = std::make_unique<tinyc::UnaryOp>(tinyc::UnaryOp::op_sub);
+		$$ = std::make_unique<tinyc::UnaryOp>(@$, tinyc::UnaryOp::op_sub);
 	} 
 	| "!" {
-		$$ = std::make_unique<tinyc::UnaryOp>(tinyc::UnaryOp::op_not);
+		$$ = std::make_unique<tinyc::UnaryOp>(@$, tinyc::UnaryOp::op_not);
 	};
 
 L3Expr
 	: UnaryExpr {
 		assert_same_ptr(tinyc::UnaryExpr, $1);
-		$$ = std::make_unique<tinyc::L3Expr>(std::move($1));
+		$$ = std::make_unique<tinyc::L3Expr>(@$, std::move($1));
 	}
 	| L3Expr L3Op UnaryExpr {
 		assert_same_ptr(tinyc::L3Expr, $1);
 		assert_same_ptr(tinyc::L3Op, $2);
 		assert_same_ptr(tinyc::UnaryExpr, $3);
-		$$ = std::make_unique<tinyc::L3Expr>(std::move($1), std::move($2), std::move($3));
+		$$ = std::make_unique<tinyc::L3Expr>(@$, std::move($1), std::move($2), std::move($3));
 	};
 
 L3Op
 	: "*"  {
-		$$ = std::make_unique<tinyc::L3Op>(tinyc::Operation::op_mul);
+		$$ = std::make_unique<tinyc::L3Op>(@$, tinyc::Operation::op_mul);
 	}
 	| "/"  {
-		$$ = std::make_unique<tinyc::L3Op>(tinyc::Operation::op_div);
+		$$ = std::make_unique<tinyc::L3Op>(@$, tinyc::Operation::op_div);
 	}
 	| "%" {
-		$$ = std::make_unique<tinyc::L3Op>(tinyc::Operation::op_mod);
+		$$ = std::make_unique<tinyc::L3Op>(@$, tinyc::Operation::op_mod);
 	};
 
 L4Expr
 	: L3Expr {
 		assert_same_ptr(tinyc::L3Expr, $1);
-		$$ = std::make_unique<tinyc::L4Expr>(std::move($1));
+		$$ = std::make_unique<tinyc::L4Expr>(@$, std::move($1));
 	}
 	| L4Expr L4Op L3Expr {
 		assert_same_ptr(tinyc::L4Expr, $1);
 		assert_same_ptr(tinyc::L4Op, $2);
 		assert_same_ptr(tinyc::L3Expr, $3);
-		$$ = std::make_unique<tinyc::L4Expr>(std::move($1), std::move($2), std::move($3));
+		$$ = std::make_unique<tinyc::L4Expr>(@$, std::move($1), std::move($2), std::move($3));
 	};
 
 L4Op
 	: "+" {
-		$$ = std::make_unique<tinyc::L4Op>(tinyc::Operation::op_add);
+		$$ = std::make_unique<tinyc::L4Op>(@$, tinyc::Operation::op_add);
 	}
 	| "-" {
-		$$ = std::make_unique<tinyc::L4Op>(tinyc::Operation::op_sub);
+		$$ = std::make_unique<tinyc::L4Op>(@$, tinyc::Operation::op_sub);
 	};
 
 L6Expr
 	: L4Expr {
 		assert_same_ptr(tinyc::L4Expr, $1);
-		$$ = std::make_unique<tinyc::L6Expr>(std::move($1));
+		$$ = std::make_unique<tinyc::L6Expr>(@$, std::move($1));
 	}
 	| L6Expr L6Op L4Expr {
 		assert_same_ptr(tinyc::L6Expr, $1);
 		assert_same_ptr(tinyc::L6Op, $2);
 		assert_same_ptr(tinyc::L4Expr, $3);
-		$$ = std::make_unique<tinyc::L6Expr>(std::move($1), std::move($2), std::move($3));
+		$$ = std::make_unique<tinyc::L6Expr>(@$, std::move($1), std::move($2), std::move($3));
 	};
 
 L6Op
 	: "<" {
-		$$ = std::make_unique<tinyc::L6Op>(tinyc::Operation::op_lt);
+		$$ = std::make_unique<tinyc::L6Op>(@$, tinyc::Operation::op_lt);
 	}
 	| ">" {
-		$$ = std::make_unique<tinyc::L6Op>(tinyc::Operation::op_gt);
+		$$ = std::make_unique<tinyc::L6Op>(@$, tinyc::Operation::op_gt);
 	}
 	| "<=" {
-		$$ = std::make_unique<tinyc::L6Op>(tinyc::Operation::op_le);
+		$$ = std::make_unique<tinyc::L6Op>(@$, tinyc::Operation::op_le);
 	}
 	| ">=" {
-		$$ = std::make_unique<tinyc::L6Op>(tinyc::Operation::op_ge);
+		$$ = std::make_unique<tinyc::L6Op>(@$, tinyc::Operation::op_ge);
 	};
 
 L7Expr      
 	: L6Expr {
 		assert_same_ptr(tinyc::L6Expr, $1);
-		$$ = std::make_unique<tinyc::L7Expr>(std::move($1));
+		$$ = std::make_unique<tinyc::L7Expr>(@$, std::move($1));
 	}
 	| L7Expr L7Op L6Expr {
 		assert_same_ptr(tinyc::L7Expr, $1);
 		assert_same_ptr(tinyc::L7Op, $2);
 		assert_same_ptr(tinyc::L6Expr, $3);
-		$$ = std::make_unique<tinyc::L7Expr>(std::move($1), std::move($2), std::move($3));
+		$$ = std::make_unique<tinyc::L7Expr>(@$, std::move($1), std::move($2), std::move($3));
 	};
 
 L7Op		
 	: "==" {
-		$$ = std::make_unique<tinyc::L7Op>(tinyc::Operation::op_eq);
+		$$ = std::make_unique<tinyc::L7Op>(@$, tinyc::Operation::op_eq);
 	}
 	| "!=" {
-		$$ = std::make_unique<tinyc::L7Op>(tinyc::Operation::op_ne);
+		$$ = std::make_unique<tinyc::L7Op>(@$, tinyc::Operation::op_ne);
 	};
 
 LAndExpr	
 	: L7Expr {
 		assert_same_ptr(tinyc::L7Expr, $1);
-		$$ = std::make_unique<tinyc::LAndExpr>(std::move($1));
+		$$ = std::make_unique<tinyc::LAndExpr>(@$, std::move($1));
 	}
 	| LAndExpr LAndOp L7Expr{
 		assert_same_ptr(tinyc::LAndExpr, $1);
 		assert_same_ptr(tinyc::LAndOp, $2);
 		assert_same_ptr(tinyc::L7Expr, $3);
-		$$ = std::make_unique<tinyc::LAndExpr>(std::move($1), std::move($2), std::move($3));
+		$$ = std::make_unique<tinyc::LAndExpr>(@$, std::move($1), std::move($2), std::move($3));
 	};
 
 LAndOp		
 	: "&&" {
-		$$ = std::make_unique<tinyc::LAndOp>(tinyc::Operation::op_land);
+		$$ = std::make_unique<tinyc::LAndOp>(@$, tinyc::Operation::op_land);
 	}
 
 LOrExpr
 	: LAndExpr {
 		assert_same_ptr(tinyc::LAndExpr, $1);
-		$$ = std::make_unique<tinyc::LOrExpr>(std::move($1));
+		$$ = std::make_unique<tinyc::LOrExpr>(@$, std::move($1));
 	}
 	| LOrExpr LOrOp LAndExpr {
 		assert_same_ptr(tinyc::LOrExpr, $1);
 		assert_same_ptr(tinyc::LOrOp, $2);
 		assert_same_ptr(tinyc::LAndExpr, $3);
-		$$ = std::make_unique<tinyc::LOrExpr>(std::move($1), std::move($2), std::move($3));
+		$$ = std::make_unique<tinyc::LOrExpr>(@$, std::move($1), std::move($2), std::move($3));
 	};
 
 LOrOp	
 	: "||" {
-		$$ = std::make_unique<tinyc::LOrOp>(tinyc::Operation::op_lor);
+		$$ = std::make_unique<tinyc::LOrOp>(@$, tinyc::Operation::op_lor);
 	};
 
 Number
 	: INT_LITERAL{
-		$$ = std::make_unique<tinyc::Number>($1);
+		$$ = std::make_unique<tinyc::Number>(@$, $1);
 	};
 
 Ident
 	: IDENT{
-		$$ = std::make_unique<tinyc::Ident>($1);
+		$$ = std::make_unique<tinyc::Ident>(@$, $1);
 	};
 
 %%

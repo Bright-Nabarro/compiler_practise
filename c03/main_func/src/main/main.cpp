@@ -120,7 +120,7 @@ auto main(int argc, char* argv[]) -> int
 	if (!driver->parse())
 		return 1;
 	
-	tinyc::GeneralVisitor visitor(ctx, emit_llvm, output_file, tm);
+	tinyc::GeneralVisitor visitor(ctx, emit_llvm, src_mgr, output_file, tm);
 	bool ret = visitor.visit(driver->get_ast_ptr());
 	if (!ret)
 		return 1;

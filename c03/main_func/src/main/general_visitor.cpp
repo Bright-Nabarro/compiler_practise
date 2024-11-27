@@ -13,12 +13,13 @@
 namespace tinyc
 {
 
-GeneralVisitor::GeneralVisitor(llvm::LLVMContext& context, bool emit_llvm,
+GeneralVisitor::GeneralVisitor(llvm::LLVMContext& context, bool emit_llvm, llvm::SourceMgr& src_mgr,
 				   std::string_view output_file, llvm::TargetMachine* tm):
 	m_module { std::make_unique<llvm::Module>("tinyc.expr", context) },
 	m_builder { m_module->getContext() },
 	m_type_mgr { std::make_shared<CTypeManager>(m_module->getContext(), tm) },
 	m_emit_llvm { emit_llvm },
+	m_src_mgr { src_mgr },
 	m_output_file { output_file },
 	m_target_machine { tm }
 {

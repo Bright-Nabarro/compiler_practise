@@ -6,6 +6,7 @@
 #include <cassert>
 #include <easylog.hpp>
 #include <tuple>
+#include "location_range.hpp"
 //#include "utility.hpp"
 
 namespace tinyc
@@ -62,7 +63,9 @@ public:
 		ast_comunit,
 	};
 
-	BaseAST(AstKind kind): m_kind { kind }{}
+	BaseAST(AstKind kind, const LocationRange& location)
+		: m_kind{kind}, m_location{std::make_unique<LocationRange>(location)}
+	{}
 
 	virtual
 	~BaseAST() = default;
@@ -73,16 +76,24 @@ public:
 		visitor.visit(this);
 	}
 
+
 	[[nodiscard]]
 	auto get_kind() const -> AstKind
 	{ return m_kind; }
 
 	[[nodiscard]]
 	auto get_kind_str() const -> const char*;
+	
+	void report(const llvm::SourceMgr& src_mgr,
+					   llvm::SourceMgr::DiagKind dk,
+					   std::string_view msg) const
+	{ m_location->report(src_mgr, dk, msg); }
 
 private:
 	AstKind m_kind;
+	std::unique_ptr<LocationRange> m_location;
 };
+
 
 #define FILL_CLASSOF(ast_enum)                                                 \
 	[[nodiscard]]                                                              \
@@ -99,7 +110,7 @@ private:
 class Number: public BaseAST
 {
 public:
-	Number(int value) : BaseAST{ast_number}, m_value{value} {}
+	Number(const LocationRange& location, int value) : BaseAST{ast_number, location}, m_value{value} {}
 	
 	[[nodiscard]]
 	auto get_int_literal() const -> int
@@ -119,7 +130,7 @@ private:
 class Ident: public BaseAST
 {
 public:
-	Ident(std::string value) : BaseAST{ast_ident}, m_value{std::move(value)}{}
+	Ident(const LocationRange& location, std::string value) : BaseAST{ast_ident, location}, m_value{std::move(value)}{}
 	
 	[[nodiscard]]
 	auto get_value() const -> std::string
@@ -134,8 +145,8 @@ private:
 class BaseExpr: public BaseAST
 {
 public:
-	BaseExpr(AstKind ast_kind):
-		BaseAST(ast_kind)
+	BaseExpr(AstKind ast_kind, const LocationRange& location):
+		BaseAST(ast_kind, location)
 	{
 		assert(ast_kind >= ast_expr && ast_kind < ast_expr_end);
 	}
@@ -161,7 +172,7 @@ class Expr: public BaseExpr
 public:
 	FILL_CLASSOF(ast_expr)
 
-	Expr(std::unique_ptr<LowExpr> uptr);
+	Expr(const LocationRange& location, std::unique_ptr<LowExpr> uptr);
 	~Expr();
 	
 	auto get_low_expr() const -> const LowExpr&
@@ -185,18 +196,18 @@ public:
 	using IdentPtr = std::unique_ptr<Ident>;
 	using Variant = std::variant<ExprPtr, NumberPtr, IdentPtr>;
 
-	PrimaryExpr(ExprPtr expr_ptr):
-		BaseExpr(ast_primary_expr),
+	PrimaryExpr(const LocationRange& location, ExprPtr expr_ptr):
+		BaseExpr(ast_primary_expr, location),
 		m_value { std::move(expr_ptr) }
 	{}
 
-	PrimaryExpr(NumberPtr number_ptr):
-		BaseExpr(ast_primary_expr),
+	PrimaryExpr(const LocationRange& location, NumberPtr number_ptr):
+		BaseExpr(ast_primary_expr, location),
 		m_value { std::move(number_ptr) }
 	{}
 
-	PrimaryExpr(IdentPtr ident_ptr):
-		BaseExpr(ast_primary_expr),
+	PrimaryExpr(const LocationRange& location, IdentPtr ident_ptr):
+		BaseExpr(ast_primary_expr, location),
 		m_value { std::move(ident_ptr) }
 	{}
 
@@ -283,8 +294,8 @@ public:
 		op_lor,
 	};
 	
-	Operation(AstKind ast_kind, OperationType type) :
-		BaseAST { ast_kind },
+	Operation(AstKind ast_kind, const LocationRange& location, OperationType type) :
+		BaseAST { ast_kind, location },
 		m_type { type }
 	{
 		assert(ast_kind > ast_op && ast_kind < ast_op_end);
@@ -329,8 +340,8 @@ class UnaryOp: public Operation
 public:
 	FILL_CLASSOF(ast_unary_op);
 
-	UnaryOp(OperationType type):
-		Operation { ast_unary_op, type}
+	UnaryOp(const LocationRange& location, OperationType type):
+		Operation { ast_unary_op, location, type}
 	{
 		if (type < op_add || type > op_not)
 			yq::fatal("Invalid UnaryOp");
@@ -350,14 +361,14 @@ public:
 
 	FILL_CLASSOF(ast_unary_expr);
 
-	UnaryExpr(PrmExpPtr primary_expr):
-		BaseExpr { ast_unary_expr },
+	UnaryExpr(const LocationRange& location, PrmExpPtr primary_expr):
+		BaseExpr { ast_unary_expr, location },
 		m_value { std::move(primary_expr) }
 	{}
 
-	UnaryExpr(std::unique_ptr<UnaryOp> unary_op,
+	UnaryExpr(const LocationRange& location, std::unique_ptr<UnaryOp> unary_op,
 			std::unique_ptr<UnaryExpr> unary_expr):
-		BaseExpr { ast_unary_expr }, 
+		BaseExpr { ast_unary_expr, location }, 
 		m_value { PackPtr { std::move(unary_op), std::move(unary_expr) } }
 	{}
 
@@ -420,14 +431,14 @@ public:
 	using Variant = std::variant<HigherExprPtr, CombinedExpr>;
 
 	explicit
-	BinaryExpr(AstKind kind, HigherExprPtr ptr):
-		BaseExpr { kind },
+	BinaryExpr(AstKind kind, const LocationRange& location, HigherExprPtr ptr):
+		BaseExpr { kind, location },
 		m_value { std::move(ptr) }
 	{}
 
-	BinaryExpr(AstKind kind, SelfExprPtr self_ptr,
+	BinaryExpr(AstKind kind, const LocationRange& location, SelfExprPtr self_ptr,
 			   OpPtr op_ptr, HigherExprPtr higher_ptr)
-		: BaseExpr{kind},
+		: BaseExpr{kind, location},
 		  m_value{CombinedExpr{std::move(self_ptr), std::move(op_ptr),
 							   std::move(higher_ptr)}}
 	{}
@@ -470,11 +481,16 @@ private:
 
 #define BINARY_EXPR_FILL_CONSTRUCTORS(expr_kind, expr_name)                    \
 	FILL_CLASSOF(expr_kind)                                                    \
-	expr_name(HigherExprPtr ptr) : BinaryExpr{expr_kind, std::move(ptr)} {}    \
-	expr_name(SelfExprPtr self_ptr, OpPtr op_ptr, HigherExprPtr higher_ptr)    \
-		: BinaryExpr{expr_kind, std::move(self_ptr), std::move(op_ptr),        \
-					 std::move(higher_ptr)}                                    \
-	{}
+	expr_name(const LocationRange& location, HigherExprPtr ptr)                \
+		: BinaryExpr{expr_kind, location, std::move(ptr)}                      \
+	{                                                                          \
+	}                                                                          \
+	expr_name(const LocationRange& location, SelfExprPtr self_ptr,             \
+			  OpPtr op_ptr, HigherExprPtr higher_ptr)                          \
+		: BinaryExpr{expr_kind, location, std::move(self_ptr),                 \
+					 std::move(op_ptr), std::move(higher_ptr)}                 \
+	{                                                                          \
+	}
 
 /// L3Op ::= "*" | "/" | "%"
 class L3Op: public Operation
@@ -482,8 +498,8 @@ class L3Op: public Operation
 public:
 	FILL_CLASSOF(ast_l3op);
 
-	L3Op(OperationType type):
-		Operation(ast_l3op, type)
+	L3Op(const LocationRange& location, OperationType type):
+		Operation(ast_l3op, location, type)
 	{
 		if (get_type() < op_mul || get_type() > op_mod)
 			yq::fatal("Invalid L3Op");
@@ -506,8 +522,8 @@ class L4Op: public Operation
 public:
 	FILL_CLASSOF(ast_l4op);
 
-	L4Op(OperationType type):
-		Operation(ast_l4op, type)
+	L4Op(const LocationRange& location, OperationType type):
+		Operation(ast_l4op, location, type)
 	{
 		if (get_type() < op_add || get_type() > op_not)
 			yq::fatal("Invalid L4Op");
@@ -532,8 +548,8 @@ class L6Op: public Operation
 public:
 	FILL_CLASSOF(ast_l6op);
 
-	L6Op(OperationType type):
-		Operation(ast_l6op, type)
+	L6Op(const LocationRange& location, OperationType type):
+		Operation(ast_l6op, location, type)
 	{
 		if (get_type() < op_lt || get_type() > op_ge)
 			yq::fatal("Invalid L6Op");
@@ -559,7 +575,8 @@ class L7Op : public Operation
 public:
 	FILL_CLASSOF(ast_l7op)
 
-	L7Op(OperationType type) : Operation(ast_l7op, type)
+	L7Op(const LocationRange& location, OperationType type)
+		: Operation{ast_l7op, location, type}
 	{
 		if (get_type() < op_eq || get_type() > op_ne)
 			yq::fatal("Invalid L7Op");
@@ -583,7 +600,8 @@ class LAndOp: public Operation
 {
 public:
 	FILL_CLASSOF(ast_land_op);
-	LAndOp(OperationType type): Operation { ast_land_op, type }
+	LAndOp(const LocationRange& location, OperationType type)
+		: Operation{ast_land_op, location, type}
 	{
 		if (get_type() != op_land)
 			yq::fatal("Invalid LAndOp");
@@ -608,7 +626,8 @@ class LOrOp: public Operation
 {
 public:
 	FILL_CLASSOF(ast_lor_op);
-	LOrOp(OperationType type): Operation { ast_lor_op, type }
+	LOrOp(const LocationRange& location, OperationType type)
+		: Operation{ast_lor_op, location, type}
 	{
 		if (get_type() != op_lor)
 			yq::fatal("Invalid LOrOp");
@@ -637,8 +656,8 @@ BinaryExpr<SelfExpr, HigherExpr, Operation>::~BinaryExpr()
 class Stmt: public BaseAST
 {
 public:
-	Stmt(std::unique_ptr<Expr> expr):
-		BaseAST(ast_stmt), m_expr { std::move(expr) }{}
+	Stmt(const LocationRange& location, std::unique_ptr<Expr> expr):
+		BaseAST {ast_stmt, location}, m_expr { std::move(expr) }{}
 
 	FILL_CLASSOF(ast_stmt);
 	
@@ -657,9 +676,10 @@ class Block : public BaseAST
 {
 public:
 	using Vector = std::vector<std::unique_ptr<Stmt>>;
-	Block(Vector stmts = Vector{})
-		: BaseAST{ast_block}, m_stmts{std::move(stmts)}
-	{ }
+	Block(const LocationRange& location, Vector stmts = Vector{})
+		: BaseAST{ast_block, location}, m_stmts{std::move(stmts)}
+	{
+	}
 
 	FILL_CLASSOF(ast_block);
 
@@ -692,8 +712,10 @@ public:
 		ty_void
 	};
 
-	Type(TypeEnum type): BaseAST { ast_type }, m_type { type }
-	{ }
+	Type(const LocationRange& location, TypeEnum type)
+		: BaseAST{ast_type, location}, m_type{type}
+	{
+	}
 
 	FILL_CLASSOF(ast_type)
 
@@ -724,9 +746,11 @@ private:
 class Param : public BaseAST
 {
 public:
-	Param(std::unique_ptr<Type> type, std::unique_ptr<Ident> id)
-		: BaseAST { ast_param }, m_type{std::move(type)}, m_id{std::move(id)}
-	{ }
+	Param(const LocationRange& location, std::unique_ptr<Type> type,
+		  std::unique_ptr<Ident> id)
+		: BaseAST { ast_param, location}, m_type{std::move(type)}, m_id{std::move(id)}
+	{
+	}
 
 	FILL_CLASSOF(ast_param);
 	
@@ -749,8 +773,8 @@ class ParamList: public BaseAST
 {
 public:
 	using Vector = std::vector<std::unique_ptr<Param>>;
-	ParamList(Vector params = Vector{}):
-		BaseAST(ast_paramlist),
+	ParamList(const LocationRange& location, Vector params = Vector{}):
+		BaseAST { ast_paramlist, location },
 		m_params { std::move(params) }
 	{ }
 
@@ -786,12 +810,13 @@ class FuncDef: public BaseAST
 {
 public:
 	FuncDef(
+		const LocationRange& location, 
 		std::unique_ptr<Type> type,
 		std::unique_ptr<Ident> ident,
 		std::unique_ptr<ParamList> paramlist,
 		std::unique_ptr<Block> block):
 
-		BaseAST{ast_funcdef},
+		BaseAST { ast_funcdef, location },
 		m_type { std::move(type) },
 		m_ident { std::move(ident) },
 		m_paramlist { std::move(paramlist) },
@@ -823,8 +848,8 @@ private:
 class CompUnit: public BaseAST
 {
 public:
-	CompUnit(std::unique_ptr<FuncDef> func_def):
-		BaseAST{ast_comunit},
+	CompUnit(const LocationRange& location, std::unique_ptr<FuncDef> func_def):
+		BaseAST { ast_comunit, location },
 		m_func_def { std::move(func_def) }
 	{}
 
@@ -840,5 +865,6 @@ private:
 
 #undef FILL_CLASSOF
 #undef BINARY_EXPR_FILL_CONSTRUCTORS
+
 } //namespace tinyc
 

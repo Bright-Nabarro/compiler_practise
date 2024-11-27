@@ -16,7 +16,7 @@ namespace tinyc
 class GeneralVisitor: public ASTVisitor
 {
 public:
-	GeneralVisitor(llvm::LLVMContext& context, bool emit_llvm,
+	GeneralVisitor(llvm::LLVMContext& context, bool emit_llvm, llvm::SourceMgr& src_mgr,
 				   std::string_view output_file, llvm::TargetMachine* tm);
 	/// @note 只支持从根节点翻译
 	[[nodiscard]]
@@ -61,6 +61,7 @@ private:
 	std::shared_ptr<CTypeManager> m_type_mgr;
 	
 	bool m_emit_llvm;
+	llvm::SourceMgr& m_src_mgr;
 	std::string_view m_output_file;
 	
 	llvm::TargetMachine* m_target_machine;
