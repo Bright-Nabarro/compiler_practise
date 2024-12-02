@@ -1,5 +1,4 @@
 #include "driver.hpp"
-#include "general_visitor.hpp"
 #include <llvm/CodeGen/CommandFlags.h>
 #include <llvm/MC/TargetRegistry.h>
 #include <llvm/Support/CommandLine.h>
@@ -70,7 +69,6 @@ auto create_target_machine() -> llvm::TargetMachine*
 	
 	if (!target)
 	{
-		yq::error(yq::loc(), "{}", error_str);
 		return nullptr;
 	}
 	
@@ -111,7 +109,6 @@ auto main(int argc, char* argv[]) -> int
 	auto driver_or_error = driver_factory.produce_driver(file);
 	if (!driver_or_error)
 	{
-		yq::error("{}", driver_or_error.error());
 		return 1;
 	}
 	auto driver = std::move(*driver_or_error);
@@ -120,12 +117,6 @@ auto main(int argc, char* argv[]) -> int
 	if (!driver->parse())
 		return 1;
 	
-	tinyc::GeneralVisitor visitor(ctx, emit_llvm, src_mgr, output_file, tm);
-	bool ret = visitor.visit(driver->get_ast_ptr());
-	if (!ret)
-		return 1;
-	if (!visitor.emit())
-		return 1;
 
 	return 0;
 }

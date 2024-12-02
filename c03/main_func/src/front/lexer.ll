@@ -28,7 +28,8 @@ LineComment		\/\/[^\n]*\n
 LegacyComment 	\/\*.*\*\/
 Ident			[a-zA-Z_][0-9a-zA-Z_]*
 Number			[0-9]+
-
+SignedInt		(signed\s+int)|(int)|(signed)
+UnsignedInt		(unsigned\s+int)|(unsigned)
 %%
 
 %{
@@ -38,22 +39,36 @@ Number			[0-9]+
 	loc.step();
 %}
 
-{blank}			{ LOC_UPDATE_NORMAL(loc); }
-{LineComment}	{ LOC_UPDATE_NORMAL(loc); }
+{blank}			LOC_UPDATE_NORMAL(loc);
+{LineComment}	LOC_UPDATE_NORMAL(loc);
 {LegacyComment} LOC_UPDATE_NORMAL(loc);
-"int"			{ LOC_UPDATE_RET_ACTION(loc, yy::parser::make_KW_INT(loc)); }
-"void"			{ LOC_UPDATE_RET_ACTION(loc, yy::parser::make_KW_VOID(loc)); }
-"return"		{ LOC_UPDATE_RET_ACTION(loc, yy::parser::make_KW_RETURN(loc)); }
+{SignedInt}		LOC_UPDATE_RET_ACTION(loc, yy::parser::make_KW_SINT(loc));
+{UnsignedInt}	LOC_UPDATE_RET_ACTION(loc, yy::parser::make_KW_UINT(loc));
+"void"			LOC_UPDATE_RET_ACTION(loc, yy::parser::make_KW_VOID(loc));
+"return"		LOC_UPDATE_RET_ACTION(loc, yy::parser::make_KW_RETURN(loc)); 
 
-{Ident}			{ LOC_UPDATE_RET_ACTION(loc, yy::parser::make_IDENT(std::string{yytext}, loc)); }
-{Number}		{ LOC_UPDATE_RET_ACTION(loc, yy::parser::make_INT_LITERAL(std::atoi(yytext), loc)); }
-"("				{ LOC_UPDATE_RET_ACTION(loc, yy::parser::make_DELIM_LPAREN(loc)); }
-")"				{ LOC_UPDATE_RET_ACTION(loc, yy::parser::make_DELIM_RPAREN(loc)); }
-"{"				{ LOC_UPDATE_RET_ACTION(loc, yy::parser::make_DELIM_LBRACE(loc)); }
-"}"				{ LOC_UPDATE_RET_ACTION(loc, yy::parser::make_DELIM_RBRACE(loc)); }
-","				{ LOC_UPDATE_RET_ACTION(loc, yy::parser::make_DELIM_COMMA(loc));	}
-";"				{ LOC_UPDATE_RET_ACTION(loc, yy::parser::make_DELIM_SEMICOLON(loc)); }
-
+{Ident}			LOC_UPDATE_RET_ACTION(loc, yy::parser::make_IDENT(std::string{yytext}, loc));
+{Number}		LOC_UPDATE_RET_ACTION(loc, yy::parser::make_INT_LITERAL(std::atoi(yytext), loc));
+"("				LOC_UPDATE_RET_ACTION(loc, yy::parser::make_DELIM_LPAREN(loc));
+")"				LOC_UPDATE_RET_ACTION(loc, yy::parser::make_DELIM_RPAREN(loc));
+"{"				LOC_UPDATE_RET_ACTION(loc, yy::parser::make_DELIM_LBRACE(loc));
+"}"				LOC_UPDATE_RET_ACTION(loc, yy::parser::make_DELIM_RBRACE(loc));
+","				LOC_UPDATE_RET_ACTION(loc, yy::parser::make_DELIM_COMMA(loc));
+";"				LOC_UPDATE_RET_ACTION(loc, yy::parser::make_DELIM_SEMICOLON(loc));
+"+"				LOC_UPDATE_RET_ACTION(loc, yy::parser::make_OP_ADD(loc));
+"-" 			LOC_UPDATE_RET_ACTION(loc, yy::parser::make_OP_SUB(loc));
+"!" 			LOC_UPDATE_RET_ACTION(loc, yy::parser::make_OP_NOT(loc));
+"*"				LOC_UPDATE_RET_ACTION(loc, yy::parser::make_OP_MUL(loc));
+"/"				LOC_UPDATE_RET_ACTION(loc, yy::parser::make_OP_DIV(loc));
+"%"				LOC_UPDATE_RET_ACTION(loc, yy::parser::make_OP_MOD(loc));
+"<"				LOC_UPDATE_RET_ACTION(loc, yy::parser::make_OP_LT(loc));
+"<="			LOC_UPDATE_RET_ACTION(loc, yy::parser::make_OP_LE(loc));
+">"				LOC_UPDATE_RET_ACTION(loc, yy::parser::make_OP_GT(loc));
+">="			LOC_UPDATE_RET_ACTION(loc, yy::parser::make_OP_GE(loc));
+"=="			LOC_UPDATE_RET_ACTION(loc, yy::parser::make_OP_EQ(loc));
+"!="			LOC_UPDATE_RET_ACTION(loc, yy::parser::make_OP_NE(loc));
+"&&"			LOC_UPDATE_RET_ACTION(loc, yy::parser::make_OP_LAND(loc));
+"||"			LOC_UPDATE_RET_ACTION(loc, yy::parser::make_OP_LOR(loc));
 .				{
 					driver.get_parser().error(loc, "expect token");
 					return yy::parser::make_YYerror(loc);

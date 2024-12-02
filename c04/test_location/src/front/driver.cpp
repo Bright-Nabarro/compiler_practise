@@ -12,7 +12,7 @@ Driver::Driver(llvm::SourceMgr& src_mgr):
 	m_bufferid {},
 	m_debug_trace { false },
 	m_parser {},
-	m_location {}
+	m_location{}
 {
 
 }
@@ -34,7 +34,6 @@ auto Driver::construct(std::string_view file_name)
 	const char* buf_str = get_buffer();
 	m_location.set_begin(buf_str);
 	m_location.set_end(buf_str);
-	m_location.set_src_mgr(&m_src_mgr);
 
 	m_parser = std::make_unique<yy::parser>(*this);
 
@@ -52,13 +51,6 @@ auto Driver::parse() -> bool
 	int parse_ret = (*m_parser)();
 
 	return parse_ret == 0;
-}
-
-
-// 可以设置一个默认location, 每次调用时复制默认
-auto Driver::get_location() -> LLVMLocation&
-{
-	return m_location;
 }
 
 auto DriverFactory::produce_driver(std::string_view file_name)
