@@ -28,7 +28,8 @@ LineComment		\/\/[^\n]*\n
 LegacyComment 	\/\*.*\*\/
 Ident			[a-zA-Z_][0-9a-zA-Z_]*
 Number			[0-9]+
-
+SignedInt		(signed\s+int)|(int)|(signed)
+UnsignedInt		(unsigned\s+int)|(unsigned)
 %%
 
 %{
@@ -41,7 +42,8 @@ Number			[0-9]+
 {blank}			LOC_UPDATE_NORMAL(loc);
 {LineComment}	LOC_UPDATE_NORMAL(loc);
 {LegacyComment} LOC_UPDATE_NORMAL(loc);
-"int"			LOC_UPDATE_RET_ACTION(loc, yy::parser::make_KW_INT(loc));
+{SignedInt}		LOC_UPDATE_RET_ACTION(loc, yy::parser::make_KW_SINT(loc));
+{UnsignedInt}	LOC_UPDATE_RET_ACTION(loc, yy::parser::make_KW_UINT(loc));
 "void"			LOC_UPDATE_RET_ACTION(loc, yy::parser::make_KW_VOID(loc));
 "return"		LOC_UPDATE_RET_ACTION(loc, yy::parser::make_KW_RETURN(loc)); 
 

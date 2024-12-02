@@ -1,6 +1,5 @@
 #pragma once
 #include <memory>
-#include "location_range.hpp"
 
 namespace tinyc
 {
@@ -16,6 +15,29 @@ public:
 	virtual
 	auto visit(BaseAST*) -> bool = 0;
 };
+
+
+/// @brief BaseAST依赖的位置抽象基类
+class Location
+{
+public:
+	enum DiagKind
+	{
+		dk_error,
+		dk_warning,
+		dk_remark,
+		dk_note,
+	};
+
+	virtual
+	~Location() = default;
+	
+	virtual
+	void report(Location::DiagKind kind, std::string_view msg) const = 0;
+
+private:
+};
+
 
 /// 使用llvm-rtti进行动态转换
 class BaseAST
@@ -56,28 +78,23 @@ public:
 		ast_comunit,
 	};
 
-	BaseAST(AstKind kind, const LocationRange& location);
+	BaseAST(AstKind kind, std::unique_ptr<Location> location);
 
 	virtual
 	~BaseAST() = default;
-
 	virtual
 	void accept(ASTVisitor& visitor);
 
-
 	[[nodiscard]]
 	auto get_kind() const -> AstKind;
-
 	[[nodiscard]]
 	auto get_kind_str() const -> const char*;
 	
-	void report(const llvm::SourceMgr& src_mgr,
-					  llvm::SourceMgr::DiagKind dk,
-					  std::string_view msg) const;
+	void report(Location::DiagKind kind, std::string_view msg) const;
 
 private:
 	AstKind m_kind;
-	std::unique_ptr<LocationRange> m_location;
+	std::unique_ptr<Location> m_location;
 };
 
 #define TINYC_AST_FILL_CLASSOF(ast_enum)                                       \
@@ -87,42 +104,5 @@ private:
 		return ast->get_kind() == ast_enum;                                    \
 	}
 
-/**
- * 存储INT_LITERAL
- * 对应文法 Number ::= INT_LITERAL;
- **/
-class Number: public BaseAST
-{
-public:
-	Number(const LocationRange& location, int value) : BaseAST{ast_number, location}, m_value{value} {}
-	
-	[[nodiscard]]
-	auto get_int_literal() const -> int
-	{ return m_value; }
-	
-	TINYC_AST_FILL_CLASSOF(ast_number)
-
-private:
-	/// INT_LITERAL
-	int m_value;
-};
-
-
-/**
- * 对应文法 Ident ::= [a-zA-Z_][0-9a-zA-Z_]*;
- **/
-class Ident: public BaseAST
-{
-public:
-	Ident(const LocationRange& location, std::string value) : BaseAST{ast_ident, location}, m_value{std::move(value)}{}
-	
-	[[nodiscard]]
-	auto get_value() const -> std::string
-	{ return m_value; }
-
-	TINYC_AST_FILL_CLASSOF(ast_ident)
-private:
-	std::string m_value;
-};
 
 }	//namespace tinyc

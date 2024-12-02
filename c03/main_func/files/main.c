@@ -1,6 +1,7 @@
-int main()
+signed main()
 {
-	// 一条注释
-	/* sdfsfs */
+	// 1
+	/* sdfsdf */
+	int
 	return 2 != 3;
 }

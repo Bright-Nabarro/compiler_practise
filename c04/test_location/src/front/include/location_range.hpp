@@ -3,6 +3,7 @@
 #include <llvm/Support/SourceMgr.h>
 #include <ostream>
 #include <unordered_map>
+#include "ast.hpp"
 
 #define YYLLOC_DEFAULT(Cur, Rhs, N)                                            \
 	do                                                                         \
@@ -28,10 +29,12 @@ namespace tinyc
  * 使用yy_scan_bytes, yytext指向原始缓冲区副本
  * @note yy::parse要求必须有默认构造函数
  */
-class LocationRange
+class LocationRange: tinyc::Location
 {
 public:
-	explicit LocationRange();
+	LocationRange();
+	LocationRange(const LocationRange& rhs);
+	auto operator=(const LocationRange& rhs) -> LocationRange&;
 	llvm::SMLoc begin;
 	llvm::SMLoc end;
 
@@ -49,13 +52,14 @@ public:
 	
 	auto get_range() const -> llvm::SMRange;
 	
+	/// @brief 调用report的前置函数
+	void set_src_mgr(const llvm::SourceMgr* src_mgr);
 	/**
 	 * @param src_mgr begin和end对应的SourceMgr
 	 * @param dk 错误级别
 	 */
-	void report(const llvm::SourceMgr& src_mgr,
-					   llvm::SourceMgr::DiagKind dk,
-					   std::string_view msg) const;
+	void report(Location::DiagKind kind, std::string_view msg) const override ;
+
 	/// @brief set begin to end
 	void step();
 
@@ -64,14 +68,19 @@ public:
 
 	/// @brief 查询某个级别输出信息的次数
 	static
-	auto search_counter(llvm::SourceMgr::DiagKind dk) -> std::size_t;
+	auto search_counter(Location::DiagKind kind) -> std::size_t;
 
 private:
 	static inline
-	std::unordered_map<llvm::SourceMgr::DiagKind, std::size_t> trace_counter;
+	std::unordered_map<Location::DiagKind, std::size_t> trace_counter;
 	
 	static
-	void count(llvm::SourceMgr::DiagKind dk);
+	void count(Location::DiagKind kind);
+
+	static constexpr
+	auto cvt_kind_to_llvm(Location::DiagKind kind) -> llvm::SourceMgr::DiagKind;
+
+	const llvm::SourceMgr* m_src_mgr;
 };
 
 /// @brief 提供给flex trace使用

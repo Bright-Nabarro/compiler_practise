@@ -1,15 +1,19 @@
-#include "ast.hpp"
+#include "base_ast.hpp"
 
 namespace tinyc
 {
 
-// 让unique_ptr的析构函数知道UnaryExpr的定义
-Expr::~Expr() {}
+BaseAST::BaseAST(AstKind kind, std::unique_ptr<Location> location)
+	: m_kind{kind}, m_location{std::move(location)}
+{}
 
-Expr::Expr(const LocationRange& location, std::unique_ptr<LowExpr> uptr)
-	: BaseExpr{ ast_expr, location }, m_value{std::move(uptr)}
+void BaseAST::accept(ASTVisitor& visitor)
 {
+	visitor.visit(this);
 }
+
+auto BaseAST::get_kind() const -> AstKind
+{ return m_kind; }
 
 [[nodiscard]]
 auto BaseAST::get_kind_str() const -> const char*
@@ -77,6 +81,11 @@ auto BaseAST::get_kind_str() const -> const char*
 	}
 }
 
+void BaseAST::report(Location::DiagKind kind, std::string_view msg) const
+{
+	m_location->report(kind, msg);
+}
 
-}	//namespace tinyc;
+}	//namespace tinyc
+	
 

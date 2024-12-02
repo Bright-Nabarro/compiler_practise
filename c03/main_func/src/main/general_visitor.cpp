@@ -131,8 +131,11 @@ auto GeneralVisitor::handle(const Type& node) -> llvm::Type*
 	llvm::Type* ret;
 	switch(node.get_type())
 	{
-	case tinyc::Type::ty_int:
+	case tinyc::Type::ty_signed_int:
 		ret = m_type_mgr->get_signed_int();
+		break;
+	case tinyc::Type::ty_unsigned_int:
+		ret = m_type_mgr->get_unsigned_int();
 		break;
 	case tinyc::Type::ty_void:
 		ret = m_type_mgr->get_void();
@@ -252,7 +255,7 @@ auto GeneralVisitor::handle(const UnaryExpr& node) -> llvm::Value*
 	if (node.has_unary_expr())
 	{
 		result = handle(node.get_unary_expr());
-		result = handle(node.get_unary_op(), result);
+		result = unary_operate(node.get_unary_op(), result);
 	}
 	else if (node.has_primary_expr())
 	{
@@ -278,13 +281,12 @@ auto GeneralVisitor::handle(const Number& node) -> llvm::Value*
 	return result;
 }
 
-auto GeneralVisitor::handle(const UnaryOp& op, llvm::Value* operand)
+auto GeneralVisitor::unary_operate(const UnaryOp& op, llvm::Value* operand)
 	-> llvm::Value*
 {
 	yq::debug("UnaryOp[{}] Begin:",op.get_type_str());
 
 	llvm::Type* type = operand->getType();
-
 	llvm::Value* result = nullptr;
 
 	if (!type->isIntegerTy() && !type->isFloatingPointTy())

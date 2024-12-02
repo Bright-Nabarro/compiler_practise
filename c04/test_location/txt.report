@@ -1,0 +1,601 @@
+In file included from /home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/parser.bison.cpp:41:
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:417:21: error: ‘LLVMLocation’ in namespace ‘tinyc’ does not name a type; did you mean ‘Location’?
+  417 |     typedef  tinyc::LLVMLocation location_type;
+      |                     ^~~~~~~~~~~~
+      |                     Location
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:422:27: error: ‘location_type’ does not name a type
+  422 |       syntax_error (const location_type& l, const std::string& m)
+      |                           ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:434:7: error: ‘location_type’ does not name a type
+  434 |       location_type location;
+      |       ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:541:49: error: ‘location_type’ has not been declared
+  541 |       basic_symbol (typename Base::kind_type t, location_type&& l)
+      |                                                 ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:553:58: error: ‘location_type’ has not been declared
+  553 |       basic_symbol (typename Base::kind_type t, int&& v, location_type&& l)
+      |                                                          ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:567:66: error: ‘location_type’ has not been declared
+  567 |       basic_symbol (typename Base::kind_type t, std::string&& v, location_type&& l)
+      |                                                                  ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:581:87: error: ‘location_type’ has not been declared
+  581 |       basic_symbol (typename Base::kind_type t, std::unique_ptr<tinyc::CompUnit>&& v, location_type&& l)
+      |                                                                                       ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:656:7: error: ‘location_type’ does not name a type
+  656 |       location_type location;
+      |       ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:719:29: error: ‘location_type’ has not been declared
+  719 |       symbol_type (int tok, location_type l)
+      |                             ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:727:36: error: ‘location_type’ has not been declared
+  727 |       symbol_type (int tok, int v, location_type l)
+      |                                    ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:735:44: error: ‘location_type’ has not been declared
+  735 |       symbol_type (int tok, std::string v, location_type l)
+      |                                            ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:780:31: error: ‘location_type’ does not name a type
+  780 |     virtual void error (const location_type& loc, const std::string& msg);
+      |                               ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:793:19: error: ‘location_type’ has not been declared
+  793 |       make_YYEOF (location_type l)
+      |                   ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:808:21: error: ‘location_type’ has not been declared
+  808 |       make_YYerror (location_type l)
+      |                     ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:823:21: error: ‘location_type’ has not been declared
+  823 |       make_YYUNDEF (location_type l)
+      |                     ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:838:34: error: ‘location_type’ has not been declared
+  838 |       make_IDENT (std::string v, location_type l)
+      |                                  ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:853:32: error: ‘location_type’ has not been declared
+  853 |       make_INT_LITERAL (int v, location_type l)
+      |                                ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:868:23: error: ‘location_type’ has not been declared
+  868 |       make_KW_RETURN (location_type l)
+      |                       ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:883:21: error: ‘location_type’ has not been declared
+  883 |       make_KW_SINT (location_type l)
+      |                     ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:898:21: error: ‘location_type’ has not been declared
+  898 |       make_KW_UINT (location_type l)
+      |                     ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:913:21: error: ‘location_type’ has not been declared
+  913 |       make_KW_VOID (location_type l)
+      |                     ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:933:13: error: ‘location_type’ does not name a type
+  933 |       const location_type& location () const YY_NOEXCEPT { return yyla_.location; }
+      |             ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp: In constructor ‘yy::parser::syntax_error::syntax_error(const int&, const std::string&)’:
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:424:11: error: class ‘yy::parser::syntax_error’ does not have any field named ‘location’
+  424 |         , location (l)
+      |           ^~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp: In copy constructor ‘yy::parser::syntax_error::syntax_error(const yy::parser::syntax_error&)’:
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:429:11: error: class ‘yy::parser::syntax_error’ does not have any field named ‘location’
+  429 |         , location (s.location)
+      |           ^~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:429:23: error: ‘const struct yy::parser::syntax_error’ has no member named ‘location’
+  429 |         , location (s.location)
+      |                       ^~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp: In constructor ‘yy::parser::basic_symbol<Base>::basic_symbol()’:
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:505:11: error: class ‘yy::parser::basic_symbol<Base>’ does not have any field named ‘location’
+  505 |         , location ()
+      |           ^~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp: In constructor ‘yy::parser::basic_symbol<Base>::basic_symbol(yy::parser::basic_symbol<Base>&&)’:
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:513:11: error: class ‘yy::parser::basic_symbol<Base>’ does not have any field named ‘location’
+  513 |         , location (std::move (that.location))
+      |           ^~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp: In constructor ‘yy::parser::basic_symbol<Base>::basic_symbol(typename Base::kind_type, int&&)’:
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:543:11: error: class ‘yy::parser::basic_symbol<Base>’ does not have any field named ‘location’
+  543 |         , location (std::move (l))
+      |           ^~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp: In constructor ‘yy::parser::basic_symbol<Base>::basic_symbol(typename Base::kind_type, int&&, int&&)’:
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:556:11: error: class ‘yy::parser::basic_symbol<Base>’ does not have any field named ‘location’
+  556 |         , location (std::move (l))
+      |           ^~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp: In constructor ‘yy::parser::basic_symbol<Base>::basic_symbol(typename Base::kind_type, std::string&&, int&&)’:
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:570:11: error: class ‘yy::parser::basic_symbol<Base>’ does not have any field named ‘location’
+  570 |         , location (std::move (l))
+      |           ^~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp: In constructor ‘yy::parser::basic_symbol<Base>::basic_symbol(typename Base::kind_type, std::unique_ptr<tinyc::CompUnit>&&, int&&)’:
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:584:11: error: class ‘yy::parser::basic_symbol<Base>’ does not have any field named ‘location’
+  584 |         , location (std::move (l))
+      |           ^~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp: In copy constructor ‘yy::parser::basic_symbol<Base>::basic_symbol(const yy::parser::basic_symbol<Base>&)’:
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:1292:7: error: class ‘yy::parser::basic_symbol<Base>’ does not have any field named ‘location’
+ 1292 |     , location (that.location)
+      |       ^~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp: In member function ‘void yy::parser::basic_symbol<Base>::move(yy::parser::basic_symbol<Base>&)’:
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:1355:5: error: ‘location’ was not declared in this scope; did you mean ‘localtime’?
+ 1355 |     location = YY_MOVE (s.location);
+      |     ^~~~~~~~
+      |     localtime
+In file included from /home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/include/driver.hpp:10,
+                 from /home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/lexer.ll:5:
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:417:21: error: ‘LLVMLocation’ in namespace ‘tinyc’ does not name a type; did you mean ‘Location’?
+  417 |     typedef  tinyc::LLVMLocation location_type;
+      |                     ^~~~~~~~~~~~
+      |                     Location
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:422:27: error: ‘location_type’ does not name a type
+  422 |       syntax_error (const location_type& l, const std::string& m)
+      |                           ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:434:7: error: ‘location_type’ does not name a type
+  434 |       location_type location;
+      |       ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:541:49: error: ‘location_type’ has not been declared
+  541 |       basic_symbol (typename Base::kind_type t, location_type&& l)
+      |                                                 ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:553:58: error: ‘location_type’ has not been declared
+  553 |       basic_symbol (typename Base::kind_type t, int&& v, location_type&& l)
+      |                                                          ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:567:66: error: ‘location_type’ has not been declared
+  567 |       basic_symbol (typename Base::kind_type t, std::string&& v, location_type&& l)
+      |                                                                  ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:581:87: error: ‘location_type’ has not been declared
+  581 |       basic_symbol (typename Base::kind_type t, std::unique_ptr<tinyc::CompUnit>&& v, location_type&& l)
+      |                                                                                       ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:656:7: error: ‘location_type’ does not name a type
+  656 |       location_type location;
+      |       ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:719:29: error: ‘location_type’ has not been declared
+  719 |       symbol_type (int tok, location_type l)
+      |                             ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:727:36: error: ‘location_type’ has not been declared
+  727 |       symbol_type (int tok, int v, location_type l)
+      |                                    ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:735:44: error: ‘location_type’ has not been declared
+  735 |       symbol_type (int tok, std::string v, location_type l)
+      |                                            ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:780:31: error: ‘location_type’ does not name a type
+  780 |     virtual void error (const location_type& loc, const std::string& msg);
+      |                               ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:793:19: error: ‘location_type’ has not been declared
+  793 |       make_YYEOF (location_type l)
+      |                   ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:808:21: error: ‘location_type’ has not been declared
+  808 |       make_YYerror (location_type l)
+      |                     ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:823:21: error: ‘location_type’ has not been declared
+  823 |       make_YYUNDEF (location_type l)
+      |                     ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:838:34: error: ‘location_type’ has not been declared
+  838 |       make_IDENT (std::string v, location_type l)
+      |                                  ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:853:32: error: ‘location_type’ has not been declared
+  853 |       make_INT_LITERAL (int v, location_type l)
+      |                                ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:868:23: error: ‘location_type’ has not been declared
+  868 |       make_KW_RETURN (location_type l)
+      |                       ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:883:21: error: ‘location_type’ has not been declared
+  883 |       make_KW_SINT (location_type l)
+      |                     ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:898:21: error: ‘location_type’ has not been declared
+  898 |       make_KW_UINT (location_type l)
+      |                     ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:913:21: error: ‘location_type’ has not been declared
+  913 |       make_KW_VOID (location_type l)
+      |                     ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:933:13: error: ‘location_type’ does not name a type
+  933 |       const location_type& location () const YY_NOEXCEPT { return yyla_.location; }
+      |             ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp: In constructor ‘yy::parser::syntax_error::syntax_error(const int&, const std::string&)’:
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:424:11: error: class ‘yy::parser::syntax_error’ does not have any field named ‘location’
+  424 |         , location (l)
+      |           ^~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp: In copy constructor ‘yy::parser::syntax_error::syntax_error(const yy::parser::syntax_error&)’:
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:429:11: error: class ‘yy::parser::syntax_error’ does not have any field named ‘location’
+  429 |         , location (s.location)
+      |           ^~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:429:23: error: ‘const struct yy::parser::syntax_error’ has no member named ‘location’
+  429 |         , location (s.location)
+      |                       ^~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp: In constructor ‘yy::parser::basic_symbol<Base>::basic_symbol()’:
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:505:11: error: class ‘yy::parser::basic_symbol<Base>’ does not have any field named ‘location’
+  505 |         , location ()
+      |           ^~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp: In constructor ‘yy::parser::basic_symbol<Base>::basic_symbol(yy::parser::basic_symbol<Base>&&)’:
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:513:11: error: class ‘yy::parser::basic_symbol<Base>’ does not have any field named ‘location’
+  513 |         , location (std::move (that.location))
+      |           ^~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp: In constructor ‘yy::parser::basic_symbol<Base>::basic_symbol(typename Base::kind_type, int&&)’:
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:543:11: error: class ‘yy::parser::basic_symbol<Base>’ does not have any field named ‘location’
+  543 |         , location (std::move (l))
+      |           ^~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp: In constructor ‘yy::parser::basic_symbol<Base>::basic_symbol(typename Base::kind_type, int&&, int&&)’:
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:556:11: error: class ‘yy::parser::basic_symbol<Base>’ does not have any field named ‘location’
+  556 |         , location (std::move (l))
+      |           ^~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp: In constructor ‘yy::parser::basic_symbol<Base>::basic_symbol(typename Base::kind_type, std::string&&, int&&)’:
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:570:11: error: class ‘yy::parser::basic_symbol<Base>’ does not have any field named ‘location’
+  570 |         , location (std::move (l))
+      |           ^~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp: In constructor ‘yy::parser::basic_symbol<Base>::basic_symbol(typename Base::kind_type, std::unique_ptr<tinyc::CompUnit>&&, int&&)’:
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:584:11: error: class ‘yy::parser::basic_symbol<Base>’ does not have any field named ‘location’
+  584 |         , location (std::move (l))
+      |           ^~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp: In copy constructor ‘yy::parser::basic_symbol<Base>::basic_symbol(const yy::parser::basic_symbol<Base>&)’:
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:1292:7: error: class ‘yy::parser::basic_symbol<Base>’ does not have any field named ‘location’
+ 1292 |     , location (that.location)
+      |       ^~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp: In member function ‘void yy::parser::basic_symbol<Base>::move(yy::parser::basic_symbol<Base>&)’:
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:1355:5: error: ‘location’ was not declared in this scope; did you mean ‘localtime’?
+ 1355 |     location = YY_MOVE (s.location);
+      |     ^~~~~~~~
+      |     localtime
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/include/driver.hpp: At global scope:
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/include/driver.hpp:76:32: error: ‘LLVMLocation’ does not name a type; did you mean ‘Location’?
+   76 |         auto get_location() -> LLVMLocation&
+      |                                ^~~~~~~~~~~~
+      |                                Location
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/include/driver.hpp:76:32: error: expected ‘;’ at end of member declaration
+   76 |         auto get_location() -> LLVMLocation&
+      |                                ^~~~~~~~~~~~
+      |                                            ;
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/include/driver.hpp:77:9: error: expected unqualified-id before ‘{’ token
+   77 |         { return m_location; }
+      |         ^
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/include/driver.hpp:89:9: error: ‘LLVMLocation’ does not name a type; did you mean ‘Location’?
+   89 |         LLVMLocation m_location;
+      |         ^~~~~~~~~~~~
+      |         Location
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/lexer.ll: In function ‘yy::parser::symbol_type yylex(tinyc::Driver&)’:
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/lexer.ll:38:28: error: ‘class tinyc::Driver’ has no member named ‘get_location’
+   38 |         loc.step();
+      |                            ^           
+In file included from /home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/include/driver.hpp:10,
+                 from /home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/driver.cpp:1:
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:417:21: error: ‘LLVMLocation’ in namespace ‘tinyc’ does not name a type; did you mean ‘Location’?
+  417 |     typedef  tinyc::LLVMLocation location_type;
+      |                     ^~~~~~~~~~~~
+      |                     Location
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:422:27: error: ‘location_type’ does not name a type
+  422 |       syntax_error (const location_type& l, const std::string& m)
+      |                           ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:434:7: error: ‘location_type’ does not name a type
+  434 |       location_type location;
+      |       ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:541:49: error: ‘location_type’ has not been declared
+  541 |       basic_symbol (typename Base::kind_type t, location_type&& l)
+      |                                                 ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:553:58: error: ‘location_type’ has not been declared
+  553 |       basic_symbol (typename Base::kind_type t, int&& v, location_type&& l)
+      |                                                          ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:567:66: error: ‘location_type’ has not been declared
+  567 |       basic_symbol (typename Base::kind_type t, std::string&& v, location_type&& l)
+      |                                                                  ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:581:87: error: ‘location_type’ has not been declared
+  581 |       basic_symbol (typename Base::kind_type t, std::unique_ptr<tinyc::CompUnit>&& v, location_type&& l)
+      |                                                                                       ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:656:7: error: ‘location_type’ does not name a type
+  656 |       location_type location;
+      |       ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:719:29: error: ‘location_type’ has not been declared
+  719 |       symbol_type (int tok, location_type l)
+      |                             ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:727:36: error: ‘location_type’ has not been declared
+  727 |       symbol_type (int tok, int v, location_type l)
+      |                                    ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:735:44: error: ‘location_type’ has not been declared
+  735 |       symbol_type (int tok, std::string v, location_type l)
+      |                                            ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:780:31: error: ‘location_type’ does not name a type
+  780 |     virtual void error (const location_type& loc, const std::string& msg);
+      |                               ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:793:19: error: ‘location_type’ has not been declared
+  793 |       make_YYEOF (location_type l)
+      |                   ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:808:21: error: ‘location_type’ has not been declared
+  808 |       make_YYerror (location_type l)
+      |                     ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:823:21: error: ‘location_type’ has not been declared
+  823 |       make_YYUNDEF (location_type l)
+      |                     ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:838:34: error: ‘location_type’ has not been declared
+  838 |       make_IDENT (std::string v, location_type l)
+      |                                  ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:853:32: error: ‘location_type’ has not been declared
+  853 |       make_INT_LITERAL (int v, location_type l)
+      |                                ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:868:23: error: ‘location_type’ has not been declared
+  868 |       make_KW_RETURN (location_type l)
+      |                       ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:883:21: error: ‘location_type’ has not been declared
+  883 |       make_KW_SINT (location_type l)
+      |                     ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:898:21: error: ‘location_type’ has not been declared
+  898 |       make_KW_UINT (location_type l)
+      |                     ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:913:21: error: ‘location_type’ has not been declared
+  913 |       make_KW_VOID (location_type l)
+      |                     ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:933:13: error: ‘location_type’ does not name a type
+  933 |       const location_type& location () const YY_NOEXCEPT { return yyla_.location; }
+      |             ^~~~~~~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp: In constructor ‘yy::parser::syntax_error::syntax_error(const int&, const std::string&)’:
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:424:11: error: class ‘yy::parser::syntax_error’ does not have any field named ‘location’
+  424 |         , location (l)
+      |           ^~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp: In copy constructor ‘yy::parser::syntax_error::syntax_error(const yy::parser::syntax_error&)’:
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:429:11: error: class ‘yy::parser::syntax_error’ does not have any field named ‘location’
+  429 |         , location (s.location)
+      |           ^~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:429:23: error: ‘const struct yy::parser::syntax_error’ has no member named ‘location’
+  429 |         , location (s.location)
+      |                       ^~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp: In constructor ‘yy::parser::basic_symbol<Base>::basic_symbol()’:
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:505:11: error: class ‘yy::parser::basic_symbol<Base>’ does not have any field named ‘location’
+  505 |         , location ()
+      |           ^~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp: In constructor ‘yy::parser::basic_symbol<Base>::basic_symbol(yy::parser::basic_symbol<Base>&&)’:
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:513:11: error: class ‘yy::parser::basic_symbol<Base>’ does not have any field named ‘location’
+  513 |         , location (std::move (that.location))
+      |           ^~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp: In constructor ‘yy::parser::basic_symbol<Base>::basic_symbol(typename Base::kind_type, int&&)’:
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:543:11: error: class ‘yy::parser::basic_symbol<Base>’ does not have any field named ‘location’
+  543 |         , location (std::move (l))
+      |           ^~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp: In constructor ‘yy::parser::basic_symbol<Base>::basic_symbol(typename Base::kind_type, int&&, int&&)’:
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:556:11: error: class ‘yy::parser::basic_symbol<Base>’ does not have any field named ‘location’
+  556 |         , location (std::move (l))
+      |           ^~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp: In constructor ‘yy::parser::basic_symbol<Base>::basic_symbol(typename Base::kind_type, std::string&&, int&&)’:
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:570:11: error: class ‘yy::parser::basic_symbol<Base>’ does not have any field named ‘location’
+  570 |         , location (std::move (l))
+      |           ^~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp: In constructor ‘yy::parser::basic_symbol<Base>::basic_symbol(typename Base::kind_type, std::unique_ptr<tinyc::CompUnit>&&, int&&)’:
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:584:11: error: class ‘yy::parser::basic_symbol<Base>’ does not have any field named ‘location’
+  584 |         , location (std::move (l))
+      |           ^~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp: In copy constructor ‘yy::parser::basic_symbol<Base>::basic_symbol(const yy::parser::basic_symbol<Base>&)’:
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:1292:7: error: class ‘yy::parser::basic_symbol<Base>’ does not have any field named ‘location’
+ 1292 |     , location (that.location)
+      |       ^~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp: In member function ‘void yy::parser::basic_symbol<Base>::move(yy::parser::basic_symbol<Base>&)’:
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/build/src/front/bison_parser.hpp:1355:5: error: ‘location’ was not declared in this scope; did you mean ‘localtime’?
+ 1355 |     location = YY_MOVE (s.location);
+      |     ^~~~~~~~
+      |     localtime
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/include/driver.hpp: At global scope:
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/include/driver.hpp:76:32: error: ‘LLVMLocation’ does not name a type; did you mean ‘Location’?
+   76 |         auto get_location() -> LLVMLocation&
+      |                                ^~~~~~~~~~~~
+      |                                Location
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/include/driver.hpp:76:32: error: expected ‘;’ at end of member declaration
+   76 |         auto get_location() -> LLVMLocation&
+      |                                ^~~~~~~~~~~~
+      |                                            ;
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/include/driver.hpp:77:9: error: expected unqualified-id before ‘{’ token
+   77 |         { return m_location; }
+      |         ^
+In file included from /home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/parser.yy:32:
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/include/driver.hpp: At global scope:
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/include/driver.hpp:76:32: error: ‘LLVMLocation’ does not name a type; did you mean ‘Location’?
+   76 |         auto get_location() -> LLVMLocation&
+      |                                ^~~~~~~~~~~~
+      |                                Location
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/include/driver.hpp:76:32: error: expected ‘;’ at end of member declaration
+   76 |         auto get_location() -> LLVMLocation&
+      |                                ^~~~~~~~~~~~
+      |                                            ;
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/include/driver.hpp:77:9: error: expected unqualified-id before ‘{’ token
+   77 |         { return m_location; }
+      |         ^
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/include/driver.hpp:89:9: error: ‘LLVMLocation’ does not name a type; did you mean ‘Location’?
+   89 |         LLVMLocation m_location;
+      |         ^~~~~~~~~~~~
+      |         Location
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/include/driver.hpp:89:9: error: ‘LLVMLocation’ does not name a type; did you mean ‘Location’?
+   89 |         LLVMLocation m_location;
+      |         ^~~~~~~~~~~~
+      |         Location
+parser.bison.cpp: In constructor ‘yy::parser::stack_symbol_type::stack_symbol_type(yy::parser::stack_symbol_type&&)’:
+parser.bison.cpp:211:55: error: ‘struct yy::parser::stack_symbol_type’ has no member named ‘location’
+  211 |     : super_type (YY_MOVE (that.state), YY_MOVE (that.location))
+      |                                                       ^~~~~~~~
+parser.bison.cpp: In constructor ‘yy::parser::stack_symbol_type::stack_symbol_type(yy::parser::state_type, yy::parser::symbol_type&&)’:
+parser.bison.cpp:238:36: error: ‘struct yy::parser::symbol_type’ has no member named ‘location’
+  238 |     : super_type (s, YY_MOVE (that.location))
+      |                                    ^~~~~~~~
+In file included from /home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/include/driver.hpp:11:
+parser.bison.cpp: In member function ‘virtual int yy::parser::parse()’:
+parser.bison.cpp:596:31: error: ‘struct yy::parser::stack_symbol_type’ has no member named ‘location’
+  596 |         YYLLOC_DEFAULT (yylhs.location, range, yylen);
+      |                               ^~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/include/location_range.hpp:13:25: note: in definition of macro ‘YYLLOC_DEFAULT’
+   13 |                         Cur.begin = YYRHSLOC(Rhs, 1).begin;                                \
+      |                         ^~~
+parser.bison.cpp:79:36: error: ‘const struct yy::parser::stack_symbol_type’ has no member named ‘location’
+   79 | #define YYRHSLOC(Rhs, K) ((Rhs)[K].location)
+      |                                    ^~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/include/location_range.hpp:13:37: note: in expansion of macro ‘YYRHSLOC’
+   13 |                         Cur.begin = YYRHSLOC(Rhs, 1).begin;                                \
+      |                                     ^~~~~~~~
+parser.bison.cpp:596:9: note: in expansion of macro ‘YYLLOC_DEFAULT’
+  596 |         YYLLOC_DEFAULT (yylhs.location, range, yylen);
+      |         ^~~~~~~~~~~~~~
+parser.bison.cpp:596:31: error: ‘struct yy::parser::stack_symbol_type’ has no member named ‘location’
+  596 |         YYLLOC_DEFAULT (yylhs.location, range, yylen);
+      |                               ^~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/include/location_range.hpp:14:25: note: in definition of macro ‘YYLLOC_DEFAULT’
+   14 |                         Cur.end = YYRHSLOC(Rhs, N).end;                                    \
+      |                         ^~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/driver.cpp: In constructor ‘tinyc::Driver::Driver(llvm::SourceMgr&)’:
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/driver.cpp:15:9: error: class ‘tinyc::Driver’ does not have any field named ‘m_location’
+   15 |         m_location{}
+      |         ^~~~~~~~~~
+parser.bison.cpp:79:36: error: ‘const struct yy::parser::stack_symbol_type’ has no member named ‘location’
+   79 | #define YYRHSLOC(Rhs, K) ((Rhs)[K].location)
+      |                                    ^~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/include/location_range.hpp:14:35: note: in expansion of macro ‘YYRHSLOC’
+   14 |                         Cur.end = YYRHSLOC(Rhs, N).end;                                    \
+      |                                   ^~~~~~~~
+parser.bison.cpp:596:9: note: in expansion of macro ‘YYLLOC_DEFAULT’
+  596 |         YYLLOC_DEFAULT (yylhs.location, range, yylen);
+      |         ^~~~~~~~~~~~~~
+parser.bison.cpp:596:31: error: ‘struct yy::parser::stack_symbol_type’ has no member named ‘location’
+  596 |         YYLLOC_DEFAULT (yylhs.location, range, yylen);
+      |                               ^~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/include/location_range.hpp:18:25: note: in definition of macro ‘YYLLOC_DEFAULT’
+   18 |                         Cur.begin = Cur.end = YYRHSLOC(Rhs, 0).end;                        \
+      |                         ^~~
+parser.bison.cpp:596:31: error: ‘struct yy::parser::stack_symbol_type’ has no member named ‘location’
+  596 |         YYLLOC_DEFAULT (yylhs.location, range, yylen);
+      |                               ^~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/include/location_range.hpp:18:37: note: in definition of macro ‘YYLLOC_DEFAULT’
+   18 |                         Cur.begin = Cur.end = YYRHSLOC(Rhs, 0).end;                        \
+      |                                     ^~~
+parser.bison.cpp:79:36: error: ‘const struct yy::parser::stack_symbol_type’ has no member named ‘location’
+   79 | #define YYRHSLOC(Rhs, K) ((Rhs)[K].location)
+      |                                    ^~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/include/location_range.hpp:18:47: note: in expansion of macro ‘YYRHSLOC’
+   18 |                         Cur.begin = Cur.end = YYRHSLOC(Rhs, 0).end;                        \
+      |                                               ^~~~~~~~
+parser.bison.cpp:596:9: note: in expansion of macro ‘YYLLOC_DEFAULT’
+  596 |         YYLLOC_DEFAULT (yylhs.location, range, yylen);
+      |         ^~~~~~~~~~~~~~
+parser.bison.cpp:597:26: error: ‘struct yy::parser::stack_symbol_type’ has no member named ‘location’
+  597 |         yyerror_range[1].location = yylhs.location;
+      |                          ^~~~~~~~
+parser.bison.cpp:597:43: error: ‘struct yy::parser::stack_symbol_type’ has no member named ‘location’
+  597 |         yyerror_range[1].location = yylhs.location;
+      |                                           ^~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/parser.yy:51:49: error: ‘LLVMLocation’ is not a member of ‘tinyc’; did you mean ‘Location’?
+   51 |                         std::make_unique<tinyc::LLVMLocation>(@$);
+      |                                                 ^~~~~~~~~~~~
+      |                                                 Location
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/parser.yy:51:69: error: ‘struct yy::parser::stack_symbol_type’ has no member named ‘location’
+   51 |                         std::make_unique<tinyc::LLVMLocation>(@$);
+      |                                                                     ^       
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/parser.yy:59:65: error: ‘struct yy::parser::stack_symbol_type’ has no member named ‘location’
+   59 |                         std::make_unique<tinyc::Location>(@$);
+      |                                                                 ^       
+parser.bison.cpp:668:21: error: ‘struct yy::parser::symbol_type’ has no member named ‘location’
+  668 |         error (yyla.location, YY_MOVE (msg));
+      |                     ^~~~~~~~
+parser.bison.cpp:672:22: error: ‘struct yy::parser::stack_symbol_type’ has no member named ‘location’
+  672 |     yyerror_range[1].location = yyla.location;
+      |                      ^~~~~~~~
+parser.bison.cpp:672:38: error: ‘struct yy::parser::symbol_type’ has no member named ‘location’
+  672 |     yyerror_range[1].location = yyla.location;
+      |                                      ^~~~~~~~
+parser.bison.cpp:734:26: error: ‘struct yy::parser::stack_symbol_type’ has no member named ‘location’
+  734 |         yyerror_range[1].location = yystack_[0].location;
+      |                          ^~~~~~~~
+parser.bison.cpp:734:49: error: ‘struct yy::parser::stack_symbol_type’ has no member named ‘location’
+  734 |         yyerror_range[1].location = yystack_[0].location;
+      |                                                 ^~~~~~~~
+parser.bison.cpp:742:24: error: ‘struct yy::parser::stack_symbol_type’ has no member named ‘location’
+  742 |       yyerror_range[2].location = yyla.location;
+      |                        ^~~~~~~~
+parser.bison.cpp:742:40: error: ‘struct yy::parser::symbol_type’ has no member named ‘location’
+  742 |       yyerror_range[2].location = yyla.location;
+      |                                        ^~~~~~~~
+parser.bison.cpp:743:35: error: ‘struct yy::parser::stack_symbol_type’ has no member named ‘location’
+  743 |       YYLLOC_DEFAULT (error_token.location, yyerror_range, 2);
+      |                                   ^~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/include/location_range.hpp:13:25: note: in definition of macro ‘YYLLOC_DEFAULT’
+   13 |                         Cur.begin = YYRHSLOC(Rhs, 1).begin;                                \
+      |                         ^~~
+parser.bison.cpp:79:36: error: ‘struct yy::parser::stack_symbol_type’ has no member named ‘location’
+   79 | #define YYRHSLOC(Rhs, K) ((Rhs)[K].location)
+      |                                    ^~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/include/location_range.hpp:13:37: note: in expansion of macro ‘YYRHSLOC’
+   13 |                         Cur.begin = YYRHSLOC(Rhs, 1).begin;                                \
+      |                                     ^~~~~~~~
+parser.bison.cpp:743:7: note: in expansion of macro ‘YYLLOC_DEFAULT’
+  743 |       YYLLOC_DEFAULT (error_token.location, yyerror_range, 2);
+      |       ^~~~~~~~~~~~~~
+parser.bison.cpp:743:35: error: ‘struct yy::parser::stack_symbol_type’ has no member named ‘location’
+  743 |       YYLLOC_DEFAULT (error_token.location, yyerror_range, 2);
+      |                                   ^~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/include/location_range.hpp:14:25: note: in definition of macro ‘YYLLOC_DEFAULT’
+   14 |                         Cur.end = YYRHSLOC(Rhs, N).end;                                    \
+      |                         ^~~
+parser.bison.cpp:79:36: error: ‘struct yy::parser::stack_symbol_type’ has no member named ‘location’
+   79 | #define YYRHSLOC(Rhs, K) ((Rhs)[K].location)
+      |                                    ^~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/include/location_range.hpp:14:35: note: in expansion of macro ‘YYRHSLOC’
+   14 |                         Cur.end = YYRHSLOC(Rhs, N).end;                                    \
+      |                                   ^~~~~~~~
+parser.bison.cpp:743:7: note: in expansion of macro ‘YYLLOC_DEFAULT’
+  743 |       YYLLOC_DEFAULT (error_token.location, yyerror_range, 2);
+      |       ^~~~~~~~~~~~~~
+parser.bison.cpp:743:35: error: ‘struct yy::parser::stack_symbol_type’ has no member named ‘location’
+  743 |       YYLLOC_DEFAULT (error_token.location, yyerror_range, 2);
+      |                                   ^~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/include/location_range.hpp:18:25: note: in definition of macro ‘YYLLOC_DEFAULT’
+   18 |                         Cur.begin = Cur.end = YYRHSLOC(Rhs, 0).end;                        \
+      |                         ^~~
+parser.bison.cpp:743:35: error: ‘struct yy::parser::stack_symbol_type’ has no member named ‘location’
+  743 |       YYLLOC_DEFAULT (error_token.location, yyerror_range, 2);
+      |                                   ^~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/include/location_range.hpp:18:37: note: in definition of macro ‘YYLLOC_DEFAULT’
+   18 |                         Cur.begin = Cur.end = YYRHSLOC(Rhs, 0).end;                        \
+      |                                     ^~~
+parser.bison.cpp:79:36: error: ‘struct yy::parser::stack_symbol_type’ has no member named ‘location’
+   79 | #define YYRHSLOC(Rhs, K) ((Rhs)[K].location)
+      |                                    ^~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/include/location_range.hpp:18:47: note: in expansion of macro ‘YYRHSLOC’
+   18 |                         Cur.begin = Cur.end = YYRHSLOC(Rhs, 0).end;                        \
+      |                                               ^~~~~~~~
+parser.bison.cpp:743:7: note: in expansion of macro ‘YYLLOC_DEFAULT’
+  743 |       YYLLOC_DEFAULT (error_token.location, yyerror_range, 2);
+      |       ^~~~~~~~~~~~~~
+parser.bison.cpp: In member function ‘void yy::parser::error(const syntax_error&)’:
+parser.bison.cpp:810:18: error: ‘const struct yy::parser::syntax_error’ has no member named ‘location’
+  810 |     error (yyexc.location, yyexc.what ());
+      |                  ^~~~~~~~
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/driver.cpp: In member function ‘std::expected<void, std::__cxx11::basic_string<char> > tinyc::Driver::construct(std::string_view)’:
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/driver.cpp:35:9: error: ‘m_location’ was not declared in this scope; did you mean ‘Location’?
+   35 |         m_location.set_begin(buf_str);
+      |         ^~~~~~~~~~
+      |         Location
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/parser.yy: At global scope:
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/parser.yy:70:26: error: ‘location_type’ does not name a type
+   70 | void parser::error(const location_type& loc, const std::string& m)
+      |                          ^~~~~~~~~~~~~
+parser.bison.cpp: In instantiation of ‘void yy::parser::yy_print_(std::ostream&, const basic_symbol<Base>&) const [with Base = by_state; std::ostream = std::basic_ostream<char>]’:
+parser.bison.cpp:351:7:   required from here
+  111 |       yy_print_ (*yycdebug_, Symbol);           \
+      |       ~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~
+parser.bison.cpp:340:22: error: ‘const struct yy::parser::basic_symbol<yy::parser::by_state>’ has no member named ‘location’
+  340 |             << yysym.location << ": ";
+      |                ~~~~~~^~~~~~~~
+parser.bison.cpp: In instantiation of ‘void yy::parser::yy_print_(std::ostream&, const basic_symbol<Base>&) const [with Base = by_kind; std::ostream = std::basic_ostream<char>]’:
+parser.bison.cpp:508:5:   required from here
+  111 |       yy_print_ (*yycdebug_, Symbol);           \
+      |       ~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~
+parser.bison.cpp:340:22: error: ‘const struct yy::parser::basic_symbol<yy::parser::by_kind>’ has no member named ‘location’
+  340 |             << yysym.location << ": ";
+      |                ~~~~~~^~~~~~~~
+In file included from /home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/include/driver.hpp:9:
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/include/ast.hpp: At global scope:
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/include/ast.hpp:42:6: warning: ‘std::ostream& tinyc::operator<<(std::ostream&, const Location&)’ defined but not used [-Wunused-function]
+   42 | auto operator<< (std::ostream& o, const Location& loc) -> std::ostream&
+      |      ^~~~~~~~
+make[2]: *** [src/front/CMakeFiles/obj.front.dir/build.make:119: src/front/CMakeFiles/obj.front.dir/lexer.flex.cpp.o] Error 1
+make[2]: *** Waiting for unfinished jobs....
+In file included from /home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/parser.yy:13:
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/include/ast.hpp:42:6: warning: ‘std::ostream& tinyc::operator<<(std::ostream&, const Location&)’ defined but not used [-Wunused-function]
+   42 | auto operator<< (std::ostream& o, const Location& loc) -> std::ostream&
+      |      ^~~~~~~~
+make[2]: *** [src/front/CMakeFiles/obj.front.dir/build.make:133: src/front/CMakeFiles/obj.front.dir/parser.bison.cpp.o] Error 1
+In file included from /home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/include/driver.hpp:9:
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/include/ast.hpp: At global scope:
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/include/ast.hpp:42:6: warning: ‘std::ostream& tinyc::operator<<(std::ostream&, const Location&)’ defined but not used [-Wunused-function]
+   42 | auto operator<< (std::ostream& o, const Location& loc) -> std::ostream&
+      |      ^~~~~~~~
+make[2]: *** [src/front/CMakeFiles/obj.front.dir/build.make:90: src/front/CMakeFiles/obj.front.dir/driver.cpp.o] Error 1
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/location_range.cpp: In static member function ‘static constexpr llvm::SourceMgr::DiagKind tinyc::LocationRange::cvt_kind_to_llvm(tinyc::Location::DiagKind)’:
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/location_range.cpp:108:34: warning: control reaches end of non-void function [-Wreturn-type]
+  108 |                 yq::error(yq::loc(), "unkown DiagKind");
+      |                           ~~~~~~~^~
+In file included from /home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/include/location_range.hpp:6,
+                 from /home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/location_range.cpp:3:
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/include/ast.hpp: At global scope:
+/home/lin17/Workspace/project/compiler_practise/c04/test_location/src/front/include/ast.hpp:42:6: warning: ‘std::ostream& tinyc::operator<<(std::ostream&, const Location&)’ defined but not used [-Wunused-function]
+   42 | auto operator<< (std::ostream& o, const Location& loc) -> std::ostream&
+      |      ^~~~~~~~
+make[1]: *** [CMakeFiles/Makefile2:355: src/front/CMakeFiles/obj.front.dir/all] Error 2
+make: *** [Makefile:91: all] Error 2

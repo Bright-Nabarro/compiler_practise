@@ -8,7 +8,7 @@
 #include <memory>
 #include "ast.hpp"
 #include "bison_parser.hpp"
-#include "llvm_location.hpp"
+#include "location_range.hpp"
 
 #define YY_DECL \
 	auto yylex(tinyc::Driver& driver) -> yy::parser::symbol_type
@@ -73,7 +73,8 @@ public:
 	{ return m_src_mgr; }
 
 	/// @brief 解析时获取位置记录，在yylex中调用
-	auto get_location() -> LLVMLocation&;
+	auto get_location() -> LLVMLocation&
+	{ return m_location; }
 
 private:
 	/// @brief 获取文件的内存映射

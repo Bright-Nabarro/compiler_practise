@@ -5,10 +5,12 @@
 #include <easylog.hpp>
 #include <memory>
 #include <expected>
+#include <type_traits>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
 #include <llvm/Target/TargetMachine.h>
+#include <llvm/Support/SourceMgr.h>
 
 namespace tinyc
 {
@@ -44,13 +46,14 @@ private:
 	auto handle(const Expr& expr) -> llvm::Value*;
 	auto handle(const PrimaryExpr& node) -> llvm::Value*;
 	auto handle(const UnaryExpr& node) -> llvm::Value*;
-	auto handle(const UnaryOp& op, llvm::Value* operand) -> llvm::Value*;
 	auto handle(const Number& num) -> llvm::Value*;
 
 	/// @note 在上层会传入所有的BinaryExpr, 无需在实现文件中显式实例化声明
 	template<typename BinaryExpr>
 	auto handle(const BinaryExpr& node) -> llvm::Value*;
 
+	/// @brief 一元运算符处理
+	auto unary_operate(const UnaryOp& op, llvm::Value* operand) -> llvm::Value*;
 	/// @brief 二元运算符通用处理函数
 	auto binary_operate(llvm::Value* left, const Operation& op,
 						llvm::Value* right) -> llvm::Value*;

@@ -17,8 +17,6 @@ bison_target(parser ${bison_file} ${bison_output}
 
 add_flex_bison_dependency(lexer parser)
 
-add_subdirectory("ast")
-
 include(Utils)
 #add_library(front OBJECT ${SRC} ${flex_output} ${bison_output})
 message("flex generate file:  ${flex_output}")
@@ -31,7 +29,6 @@ target_include_directories(front PUBLIC
 )
 
 target_link_libraries(front PUBLIC
-	ast
 	easylog
 )
 
