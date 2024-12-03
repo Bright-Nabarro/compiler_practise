@@ -5,7 +5,6 @@
 #include <easylog.hpp>
 #include <memory>
 #include <expected>
-#include <type_traits>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
@@ -15,14 +14,19 @@
 namespace tinyc
 {
 
-class GeneralVisitor: public ASTVisitor
+class CodeGenVisitor: public ASTVisitor
 {
 public:
-	GeneralVisitor(llvm::LLVMContext& context, bool emit_llvm, llvm::SourceMgr& src_mgr,
+	CodeGenVisitor(llvm::LLVMContext& context, bool emit_llvm, llvm::SourceMgr& src_mgr,
 				   std::string_view output_file, llvm::TargetMachine* tm);
 	/// @note 只支持从根节点翻译
 	[[nodiscard]]
-	auto visit(BaseAST* ast) -> bool override;
+	auto visit(BaseAST* ast) -> std::expected<void, std::string> override;
+
+	/// @brief 在语法解析后获取结果
+	[[nodiscard]]
+	auto get_module() -> std::unique_ptr<llvm::Module>
+	{ return std::move(m_module); }
 
 	/**
 	 * @brief 将m_module转换为对应格式输出, 由程序的argc参数指定

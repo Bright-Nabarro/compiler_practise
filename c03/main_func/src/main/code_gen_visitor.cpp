@@ -1,4 +1,4 @@
-#include "general_visitor.hpp"
+#include "code_gen_visitor.hpp"
 #include <llvm/Bitcode/BitcodeWriter.h>
 #include <llvm/CodeGen/CommandFlags.h>
 #include <llvm/IR/IRPrintingPasses.h>
@@ -7,13 +7,13 @@
 #include <llvm/Support/Casting.h>
 #include <llvm/Support/FileSystem.h>
 #include <llvm/Pass.h>
-
+#include <format>
 #include <print>
 
 namespace tinyc
 {
 
-GeneralVisitor::GeneralVisitor(llvm::LLVMContext& context, bool emit_llvm, llvm::SourceMgr& src_mgr,
+CodeGenVisitor::CodeGenVisitor(llvm::LLVMContext& context, bool emit_llvm, llvm::SourceMgr& src_mgr,
 				   std::string_view output_file, llvm::TargetMachine* tm):
 	m_module { std::make_unique<llvm::Module>("tinyc.expr", context) },
 	m_builder { m_module->getContext() },
@@ -25,28 +25,26 @@ GeneralVisitor::GeneralVisitor(llvm::LLVMContext& context, bool emit_llvm, llvm:
 {
 }
 
-auto GeneralVisitor::visit(BaseAST* ast) -> bool
+auto CodeGenVisitor::visit(BaseAST* ast) -> std::expected<void, std::string>
 {
 	if (ast == nullptr)
 	{
-		yq::error(yq::loc(), "visit paramater is null");
-		return false;
+		return std::unexpected {std::format("{}", "visit paramater is null")};
 	}
 
 	auto comp_unit_ptr = llvm::dyn_cast<CompUnit>(ast);
 
 	if (comp_unit_ptr == nullptr)
 	{
-		yq::error(yq::loc(), "output visitor paramater should be a CompUnit");
-		return false;
+		return std::unexpected {std::format("{}", "output visitor paramater should be a CompUnit") };
 	}
 	
 	handle(*comp_unit_ptr);
 
-	return true;
+	return {};
 }
 
-auto GeneralVisitor::emit() -> bool
+auto CodeGenVisitor::emit() -> bool
 {
 	std::error_code ec;
 	
@@ -97,14 +95,14 @@ auto GeneralVisitor::emit() -> bool
 	return true;
 }
 
-void GeneralVisitor::handle(const CompUnit& node)
+void CodeGenVisitor::handle(const CompUnit& node)
 {
 	yq::debug("CompUnitBegin:");
 	handle(node.get_func_def());
 	yq::debug("CompUnitEnd");
 }
 
-void GeneralVisitor::handle(const FuncDef& node)
+void CodeGenVisitor::handle(const FuncDef& node)
 {
 	yq::debug("FuncDefBegin:");
 	auto return_type = handle(node.get_type());
@@ -125,7 +123,7 @@ void GeneralVisitor::handle(const FuncDef& node)
 	yq::debug("FuncDefEnd");
 }
 
-auto GeneralVisitor::handle(const Type& node) -> llvm::Type*
+auto CodeGenVisitor::handle(const Type& node) -> llvm::Type*
 {
 	yq::debug("Type[{}]Begin: ", node.get_type_str());
 	llvm::Type* ret;
@@ -151,7 +149,7 @@ auto GeneralVisitor::handle(const Type& node) -> llvm::Type*
 	return ret;
 }
 
-auto GeneralVisitor::handle(const Ident& node) -> std::pair<llvm::Value*, std::string>
+auto CodeGenVisitor::handle(const Ident& node) -> std::pair<llvm::Value*, std::string>
 {
 	yq::debug("Ident[{}]Begin:", node.get_value());
 	
@@ -162,7 +160,7 @@ auto GeneralVisitor::handle(const Ident& node) -> std::pair<llvm::Value*, std::s
 	return { value, name };
 }
 
-auto GeneralVisitor::handle(const ParamList& node) -> std::vector<llvm::Type*>
+auto CodeGenVisitor::handle(const ParamList& node) -> std::vector<llvm::Type*>
 {
 	yq::debug("ParamListBegin: ");
 	std::vector<llvm::Type*> type_list;
@@ -179,7 +177,7 @@ auto GeneralVisitor::handle(const ParamList& node) -> std::vector<llvm::Type*>
 	return type_list;
 }
 
-auto GeneralVisitor::handle(const Block& node, llvm::Function* func,
+auto CodeGenVisitor::handle(const Block& node, llvm::Function* func,
 							std::string_view block_name) -> llvm::BasicBlock*
 {
 	yq::debug("BlockBegin: ");
@@ -198,7 +196,7 @@ auto GeneralVisitor::handle(const Block& node, llvm::Function* func,
 	return basic_block;
 }
 
-void GeneralVisitor::handle(const Stmt& node)
+void CodeGenVisitor::handle(const Stmt& node)
 {
 	yq::debug("StmtBegin:");
 	auto value = handle(node.get_expr());
@@ -208,7 +206,7 @@ void GeneralVisitor::handle(const Stmt& node)
 	yq::debug("StmtEnd");
 }
 
-auto GeneralVisitor::handle(const Expr& node) -> llvm::Value*
+auto CodeGenVisitor::handle(const Expr& node) -> llvm::Value*
 {
 	yq::debug("ExprBegin:");
 	auto ret = handle(node.get_low_expr());
@@ -217,7 +215,7 @@ auto GeneralVisitor::handle(const Expr& node) -> llvm::Value*
 	return ret;
 }
 
-auto GeneralVisitor::handle(const PrimaryExpr& node) -> llvm::Value*
+auto CodeGenVisitor::handle(const PrimaryExpr& node) -> llvm::Value*
 {
 	yq::debug("PrimaryExprBegin: ");
 
@@ -247,7 +245,7 @@ auto GeneralVisitor::handle(const PrimaryExpr& node) -> llvm::Value*
 	return result;
 }
 
-auto GeneralVisitor::handle(const UnaryExpr& node) -> llvm::Value*
+auto CodeGenVisitor::handle(const UnaryExpr& node) -> llvm::Value*
 {
 	yq::debug("UnaryExpr Begin:");
 
@@ -270,7 +268,7 @@ auto GeneralVisitor::handle(const UnaryExpr& node) -> llvm::Value*
 	return result;
 }
 
-auto GeneralVisitor::handle(const Number& node) -> llvm::Value*
+auto CodeGenVisitor::handle(const Number& node) -> llvm::Value*
 {
 	yq::debug("Number[{}] Begin: ", node.get_int_literal());
 
@@ -281,7 +279,7 @@ auto GeneralVisitor::handle(const Number& node) -> llvm::Value*
 	return result;
 }
 
-auto GeneralVisitor::unary_operate(const UnaryOp& op, llvm::Value* operand)
+auto CodeGenVisitor::unary_operate(const UnaryOp& op, llvm::Value* operand)
 	-> llvm::Value*
 {
 	yq::debug("UnaryOp[{}] Begin:",op.get_type_str());
@@ -334,7 +332,7 @@ auto GeneralVisitor::unary_operate(const UnaryOp& op, llvm::Value* operand)
 	return result;
 }
 
-auto GeneralVisitor::handle(const Param& node) -> llvm::Type*
+auto CodeGenVisitor::handle(const Param& node) -> llvm::Type*
 {
 	yq::debug("ParamBegin: ");
 	auto type = handle(node.get_type());
@@ -345,7 +343,7 @@ auto GeneralVisitor::handle(const Param& node) -> llvm::Type*
 }
 
 template<typename BinaryExpr>
-auto GeneralVisitor::handle(const BinaryExpr& node) -> llvm::Value*
+auto CodeGenVisitor::handle(const BinaryExpr& node) -> llvm::Value*
 {
 	yq::debug("{} begin:", node.get_kind_str());
 
@@ -373,7 +371,7 @@ auto GeneralVisitor::handle(const BinaryExpr& node) -> llvm::Value*
 }
 
 
-auto GeneralVisitor::binary_operate(llvm::Value* left, const Operation& op,
+auto CodeGenVisitor::binary_operate(llvm::Value* left, const Operation& op,
 									llvm::Value* right) -> llvm::Value*
 {
 	yq::debug("{} [{}] Begin:", op.get_kind_str(), op.get_type_str());

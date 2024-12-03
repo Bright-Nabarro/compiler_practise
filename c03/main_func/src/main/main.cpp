@@ -1,5 +1,5 @@
 #include "driver.hpp"
-#include "general_visitor.hpp"
+#include "code_gen_visitor.hpp"
 #include <llvm/CodeGen/CommandFlags.h>
 #include <llvm/MC/TargetRegistry.h>
 #include <llvm/Support/CommandLine.h>
@@ -8,17 +8,19 @@
 #include <llvm/Target/TargetMachine.h>
 #include <llvm/TargetParser/Host.h>
 #include <llvm/TargetParser/Triple.h>
+#include <print>
 
 //帮助codegen 生成target_options
 static llvm::codegen::RegisterCodeGenFlags CGF;
 
-// 定义命令行选项
+/// 定义命令行选项
 static llvm::cl::opt<std::string> input_file {
 	llvm::cl::Positional, // 位置参数，无需用 "--" 指定
 	llvm::cl::desc("<input file>"),
 	llvm::cl::init("tinyc.out") // 默认值为 empty
 };
 
+/// 指定输出文件
 static llvm::cl::opt<std::string> output_file{
 	"o", // 使用 -o 指定
 	llvm::cl::desc("Specify output filename"), llvm::cl::value_desc("filename"),
@@ -38,15 +40,24 @@ static llvm::cl::opt<bool> debug_trace{
 	llvm::cl::init(false)
 };
 
+/// 用户指定的目标三元组
 static llvm::cl::opt<std::string> mtriple {
 	"mtriple",
 	llvm::cl::desc("Override target triple for module")
 };
 
+/// 开启词法分析，语法分析的过程输出
 static llvm::cl::opt<bool> trace_debug {
 	"trace_debug",
 	llvm::cl::desc("Enable bison status shift output"),
 	llvm::cl::init(false)
+};
+
+/// 优化级别
+static llvm::cl::opt<int> optimization {
+	"O",
+	llvm::cl::desc("optimization level"),
+	llvm::cl::init(0)
 };
 
 auto create_target_machine() -> llvm::TargetMachine*
@@ -102,9 +113,10 @@ auto main(int argc, char* argv[]) -> int
 		return 1;
 
 	llvm::LLVMContext ctx;
+	// 全局的源码管理
 	llvm::SourceMgr src_mgr;
+
 	tinyc::DriverFactory driver_factory { src_mgr };
-	
 
 	auto file = input_file.getValue();
 	
@@ -117,13 +129,23 @@ auto main(int argc, char* argv[]) -> int
 	auto driver = std::move(*driver_or_error);
 
 	driver->set_trace(trace_debug);
+
+
+	// 词法，语法分析
 	if (!driver->parse())
 		return 1;
-	
-	tinyc::GeneralVisitor visitor(ctx, emit_llvm, src_mgr, output_file, tm);
-	bool ret = visitor.visit(driver->get_ast_ptr());
+
+	tinyc::CodeGenVisitor visitor(ctx, emit_llvm, src_mgr, output_file, tm);
+
+	//语义分析，中间代码生成
+	auto ret = visitor.visit(driver->get_ast_ptr());
 	if (!ret)
+	{
+		std::println(stderr, "{}", ret.error());
 		return 1;
+	}
+
+	//生成目标文件 (llvm-ir, 汇编或二进制.o)
 	if (!visitor.emit())
 		return 1;
 

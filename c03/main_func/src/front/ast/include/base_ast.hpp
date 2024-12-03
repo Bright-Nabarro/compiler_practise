@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include <expected>
 
 namespace tinyc
 {
@@ -13,7 +14,7 @@ public:
 	~ASTVisitor() = default;
 
 	virtual
-	auto visit(BaseAST*) -> bool = 0;
+	auto visit(BaseAST*) -> std::expected<void, std::string> = 0;
 };
 
 
