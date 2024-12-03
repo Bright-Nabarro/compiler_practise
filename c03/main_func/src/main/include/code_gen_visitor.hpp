@@ -17,8 +17,8 @@ namespace tinyc
 class CodeGenVisitor: public ASTVisitor
 {
 public:
-	CodeGenVisitor(llvm::LLVMContext& context, bool emit_llvm, llvm::SourceMgr& src_mgr,
-				   std::string_view output_file, llvm::TargetMachine* tm);
+	CodeGenVisitor(llvm::LLVMContext& context, llvm::SourceMgr& src_mgr,
+				   llvm::TargetMachine* tm);
 	/// @note 只支持从根节点翻译
 	[[nodiscard]]
 	auto visit(BaseAST* ast) -> std::expected<void, std::string> override;
@@ -27,15 +27,6 @@ public:
 	[[nodiscard]]
 	auto get_module() -> std::unique_ptr<llvm::Module>
 	{ return std::move(m_module); }
-
-	/**
-	 * @brief 将m_module转换为对应格式输出, 由程序的argc参数指定
-	 * @note emit-llvm 生成llvm-ir
-	 * @note filetype=obj 生成二进制文件
-	 * @note filetype=asm && 没有指定 emit-llvm生成汇编
-	 */
-	[[nodiscard]]
-	auto emit() -> bool;
 
 private:
 	void handle(const CompUnit& node);
@@ -66,11 +57,8 @@ private:
 	std::unique_ptr<llvm::Module> m_module;
 	llvm::IRBuilder<> m_builder;
 	std::shared_ptr<CTypeManager> m_type_mgr;
-	
-	bool m_emit_llvm;
 	llvm::SourceMgr& m_src_mgr;
-	std::string_view m_output_file;
-	
+
 	llvm::TargetMachine* m_target_machine;
 };
 

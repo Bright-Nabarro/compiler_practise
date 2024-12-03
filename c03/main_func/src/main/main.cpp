@@ -1,5 +1,7 @@
 #include "driver.hpp"
 #include "code_gen_visitor.hpp"
+#include "emit_target.hpp"
+#include <print>
 #include <llvm/CodeGen/CommandFlags.h>
 #include <llvm/MC/TargetRegistry.h>
 #include <llvm/Support/CommandLine.h>
@@ -8,7 +10,6 @@
 #include <llvm/Target/TargetMachine.h>
 #include <llvm/TargetParser/Host.h>
 #include <llvm/TargetParser/Triple.h>
-#include <print>
 
 //帮助codegen 生成target_options
 static llvm::codegen::RegisterCodeGenFlags CGF;
@@ -24,7 +25,6 @@ static llvm::cl::opt<std::string> input_file {
 static llvm::cl::opt<std::string> output_file{
 	"o", // 使用 -o 指定
 	llvm::cl::desc("Specify output filename"), llvm::cl::value_desc("filename"),
-	llvm::cl::init("output")
 };
 
 static llvm::cl::opt<bool> emit_llvm{
@@ -54,10 +54,10 @@ static llvm::cl::opt<bool> trace_debug {
 };
 
 /// 优化级别
-static llvm::cl::opt<int> optimization {
+static llvm::cl::opt<std::string> optimization {
 	"O",
 	llvm::cl::desc("optimization level"),
-	llvm::cl::init(0)
+	llvm::cl::init("0")
 };
 
 auto create_target_machine() -> llvm::TargetMachine*
@@ -135,19 +135,27 @@ auto main(int argc, char* argv[]) -> int
 	if (!driver->parse())
 		return 1;
 
-	tinyc::CodeGenVisitor visitor(ctx, emit_llvm, src_mgr, output_file, tm);
+	tinyc::CodeGenVisitor visitor(ctx, src_mgr, tm);
 
 	//语义分析，中间代码生成
-	auto ret = visitor.visit(driver->get_ast_ptr());
-	if (!ret)
+	auto void_or_error = visitor.visit(driver->get_ast_ptr());
+	if (!void_or_error)
 	{
-		std::println(stderr, "{}", ret.error());
+		std::println(stderr, "{}", void_or_error.error());
 		return 1;
 	}
 
 	//生成目标文件 (llvm-ir, 汇编或二进制.o)
-	if (!visitor.emit())
+	tinyc::EmitTarget emit { input_file.getValue(), tm, emit_llvm.getValue(), optimization.getValue() };
+	if (!output_file.empty())
+		emit.set_target_name(output_file.getValue());
+
+	void_or_error = emit(visitor.get_module());
+	if (!void_or_error)
+	{
+		std::println(stderr, "{}", void_or_error.error());
 		return 1;
+	}
 
 	return 0;
 }

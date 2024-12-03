@@ -1,6 +1,7 @@
 #pragma once
 #include <llvm/IR/Module.h>
 #include <expected>
+#include <llvm/Target/TargetMachine.h>
 #include <string>
 
 namespace tinyc
@@ -17,7 +18,17 @@ public:
 		object,
 	};
 
-	EmitTarget();
+	EmitTarget(std::string_view inputfile_name,
+			   llvm::TargetMachine* target_machine, bool emit_llvm,
+			   std::string m_optimization_level);
+
+	EmitTarget(std::string_view inputfile_name, std::string_view target_name,
+			   llvm::TargetMachine* target_machine, bool emit_llvm,
+			   std::string m_optimization_level);
+
+	void set_target_name(std::string_view target_name)
+	{ m_target_name = target_name; }
+
 	[[nodiscard]]
 	auto operator()(std::unique_ptr<llvm::Module> module)
 		-> std::expected<void, std::string>;
@@ -34,7 +45,9 @@ private:
 private:
 	std::string_view m_inputfile_name;
 	std::optional<std::string_view> m_target_name;
+	llvm::TargetMachine* m_target_machine;
 	bool m_emit_llvm;
+	std::string m_optimization_level;
 };
 
 }	//namespace tinyc

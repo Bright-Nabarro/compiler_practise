@@ -13,14 +13,11 @@
 namespace tinyc
 {
 
-CodeGenVisitor::CodeGenVisitor(llvm::LLVMContext& context, bool emit_llvm, llvm::SourceMgr& src_mgr,
-				   std::string_view output_file, llvm::TargetMachine* tm):
+CodeGenVisitor::CodeGenVisitor(llvm::LLVMContext& context, llvm::SourceMgr& src_mgr, llvm::TargetMachine* tm):
 	m_module { std::make_unique<llvm::Module>("tinyc.expr", context) },
 	m_builder { m_module->getContext() },
 	m_type_mgr { std::make_shared<CTypeManager>(m_module->getContext(), tm) },
-	m_emit_llvm { emit_llvm },
 	m_src_mgr { src_mgr },
-	m_output_file { output_file },
 	m_target_machine { tm }
 {
 }
@@ -42,57 +39,6 @@ auto CodeGenVisitor::visit(BaseAST* ast) -> std::expected<void, std::string>
 	handle(*comp_unit_ptr);
 
 	return {};
-}
-
-auto CodeGenVisitor::emit() -> bool
-{
-	std::error_code ec;
-	
-	std::string output_file_name { m_output_file };
-
-	auto file_type = llvm::codegen::getFileType();
-	switch(file_type)
-	{
-	case llvm::CodeGenFileType::AssemblyFile:
-		output_file_name.append(".s");
-		break;
-	case llvm::CodeGenFileType::ObjectFile:
-		output_file_name.append(".o");
-		break;
-	case llvm::CodeGenFileType::Null:
-		output_file_name.append(".null");
-		break;
-	}
-
-	auto open_flags = llvm::sys::fs::OF_None;
-	
-	llvm::raw_fd_ostream os{output_file_name, ec, open_flags };
-	if (ec)
-	{
-		yq::error("Could not open file {}: {}", m_output_file.data(), ec.message());
-		return false;
-	}
-
-	llvm::legacy::PassManager pm;
-
-	//输出llvm ir文件
-	if (file_type == llvm::CodeGenFileType::AssemblyFile && m_emit_llvm)
-	{
-		pm.add(createPrintModulePass(os));
-		//m_module->print(os, nullptr);
-	}
-	else
-	{
-		if (m_target_machine->addPassesToEmitFile(pm, os, nullptr, file_type))
-		{
-			yq::error(yq::loc(), "No support for file type");
-			return false;
-		}
-		//llvm::WriteBitcodeToFile(*m_module, os);
-	}
-	pm.run(*m_module);
-
-	return true;
 }
 
 void CodeGenVisitor::handle(const CompUnit& node)
@@ -219,14 +165,6 @@ auto CodeGenVisitor::handle(const PrimaryExpr& node) -> llvm::Value*
 {
 	yq::debug("PrimaryExprBegin: ");
 
-	// ast 搁置了对visit的实现
-	//auto func = [this](auto& v) {
-	//	auto ret = this->handle(v);
-	//	static_assert(std::is_same_v<std::decay_t<decltype(ret)>, llvm::Value*>);
-	//	return ret;
-	//};
-	//node.visit(func);
-	
 	llvm::Value* result = nullptr;
 	if (node.has_expr())
 	{

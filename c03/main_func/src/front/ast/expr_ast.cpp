@@ -118,15 +118,17 @@ auto UnaryExpr::get_unary_expr() const -> const UnaryExpr&
 }
 
 /// BinaryExpr
-template <typename SelfExpr, typename HigherExpr, typename Operation>
-BinaryExpr<SelfExpr, HigherExpr, Operation>::BinaryExpr(
-	AstKind kind, std::unique_ptr<Location> location, HigherExprPtr ptr)
+template <typename SelfExpr, typename HigherExpr, typename Op>
+	requires std::is_base_of_v<::tinyc::Operation, Op>
+BinaryExpr<SelfExpr, HigherExpr, Op>::BinaryExpr (
+		AstKind kind, std::unique_ptr<Location> location, HigherExprPtr ptr)
 	: BaseExpr{kind, std::move(location)}, m_value{std::move(ptr)}
 {
 }
 
-template <typename SelfExpr, typename HigherExpr, typename Operation>
-BinaryExpr<SelfExpr, HigherExpr, Operation>::BinaryExpr(
+template <typename SelfExpr, typename HigherExpr, typename Op>
+	requires std::is_base_of_v<::tinyc::Operation, Op>
+BinaryExpr<SelfExpr, HigherExpr, Op>::BinaryExpr(
 	AstKind kind, std::unique_ptr<Location> location, SelfExprPtr self_ptr,
 	OpPtr op_ptr, HigherExprPtr higher_ptr)
 	: BaseExpr{kind, std::move(location)},
@@ -135,29 +137,33 @@ BinaryExpr<SelfExpr, HigherExpr, Operation>::BinaryExpr(
 {
 }
 
-template <typename SelfExpr, typename HigherExpr, typename Operation>
-auto BinaryExpr<SelfExpr, HigherExpr, Operation>::has_higher_expr() const
+template <typename SelfExpr, typename HigherExpr, typename Op>
+	requires std::is_base_of_v<::tinyc::Operation, Op>
+auto BinaryExpr<SelfExpr, HigherExpr, Op>::has_higher_expr() const
 	-> bool
 {
 	return std::holds_alternative<HigherExprPtr>(m_value);
 }
 
-template <typename SelfExpr, typename HigherExpr, typename Operation>
-auto BinaryExpr<SelfExpr, HigherExpr, Operation>::has_combined_expr() const
+template <typename SelfExpr, typename HigherExpr, typename Op>
+	requires std::is_base_of_v<::tinyc::Operation, Op>
+auto BinaryExpr<SelfExpr, HigherExpr, Op>::has_combined_expr() const
 	-> bool
 {
 	return std::holds_alternative<CombinedExpr>(m_value);
 }
 
-template <typename SelfExpr, typename HigherExpr, typename Operation>
-auto BinaryExpr<SelfExpr, HigherExpr, Operation>::get_higher_expr() const
+template <typename SelfExpr, typename HigherExpr, typename Op>
+	requires std::is_base_of_v<::tinyc::Operation, Op>
+auto BinaryExpr<SelfExpr, HigherExpr, Op>::get_higher_expr() const
 	-> const HigherExpr&
 {
 	return *std::get<HigherExprPtr>(m_value);
 }
 
-template <typename SelfExpr, typename HigherExpr, typename Operation>
-auto BinaryExpr<SelfExpr, HigherExpr, Operation>::get_combined_expr() const
+template <typename SelfExpr, typename HigherExpr, typename Op>
+	requires std::is_base_of_v<::tinyc::Operation, Op>
+auto BinaryExpr<SelfExpr, HigherExpr, Op>::get_combined_expr() const
 	-> CombinedExprRef
 {
 	const auto& combined_ptr = std::get<CombinedExpr>(m_value);
@@ -169,11 +175,11 @@ auto BinaryExpr<SelfExpr, HigherExpr, Operation>::get_combined_expr() const
 	};
 }
 
-template <typename SelfExpr, typename HigherExpr, typename Operation>
-BinaryExpr<SelfExpr, HigherExpr, Operation>::~BinaryExpr()
+template <typename SelfExpr, typename HigherExpr, typename Op>
+	requires std::is_base_of_v<::tinyc::Operation, Op>
+BinaryExpr<SelfExpr, HigherExpr, Op>::~BinaryExpr()
 {
 }
-
 
 
 }	// namespace tinyc

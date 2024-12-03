@@ -9,17 +9,27 @@ ParamList	::= /* empty */ | Param | ParamList ',' Param
 Param       ::= Type Ident; 
 Type        ::= "int" | "void" ;
 
+# 声明
+Decl			::=  ConstDecl;
+ConstDecl 		::= "const" BasicType ConstDef { "," ConstDef } ";";
+BasicType		::= SINT | UINT 	#在lexer.ll中定义其正则表达式
+ConstDef		::= Ident "=" ConstInitVal;
+ConstInitVal 	::= ConstExpr;
+
 # 块
-Block       ::= "{" Stmt* "}";
+Block       ::= "{" {BlockItem} "}";
+BlockItem	::= Decl | Stmt;
+
+LVal		::= Ident;
 
 # 语句
 Stmt        ::= "return" Expr ";";
-#[[ Expr        ::= Number | Ident ; ]]
+
 Expr        ::= LOrExpr;
 
 # 以下优先级从高到低
 # https://zh.cppreference.com/w/c/language/operator_precedence
-PrimaryExpr  ::= "(" LOrExpr ")" | Number | Ident;
+PrimaryExpr  ::= "(" Expr ")" | Number | LVal;
 ## 2 一元表达式
 UnaryExpr    ::= PrimaryExpr | UnaryOp UnaryExpr;
 UnaryOp      ::= "+" | "-" | "!";
