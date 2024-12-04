@@ -77,9 +77,11 @@ namespace tinyc { class Driver; }
 
 %nterm <std::unique_ptr<tinyc::Stmt>>			Stmt
 %nterm <std::unique_ptr<tinyc::Block>>			Block
+%nterm <std::unique_ptr<tinyc::LVal>>			LVal
 %nterm <std::unique_ptr<tinyc::Decl>>			Decl
 %nterm <std::unique_ptr<tinyc::ConstDecl>>		ConstDecl
 %nterm <std::unique_ptr<tinyc::ConstDef>> 		ConstDef
+%nterm <std::unique_ptr<tinyc::ConstDefList>> 	ConstDefList
 %nterm <std::unique_ptr<tinyc::ConstInitVal>>	ConstInitVal
 %nterm <std::unique_ptr<tinyc::ConstExpr>>		Expr
 //type
@@ -194,28 +196,52 @@ BuiltinType
 Decl
 	: ConstDecl {
 		assert_same_ptr(tinyc::ConstDecl, $1);
+		$$ = std::make_unqiue<tinyc::Decl>(std::move($1));
 	};
 
 ConstDecl
 	: KW_CONST ScalarType ConstDef ConstDefList ";" {
+	// 1 		2 			3		 4
+		assert_same_ptr(tinyc::ScalarType, $2);
+		assert_same_ptr(tinyc::ConstDef, $3);
+		assert_same_ptr(tinyc::ConstDefList, $4);
+		$$ = std::make_unique<tinyc::ConstDecl>(CONSTRUCT_LOCATION(@$),
+			std::move($2), std::move($3), std::move($4));
 	};
 
 ConstDefList
 	: /*empty*/ {
+		$$ = std::make_unique<tinyc::ConstDefList>(CONSTRUCT_LOCATION(@$));
 	}
+	// 1			2	3
 	| ConstDefList "," ConstDef {
+		assert_same_ptr(tinyc::ConstDefList, $1);
+		assert_same_ptr(tinyc::ConstDef, $3);
+		$$ = std::make_unique<tinyc::ConstDefList>(CONSTRUCT_LOCATION(@$),
+			std::move($1), std::move($3));
 	};
 
 ConstDef
 	: Ident "=" ConstInitVal {
+	// 1	 2		3
+		assert_same_ptr(tinyc::Ident, $1);
+		assert_same_ptr(tinyc::CosntInitVal, $3);
+		$$ = std::make_unique<tinyc::ConstDef>(CONSTRUCT_LOCATION(@$),
+			std::move($1), std::move($3));
 	};
 
 ConstInitVal 	
 	: ConstExpr {
+		assert_same_ptr(tinyc::ConstExpr, $1);
+		$$ = std::make_unique<tinyc::ConstInitVal>(CONSTRUCT_LOCATION(@$),
+			std::move($1));
 	}; 
 
 ConstExpr
 	: Expr {
+		assert_same_ptr(tinyc::Expr, $1);
+		$$ = std::make_unique<tinyc::ConstExpr>(CONSTRUCT_LOCATION(@$),
+			std::move($1));
 	};
 
 Block
@@ -225,6 +251,12 @@ Block
 		auto block_ptr = std::make_unique<tinyc::Block>(CONSTRUCT_LOCATION(@$));
 		block_ptr->add_stmt(std::move($2));
 		$$ = std::move(block_ptr);
+	};
+
+Lval
+	: Ident {
+		assert_same_ptr(tinyc::Ident, $1);
+		$$ = std::make_unique<tinyc::Lval>(std::move($1));
 	};
 
 Stmt
@@ -253,7 +285,6 @@ PrimaryExpr
 		assert_same_ptr(tinyc::LVal, $1);
 		$$ = std::make_unique<tinyc::PrimaryExpr>(CONSTRUCT_LOCATION(@$), std::move($1));
 	};
-
 
 
 UnaryExpr

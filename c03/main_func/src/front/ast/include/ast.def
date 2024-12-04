@@ -32,6 +32,7 @@ AST_KIND(ast_op_end, "End of Operators") 	//不存在实际类
 AST_KIND(ast_decl, "Declaration")
 AST_KIND(ast_const_decl, "Constant Declaration")
 AST_KIND(ast_const_def, "Constant Definition")
+AST_KIND(ast_const_def_list, "Constant Definition List")
 AST_KIND(ast_const_init_val, "Constant Initialization Value")
 AST_KIND(ast_lval, "Left Value")
 

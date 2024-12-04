@@ -40,18 +40,17 @@ private:
 };
 
 
-/// ConstDecl 		::= "const" ScalarType ConstDef ConstDefList ";";
-class ConstDecl: public BaseAST
+///	ConstDefList 	::= /* empty */ | ConstDefList ',' ConstDef
+class ConstDefList: public BaseAST
 {
 public:
 	using Vector = std::vector<std::unique_ptr<ConstDef>>;
-	TINYC_AST_FILL_CLASSOF(ast_const_decl);
-	ConstDecl(std::unique_ptr<Location> location,
-			  std::unique_ptr<ScalarType> scalar_type,
-			  std::vector<std::unique_ptr<ConstDef>> const_defs = {});
+	TINYC_AST_FILL_CLASSOF(ast_const_def_list);
+	ConstDefList(std::unique_ptr<Location> location);
+	ConstDefList(std::unique_ptr<Location> location,
+				 std::unique_ptr<ConstDefList> rhs,
+				 std::unique_ptr<ConstDef> ptr);
 
-	[[nodiscard]]
-	auto get_scalar_type() const -> const ScalarType&;
 	[[nodiscard]]
 	auto get_const_defs() const -> const Vector&;
 
@@ -61,18 +60,28 @@ public:
 	auto end() const -> Vector::const_iterator;
 
 private:
-	std::unique_ptr<ScalarType> m_scalar_type;
-	std::vector<std::unique_ptr<ConstDef>> m_const_defs;
+	[[nodiscard]]
+	auto get_vector() -> Vector&;
+
+	Vector m_const_defs;
 };
 
 
-/// ConstDefList 	::= /* empty */ | ConstDefList ',' ConstDef
-class ConstDefList: public BaseAST
+/// ConstDecl 		::= "const" ScalarType ConstDef ConstDefList ";";
+class ConstDecl: public BaseAST
 {
 public:
+	TINYC_AST_FILL_CLASSOF(ast_const_decl);
+	ConstDecl(std::unique_ptr<Location> location,
+			  std::unique_ptr<ScalarType> scalar_type,
+			  std::unique_ptr<ConstDefList> const_def_list);
+
+	[[nodiscard]]
+	auto get_scalar_type() const -> const ScalarType&;
 	
 private:
-	
+	std::unique_ptr<ScalarType> m_scalar_type;
+	std::unique_ptr<ConstDefList> m_const_def_list;
 };
 
 
