@@ -8,11 +8,11 @@ namespace tinyc
  * @brief 所有操作符的基类
  * @note 在各个派生类的构造函数中，需要检查type是否合法
  */
-class Operation: public BaseAST
+class Operator: public BaseAST
 {
 public:
 
-	virtual ~Operation() = 0;
+	virtual ~Operator() = 0;
 	[[nodiscard]]
 	static auto classof(const BaseAST* ast) -> bool;
 
@@ -34,7 +34,7 @@ public:
 		op_lor,
 	};
 	
-	Operation(AstKind ast_kind, std::unique_ptr<Location> location, OperationType type);
+	Operator(AstKind ast_kind, std::unique_ptr<Location> location, OperationType type);
 
 	auto get_type() const -> OperationType;
 	auto get_type_str() const -> const char*;
@@ -47,13 +47,13 @@ protected:
 /**
  * UnaryOp ::= "+" | "-" | "!";
  */
-class UnaryOp: public Operation
+class UnaryOp: public Operator
 {
 public:
 	TINYC_AST_FILL_CLASSOF(ast_unary_op);
 
 	UnaryOp(std::unique_ptr<Location> location, OperationType type):
-		Operation { ast_unary_op, std::move(location), type}
+		Operator { ast_unary_op, std::move(location), type}
 	{
 		if (type < op_add || type > op_not)
 			yq::fatal("Invalid UnaryOp");
@@ -62,13 +62,13 @@ public:
 
 
 /// L3Op ::= "*" | "/" | "%"
-class L3Op: public Operation
+class L3Op: public Operator
 {
 public:
 	TINYC_AST_FILL_CLASSOF(ast_l3op);
 
 	L3Op(std::unique_ptr<Location> location, OperationType type):
-		Operation(ast_l3op, std::move(location), type)
+		Operator(ast_l3op, std::move(location), type)
 	{
 		if (get_type() < op_mul || get_type() > op_mod)
 			yq::fatal("Invalid L3Op");
@@ -77,13 +77,13 @@ public:
 
 
 /// L4Op ::= "+" | "-"
-class L4Op: public Operation
+class L4Op: public Operator
 {
 public:
 	TINYC_AST_FILL_CLASSOF(ast_l4op);
 
 	L4Op(std::unique_ptr<Location> location, OperationType type):
-		Operation(ast_l4op, std::move(location), type)
+		Operator(ast_l4op, std::move(location), type)
 	{
 		if (get_type() < op_add || get_type() > op_not)
 			yq::fatal("Invalid L4Op");
@@ -94,13 +94,13 @@ public:
 /**
  * L6Op	::= "<" | ">" | "<=" | ">="
  */
-class L6Op: public Operation
+class L6Op: public Operator
 {
 public:
 	TINYC_AST_FILL_CLASSOF(ast_l6op);
 
 	L6Op(std::unique_ptr<Location> location, OperationType type):
-		Operation(ast_l6op, std::move(location), type)
+		Operator(ast_l6op, std::move(location), type)
 	{
 		if (get_type() < op_lt || get_type() > op_ge)
 			yq::fatal("Invalid L6Op");
@@ -111,13 +111,13 @@ public:
 /**
  * L7Op	::= "==" | "!="
  */
-class L7Op : public Operation
+class L7Op : public Operator
 {
 public:
 	TINYC_AST_FILL_CLASSOF(ast_l7op)
 
 	L7Op(std::unique_ptr<Location> location, OperationType type)
-		: Operation{ast_l7op, std::move(location), type}
+		: Operator{ast_l7op, std::move(location), type}
 	{
 		if (get_type() < op_eq || get_type() > op_ne)
 			yq::fatal("Invalid L7Op");
@@ -128,12 +128,12 @@ public:
 /**
  * LAndOp		::= "&&"
  */
-class LAndOp: public Operation
+class LAndOp: public Operator
 {
 public:
 	TINYC_AST_FILL_CLASSOF(ast_land_op);
 	LAndOp(std::unique_ptr<Location> location, OperationType type)
-		: Operation{ast_land_op, std::move(location), type}
+		: Operator{ast_land_op, std::move(location), type}
 	{
 		if (get_type() != op_land)
 			yq::fatal("Invalid LAndOp");
@@ -144,12 +144,12 @@ public:
 /**
  * LOrOp		::= "||"
  */
-class LOrOp: public Operation
+class LOrOp: public Operator
 {
 public:
 	TINYC_AST_FILL_CLASSOF(ast_lor_op);
 	LOrOp(std::unique_ptr<Location> location, OperationType type)
-		: Operation{ast_lor_op, std::move(location), type}
+		: Operator{ast_lor_op, std::move(location), type}
 	{
 		if (get_type() != op_lor)
 			yq::fatal("Invalid LOrOp");

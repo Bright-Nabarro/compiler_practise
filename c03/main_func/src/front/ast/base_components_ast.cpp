@@ -1,3 +1,4 @@
+#include <easylog.hpp>
 #include "base_components_ast.hpp"
 
 namespace tinyc
@@ -24,29 +25,47 @@ auto Ident::get_value() const -> std::string
 
 
 /// Type
-Type::Type(std::unique_ptr<Location> location, TypeEnum type)
-	: BaseAST{ast_type, std::move(location)}, m_type{type}
+ScalarType::ScalarType(std::unique_ptr<Location> location, BuiltinTypeEnum type)
+	: BaseAST { ast_scalar_type, std::move(location) }, m_type { type }
 {
+	if (m_type == BuiltinTypeEnum::ty_void)
+		yq::error("Expected type void in ScalarType constructor");
+}
+
+auto ScalarType::get_type() const -> BuiltinTypeEnum
+{
+	return m_type;
+}
+
+auto ScalarType::get_type_str() const -> const char*
+{
+	return get_builtin_type_str(get_type());
 }
 
 
-auto Type::get_type() const -> TypeEnum
+BuiltinType::BuiltinType(std::unique_ptr<Location> location, BuiltinTypeEnum type)
+	: BaseAST{ast_builtin_type, std::move(location)}, m_type{type}
+{
+}
+
+auto BuiltinType::get_type() const -> BuiltinTypeEnum
 { return m_type; }
 
-auto Type::get_type_str() const -> const char*
+auto BuiltinType::get_type_str() const -> const char*
 {
-	signed int n;
-	switch(get_type())
-	{
-	case ty_void:
-		return "void";
-	case ty_signed_int:
-		return "signed_int";
-	case ty_unsigned_int:
-		return "unsigned_int";
-	default:
-		return "unkown";
-	}
+	return get_builtin_type_str(get_type());
+}
+
+
+//LVal
+LVal::LVal(std::unique_ptr<Location> location, std::unique_ptr<Ident> ident):
+	BaseAST { ast_lval, std::move(location) },
+	m_ident { std::move(ident) }
+{}
+
+auto LVal::get_id() const -> const Ident&
+{
+	return *m_ident;
 }
 
 }	//namespace tinyc

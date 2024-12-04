@@ -69,19 +69,19 @@ void CodeGenVisitor::handle(const FuncDef& node)
 	yq::debug("FuncDefEnd");
 }
 
-auto CodeGenVisitor::handle(const Type& node) -> llvm::Type*
+auto CodeGenVisitor::handle(const BuiltinType& node) -> llvm::Type*
 {
 	yq::debug("Type[{}]Begin: ", node.get_type_str());
 	llvm::Type* ret;
 	switch(node.get_type())
 	{
-	case tinyc::Type::ty_signed_int:
+	case tinyc::BuiltinTypeEnum::ty_signed_int:
 		ret = m_type_mgr->get_signed_int();
 		break;
-	case tinyc::Type::ty_unsigned_int:
+	case tinyc::BuiltinTypeEnum::ty_unsigned_int:
 		ret = m_type_mgr->get_unsigned_int();
 		break;
-	case tinyc::Type::ty_void:
+	case tinyc::BuiltinTypeEnum::ty_void:
 		ret = m_type_mgr->get_void();
 		break;
 	default:
@@ -309,7 +309,7 @@ auto CodeGenVisitor::handle(const BinaryExpr& node) -> llvm::Value*
 }
 
 
-auto CodeGenVisitor::binary_operate(llvm::Value* left, const Operation& op,
+auto CodeGenVisitor::binary_operate(llvm::Value* left, const Operator& op,
 									llvm::Value* right) -> llvm::Value*
 {
 	yq::debug("{} [{}] Begin:", op.get_kind_str(), op.get_type_str());
@@ -318,45 +318,45 @@ auto CodeGenVisitor::binary_operate(llvm::Value* left, const Operation& op,
 	
 	switch(op.get_type())
 	{
-	case Operation::op_add:
+	case Operator::op_add:
 		result = m_builder.CreateAdd(left, right);
 		break;
-	case Operation::op_sub:
+	case Operator::op_sub:
 		result = m_builder.CreateSub(left, right);
 		break;
-	case Operation::op_mul:
+	case Operator::op_mul:
 		result = m_builder.CreateMul(left, right);
 		break;
-	case Operation::op_div:
+	case Operator::op_div:
 		result = m_builder.CreateSDiv(left, right);
 		break;
-	case Operation::op_mod:
+	case Operator::op_mod:
 		result = m_builder.CreateSRem(left, right);
 		break;
-	case Operation::op_lt:
+	case Operator::op_lt:
 		result = m_builder.CreateICmpSLT(left, right);
 		break;
-	case Operation::op_le:
+	case Operator::op_le:
 		result = m_builder.CreateICmpSLE(left, right);
 		break;
-	case Operation::op_gt:
+	case Operator::op_gt:
 		result = m_builder.CreateICmpSGT(left, right);
 		break;
-	case Operation::op_ge:
+	case Operator::op_ge:
 		result = m_builder.CreateICmpSGE(left, right);
 		break;
-	case Operation::op_eq:
+	case Operator::op_eq:
 		result = m_builder.CreateICmpEQ(left, right);
 		break;
-	case Operation::op_ne:
+	case Operator::op_ne:
 		result = m_builder.CreateICmpNE(left, right);
 		break;
-	case Operation::op_land:
+	case Operator::op_land:
 		left = m_builder.CreateTrunc(left, llvm::Type::getInt1Ty(m_module->getContext()));
 		right = m_builder.CreateTrunc(right, llvm::Type::getInt1Ty(m_module->getContext()));
 		result = m_builder.CreateLogicalAnd(left, right);
 		break;
-	case Operation::op_lor:
+	case Operator::op_lor:
 		left = m_builder.CreateTrunc(left, llvm::Type::getInt1Ty(m_module->getContext()));
 		right = m_builder.CreateTrunc(right, llvm::Type::getInt1Ty(m_module->getContext()));
 		result = m_builder.CreateLogicalOr(left, right);

@@ -30,6 +30,19 @@ auto Expr::get_low_expr() const -> const LowExpr&
 { return *m_value; }
 
 
+/// ConstExpr
+ConstExpr::ConstExpr(std::unique_ptr<Location> location, std::unique_ptr<Expr> expr):
+	BaseExpr { ast_const_expr, std::move(location)},
+	m_expr { std::move(expr) }
+{
+}
+
+auto ConstExpr::get_expr() const -> const Expr&
+{
+	return *m_expr;
+}
+
+
 /// PrimaryExpr
 PrimaryExpr::PrimaryExpr(std::unique_ptr<Location> location, ExprPtr expr_ptr):
 	BaseExpr(ast_primary_expr, std::move(location)),
@@ -41,9 +54,9 @@ PrimaryExpr::PrimaryExpr(std::unique_ptr<Location> location, NumberPtr number_pt
 	m_value { std::move(number_ptr) }
 {}
 
-PrimaryExpr::PrimaryExpr(std::unique_ptr<Location> location, IdentPtr ident_ptr):
+PrimaryExpr::PrimaryExpr(std::unique_ptr<Location> location, LValPtr lval_ptr):
 	BaseExpr(ast_primary_expr, std::move(location)),
-	m_value { std::move(ident_ptr) }
+	m_value { std::move(lval_ptr) }
 {}
 
 auto PrimaryExpr::has_expr() const -> bool
@@ -58,7 +71,7 @@ auto PrimaryExpr::has_number() const -> bool
 
 auto PrimaryExpr::has_ident() const -> bool
 {
-	return std::holds_alternative<IdentPtr>(m_value);
+	return std::holds_alternative<LValPtr>(m_value);
 }
 
 auto PrimaryExpr::get_expr() const -> const Expr&
@@ -66,9 +79,9 @@ auto PrimaryExpr::get_expr() const -> const Expr&
 	return *std::get<ExprPtr>(m_value);
 }
 
-auto PrimaryExpr::get_ident() const -> const Ident&
+auto PrimaryExpr::get_lval() const -> const LVal&
 {
-	return *std::get<IdentPtr>(m_value);
+	return *std::get<LValPtr>(m_value);
 }
 
 auto PrimaryExpr::get_number() const -> const Number&
@@ -117,9 +130,10 @@ auto UnaryExpr::get_unary_expr() const -> const UnaryExpr&
 	return *(std::get<PackPtr>(m_value).second);
 }
 
+
 /// BinaryExpr
 template <typename SelfExpr, typename HigherExpr, typename Op>
-	requires std::is_base_of_v<::tinyc::Operation, Op>
+	requires std::is_base_of_v<::tinyc::Operator, Op>
 BinaryExpr<SelfExpr, HigherExpr, Op>::BinaryExpr (
 		AstKind kind, std::unique_ptr<Location> location, HigherExprPtr ptr)
 	: BaseExpr{kind, std::move(location)}, m_value{std::move(ptr)}
@@ -127,7 +141,7 @@ BinaryExpr<SelfExpr, HigherExpr, Op>::BinaryExpr (
 }
 
 template <typename SelfExpr, typename HigherExpr, typename Op>
-	requires std::is_base_of_v<::tinyc::Operation, Op>
+	requires std::is_base_of_v<::tinyc::Operator, Op>
 BinaryExpr<SelfExpr, HigherExpr, Op>::BinaryExpr(
 	AstKind kind, std::unique_ptr<Location> location, SelfExprPtr self_ptr,
 	OpPtr op_ptr, HigherExprPtr higher_ptr)
@@ -138,7 +152,7 @@ BinaryExpr<SelfExpr, HigherExpr, Op>::BinaryExpr(
 }
 
 template <typename SelfExpr, typename HigherExpr, typename Op>
-	requires std::is_base_of_v<::tinyc::Operation, Op>
+	requires std::is_base_of_v<::tinyc::Operator, Op>
 auto BinaryExpr<SelfExpr, HigherExpr, Op>::has_higher_expr() const
 	-> bool
 {
@@ -146,7 +160,7 @@ auto BinaryExpr<SelfExpr, HigherExpr, Op>::has_higher_expr() const
 }
 
 template <typename SelfExpr, typename HigherExpr, typename Op>
-	requires std::is_base_of_v<::tinyc::Operation, Op>
+	requires std::is_base_of_v<::tinyc::Operator, Op>
 auto BinaryExpr<SelfExpr, HigherExpr, Op>::has_combined_expr() const
 	-> bool
 {
@@ -154,7 +168,7 @@ auto BinaryExpr<SelfExpr, HigherExpr, Op>::has_combined_expr() const
 }
 
 template <typename SelfExpr, typename HigherExpr, typename Op>
-	requires std::is_base_of_v<::tinyc::Operation, Op>
+	requires std::is_base_of_v<::tinyc::Operator, Op>
 auto BinaryExpr<SelfExpr, HigherExpr, Op>::get_higher_expr() const
 	-> const HigherExpr&
 {
@@ -162,7 +176,7 @@ auto BinaryExpr<SelfExpr, HigherExpr, Op>::get_higher_expr() const
 }
 
 template <typename SelfExpr, typename HigherExpr, typename Op>
-	requires std::is_base_of_v<::tinyc::Operation, Op>
+	requires std::is_base_of_v<::tinyc::Operator, Op>
 auto BinaryExpr<SelfExpr, HigherExpr, Op>::get_combined_expr() const
 	-> CombinedExprRef
 {
@@ -176,7 +190,7 @@ auto BinaryExpr<SelfExpr, HigherExpr, Op>::get_combined_expr() const
 }
 
 template <typename SelfExpr, typename HigherExpr, typename Op>
-	requires std::is_base_of_v<::tinyc::Operation, Op>
+	requires std::is_base_of_v<::tinyc::Operator, Op>
 BinaryExpr<SelfExpr, HigherExpr, Op>::~BinaryExpr()
 {
 }

@@ -1,31 +1,31 @@
-#include "operation_ast.hpp"
+#include "operator_ast.hpp"
 
 namespace tinyc
 {
 
 /// Operation
 
-Operation::~Operation(){}
+Operator::~Operator(){}
 
-auto Operation::classof(const BaseAST* ast) -> bool
+auto Operator::classof(const BaseAST* ast) -> bool
 {
 	return ast->get_kind() > ast_op &&
 		   ast->get_kind() < ast_op_end;
 }
 
-Operation::Operation(AstKind ast_kind, std::unique_ptr<Location> location,
+Operator::Operator(AstKind ast_kind, std::unique_ptr<Location> location,
 					 OperationType type)
 	: BaseAST{ast_kind, std::move(location)}, m_type{type}
 {
 	assert(ast_kind > ast_op && ast_kind < ast_op_end);
 }
 
-auto Operation::get_type() const -> OperationType
+auto Operator::get_type() const -> OperationType
 {
 	return m_type;
 }
 
-auto Operation::get_type_str() const -> const char*
+auto Operator::get_type_str() const -> const char*
 {
 	switch(get_type())
 	{

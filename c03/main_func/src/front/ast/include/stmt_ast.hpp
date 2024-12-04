@@ -53,18 +53,18 @@ private:
 class Param : public BaseAST
 {
 public:
-	Param(std::unique_ptr<Location> location, std::unique_ptr<Type> type,
+	Param(std::unique_ptr<Location> location, std::unique_ptr<BuiltinType> type,
 		  std::unique_ptr<Ident> id);
 
 	TINYC_AST_FILL_CLASSOF(ast_param);
 	
 	[[nodiscard]]
-	auto get_type() const -> const Type&;
+	auto get_type() const -> const BuiltinType&;
 	[[nodiscard]]
 	auto get_ident() const -> const Ident&;
 	
 private:
-	std::unique_ptr<Type> m_type;
+	std::unique_ptr<BuiltinType> m_type;
 	std::unique_ptr<Ident> m_id;
 };
 
@@ -101,13 +101,13 @@ public:
 
 	FuncDef(
 		std::unique_ptr<Location> location, 
-		std::unique_ptr<Type> type,
+		std::unique_ptr<BuiltinType> type,
 		std::unique_ptr<Ident> ident,
 		std::unique_ptr<ParamList> paramlist,
 		std::unique_ptr<Block> block);
 
 	[[nodiscard]]
-	auto get_type () const -> const Type&;
+	auto get_type () const -> const BuiltinType&;
 	[[nodiscard]]
 	auto get_ident () const -> const Ident&;
 	[[nodiscard]]
@@ -116,7 +116,7 @@ public:
 	auto get_block () const -> const Block&;
 
 private:
-	std::unique_ptr<Type> m_type;
+	std::unique_ptr<BuiltinType> m_type;
 	std::unique_ptr<Ident> m_ident;
 	std::unique_ptr<ParamList> m_paramlist;
 	std::unique_ptr<Block> m_block;

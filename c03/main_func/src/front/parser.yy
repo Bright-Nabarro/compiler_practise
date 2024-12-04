@@ -44,6 +44,7 @@ namespace tinyc { class Driver; }
 //关键字
 %token KW_RETURN
 %token KW_SINT KW_UINT KW_VOID 
+%token KW_CONST
 // 字面量标识分隔符
 %token DELIM_LPAREN		"("
 %token DELIM_RPAREN		")"
@@ -66,31 +67,45 @@ namespace tinyc { class Driver; }
 %token OP_NE	"!="
 %token OP_LAND	"&&"
 %token OP_LOR	"||"
+%token OP_ASSIGN "="
 
+%nterm <std::unique_ptr<tinyc::CompUnit>>		CompUnit
+//basic
 %nterm <std::unique_ptr<tinyc::Number>>			Number
 %nterm <std::unique_ptr<tinyc::Ident>>			Ident
-%nterm <std::unique_ptr<tinyc::Expr>>			Expr
+%nterm <std::unique_ptr<tinyc::LVal>>			LVal
+
 %nterm <std::unique_ptr<tinyc::Stmt>>			Stmt
 %nterm <std::unique_ptr<tinyc::Block>>			Block
-%nterm <std::unique_ptr<tinyc::Type>>			Type
+%nterm <std::unique_ptr<tinyc::Decl>>			Decl
+%nterm <std::unique_ptr<tinyc::ConstDecl>>		ConstDecl
+%nterm <std::unique_ptr<tinyc::ConstDef>> 		ConstDef
+%nterm <std::unique_ptr<tinyc::ConstInitVal>>	ConstInitVal
+%nterm <std::unique_ptr<tinyc::ConstExpr>>		Expr
+//type
+%nterm <std::unique_ptr<tinyc::ScalarType>>		ScalarType
+%nterm <std::unique_ptr<tinyc::BuiltinType>>	BuiltinType
+
 %nterm <std::unique_ptr<tinyc::Param>>			Param
 %nterm <std::unique_ptr<tinyc::ParamList>>		ParamList
 %nterm <std::unique_ptr<tinyc::FuncDef>>		FuncDef
-%nterm <std::unique_ptr<tinyc::CompUnit>>		CompUnit
+// expr
+%nterm <std::unique_ptr<tinyc::Expr>>			Expr
 %nterm <std::unique_ptr<tinyc::UnaryExpr>>		UnaryExpr
-%nterm <std::unique_ptr<tinyc::UnaryOp>>		UnaryOp
 %nterm <std::unique_ptr<tinyc::PrimaryExpr>>	PrimaryExpr
 %nterm <std::unique_ptr<tinyc::L3Expr>> 		L3Expr
-%nterm <std::unique_ptr<tinyc::L3Op>> 			L3Op
 %nterm <std::unique_ptr<tinyc::L4Expr>>			L4Expr
-%nterm <std::unique_ptr<tinyc::L4Op>>			L4Op
 %nterm <std::unique_ptr<tinyc::L6Expr>>			L6Expr
-%nterm <std::unique_ptr<tinyc::L6Op>>			L6Op
 %nterm <std::unique_ptr<tinyc::L7Expr>>			L7Expr
-%nterm <std::unique_ptr<tinyc::L7Op>>			L7Op
 %nterm <std::unique_ptr<tinyc::LAndExpr>>		LAndExpr
-%nterm <std::unique_ptr<tinyc::LAndOp>>			LAndOp
 %nterm <std::unique_ptr<tinyc::LOrExpr>>		LOrExpr
+// operator
+%nterm <std::unique_ptr<tinyc::UnaryOp>>		UnaryOp
+%nterm <std::unique_ptr<tinyc::L3Op>> 			L3Op
+%nterm <std::unique_ptr<tinyc::L4Op>>			L4Op
+%nterm <std::unique_ptr<tinyc::L6Op>>			L6Op
+%nterm <std::unique_ptr<tinyc::L7Op>>			L7Op
+%nterm <std::unique_ptr<tinyc::LAndOp>>			LAndOp
 %nterm <std::unique_ptr<tinyc::LOrOp>>			LOrOp
 
 
@@ -112,9 +127,9 @@ CompUnit:
 
 FuncDef :
 //   1	   2 	3      4   	  5   6
-	Type Ident "(" ParamList ")" Block
+	BuiltinType Ident "(" ParamList ")" Block
 	{
-		assert_same_ptr(tinyc::Type,$1);
+		assert_same_ptr(tinyc::BuiltinType,$1);
 		assert_same_ptr(tinyc::Ident, $2);
 		assert_same_ptr(tinyc::ParamList, $4);
 		assert_same_ptr(tinyc::Block, $6);
@@ -150,7 +165,7 @@ ParamList :
 	}
 
 Param :
-	Type Ident
+	ScalarType Ident
 	{
 		assert_same_ptr(tinyc::Type, $1);
 		assert_same_ptr(tinyc::Ident, $2);
@@ -158,15 +173,49 @@ Param :
 		$$ = std::move(param_ptr);
 	}
 
-Type        
+ScalarType        
 	: KW_SINT {
-		$$ = std::make_unique<tinyc::Type>(CONSTRUCT_LOCATION(@$), tinyc::Type::ty_signed_int);
+		$$ = std::make_unique<tinyc::ScalarType>(CONSTRUCT_LOCATION(@$), tinyc::BuiltinType::ty_signed_int);
 	}
 	| KW_UINT {
-		$$ = std::make_unique<tinyc::Type>(CONSTRUCT_LOCATION(@$), tinyc::Type::ty_unsigned_int);
+		$$ = std::make_unique<tinyc::ScalarType>(CONSTRUCT_LOCATION(@$), tinyc::BuiltinType::ty_unsigned_int);
+	};
+
+BuiltinType
+	: ScalarType {
+		assert_same_ptr(tinyc::ScalarType, $1);
+		// 直接构造，与文法原本语义不同
+		$$ = std::make_unique<tinyc::BuiltinType>(CONSTRUCT_LOCATION(@$), ($1)->get_type());
 	}
 	| KW_VOID {
-		$$ = std::make_unique<tinyc::Type>(CONSTRUCT_LOCATION(@$), tinyc::Type::ty_void);
+		$$ = std::make_unique<tinyc::BuiltinType>(CONSTRUCT_LOCATION(@$), tinyc::BuiltinType::ty_void);
+	};
+
+Decl
+	: ConstDecl {
+		assert_same_ptr(tinyc::ConstDecl, $1);
+	};
+
+ConstDecl
+	: KW_CONST ScalarType ConstDef ConstDefList ";" {
+	};
+
+ConstDefList
+	: /*empty*/ {
+	}
+	| ConstDefList "," ConstDef {
+	};
+
+ConstDef
+	: Ident "=" ConstInitVal {
+	};
+
+ConstInitVal 	
+	: ConstExpr {
+	}; 
+
+ConstExpr
+	: Expr {
 	};
 
 Block
@@ -200,10 +249,12 @@ PrimaryExpr
 		assert_same_ptr(tinyc::Number, $1);
 		$$ = std::make_unique<tinyc::PrimaryExpr>(CONSTRUCT_LOCATION(@$), std::move($1));
 	}
-	| Ident {
-		assert_same_ptr(tinyc::Ident, $1);
+	| LVal {
+		assert_same_ptr(tinyc::LVal, $1);
 		$$ = std::make_unique<tinyc::PrimaryExpr>(CONSTRUCT_LOCATION(@$), std::move($1));
 	};
+
+
 
 UnaryExpr
 	: PrimaryExpr {

@@ -31,7 +31,7 @@ public:
 private:
 	void handle(const CompUnit& node);
 	void handle(const FuncDef& node);
-	auto handle(const Type& node) -> llvm::Type*;
+	auto handle(const BuiltinType& node) -> llvm::Type*;
 	auto handle(const Ident& node) -> std::pair<llvm::Value*, std::string>;
 	auto handle(const ParamList& node) -> std::vector<llvm::Type*>;
 	auto handle(const Block& node, llvm::Function* func,
@@ -50,7 +50,7 @@ private:
 	/// @brief 一元运算符处理
 	auto unary_operate(const UnaryOp& op, llvm::Value* operand) -> llvm::Value*;
 	/// @brief 二元运算符通用处理函数
-	auto binary_operate(llvm::Value* left, const Operation& op,
+	auto binary_operate(llvm::Value* left, const Operator& op,
 						llvm::Value* right) -> llvm::Value*;
 
 private:

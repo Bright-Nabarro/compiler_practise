@@ -1,6 +1,6 @@
 #pragma once
 #include "base_components_ast.hpp"
-#include "operation_ast.hpp"
+#include "operator_ast.hpp"
 
 namespace tinyc
 {
@@ -28,11 +28,29 @@ public:
 	Expr(std::unique_ptr<Location> location, std::unique_ptr<LowExpr> uptr);
 	~Expr();
 	
+	[[nodiscard]]
 	auto get_low_expr() const -> const LowExpr&;
 
 private:
 	std::unique_ptr<LowExpr> m_value;
 
+};
+
+
+/**
+ * ConstInitVal 	::= ConstExpr;
+ */
+class ConstExpr: public BaseExpr
+{
+public:
+	TINYC_AST_FILL_CLASSOF(ast_const_expr);
+	ConstExpr(std::unique_ptr<Location> location, std::unique_ptr<Expr> expr);
+
+	[[nodiscard]]
+	auto get_expr() const -> const Expr&;
+
+private:
+	std::unique_ptr<Expr> m_expr;
 };
 
 
@@ -45,12 +63,12 @@ public:
 	TINYC_AST_FILL_CLASSOF(ast_primary_expr);
 	using ExprPtr = std::unique_ptr<Expr>;
 	using NumberPtr = std::unique_ptr<Number>;
-	using IdentPtr = std::unique_ptr<Ident>;
-	using Variant = std::variant<ExprPtr, NumberPtr, IdentPtr>;
+	using LValPtr = std::unique_ptr<LVal>;
+	using Variant = std::variant<ExprPtr, NumberPtr, LValPtr>;
 
 	PrimaryExpr(std::unique_ptr<Location> location, ExprPtr expr_ptr);
 	PrimaryExpr(std::unique_ptr<Location> location, NumberPtr number_ptr);
-	PrimaryExpr(std::unique_ptr<Location> location, IdentPtr ident_ptr);
+	PrimaryExpr(std::unique_ptr<Location> location, LValPtr lval_ptr);
 
 	[[nodiscard]]
 	auto has_expr() const -> bool;
@@ -75,7 +93,7 @@ public:
 	[[nodiscard]]
 	auto get_expr() const -> const Expr&;
 	[[nodiscard]]
-	auto get_ident() const -> const Ident&;
+	auto get_lval() const -> const LVal&;
 	[[nodiscard]]
 	auto get_number() const -> const Number&;
 	
@@ -119,7 +137,7 @@ private:
 
 
 template<typename SelfExpr, typename HigherExpr, typename Op>
-	requires std::is_base_of_v<::tinyc::Operation, Op>
+	requires std::is_base_of_v<::tinyc::Operator, Op>
 class BinaryExpr: public BaseExpr
 {
 public:
@@ -204,4 +222,4 @@ DEFINE_BINARY_EXPR_CLASS(ast_lor_expr, LOrExpr, LOrOp, LAndExpr)
 
 #undef DEFINE_BINARY_EXPR_CLASS
 }	//namespace tinyc
-	
+

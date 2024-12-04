@@ -2,19 +2,25 @@
 CompUnit    ::= FuncDef;
 
 # 函数定义与返回类型
-FuncDef     ::= Type Ident "(" ParamList ")" Block;
+FuncDef     ::= BuiltinType Ident "(" ParamList ")" Block;
 
 # 函数参数列表定义
 ParamList	::= /* empty */ | Param | ParamList ',' Param
-Param       ::= Type Ident; 
-Type        ::= "int" | "void" ;
+Param       ::= ScalarType Ident; 
+
+# 基本类型
+ScalarType		::= SINT | UINT 	#在lexer.ll中定义其正则表达式
+BuiltinType		::= ScalarType | "void" ;
 
 # 声明
-Decl			::=  ConstDecl;
-ConstDecl 		::= "const" BasicType ConstDef { "," ConstDef } ";";
-BasicType		::= SINT | UINT 	#在lexer.ll中定义其正则表达式
-ConstDef		::= Ident "=" ConstInitVal;
-ConstInitVal 	::= ConstExpr;
+Decl			::=  ConstDecl; 
+ConstDecl 		::= "const" ScalarType ConstDef ConstDefList ";";
+## ConstDef的辅助结构，用于填充ConstDecl的Vector, 没有对其实际的处理函数
+ConstDefList 	::= /* empty */ | ConstDefList ',' ConstDef
+#定义
+ConstDef		::= Ident "=" ConstInitVal; 
+ConstInitVal 	::= ConstExpr; 
+ConstExpr		::= Expr;
 
 # 块
 Block       ::= "{" {BlockItem} "}";
@@ -29,16 +35,16 @@ Expr        ::= LOrExpr;
 
 # 以下优先级从高到低
 # https://zh.cppreference.com/w/c/language/operator_precedence
-PrimaryExpr  ::= "(" Expr ")" | Number | LVal;
+PrimaryExpr ::= "(" Expr ")" | Number | LVal;
 ## 2 一元表达式
-UnaryExpr    ::= PrimaryExpr | UnaryOp UnaryExpr;
-UnaryOp      ::= "+" | "-" | "!";
+UnaryExpr   ::= PrimaryExpr | UnaryOp UnaryExpr;
+UnaryOp     ::= "+" | "-" | "!";
 ## 3 乘，除，取余表达式
-L3Expr       ::= UnaryExpr | L3Expr L3Op UnaryExpr;
-L3Op		 ::= "*" | "/" | "%"
+L3Expr      ::= UnaryExpr | L3Expr L3Op UnaryExpr;
+L3Op		::= "*" | "/" | "%"
 ## 4 加, 减表达式
-L4Expr 		 ::= L3Expr | L4Expr L4Op L3Expr;
-L4Op		 ::= "+" | "-"
+L4Expr 		::= L3Expr | L4Expr L4Op L3Expr;
+L4Op		::= "+" | "-"
 ## 6 
 L6Expr		::= L4Expr | L6Expr L6Op L4Expr;
 L6Op		::= "<" | ">" | "<=" | ">="

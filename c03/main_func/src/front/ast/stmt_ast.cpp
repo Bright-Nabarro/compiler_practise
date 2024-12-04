@@ -31,13 +31,13 @@ void Block::add_stmt(std::unique_ptr<Stmt> stmt)
 
 
 /// Param
-Param::Param(std::unique_ptr<Location> location, std::unique_ptr<Type> type,
+Param::Param(std::unique_ptr<Location> location, std::unique_ptr<BuiltinType> type,
 	  std::unique_ptr<Ident> id)
 	: BaseAST { ast_param, std::move(location)}, m_type{std::move(type)}, m_id{std::move(id)}
 {
 }
 
-auto Param::get_type() const -> const Type&
+auto Param::get_type() const -> const BuiltinType&
 { return *m_type; }
 
 auto Param::get_ident() const -> const Ident&
@@ -71,7 +71,7 @@ void ParamList::add_param(std::unique_ptr<Param> param)
 }
 
 /// FuncDef
-FuncDef::FuncDef(std::unique_ptr<Location> location, std::unique_ptr<Type> type,
+FuncDef::FuncDef(std::unique_ptr<Location> location, std::unique_ptr<BuiltinType> type,
 				 std::unique_ptr<Ident> ident,
 				 std::unique_ptr<ParamList> paramlist,
 				 std::unique_ptr<Block> block)
@@ -83,7 +83,7 @@ FuncDef::FuncDef(std::unique_ptr<Location> location, std::unique_ptr<Type> type,
 {
 }
 
-auto FuncDef::get_type() const -> const Type&
+auto FuncDef::get_type() const -> const BuiltinType&
 {
 	return *m_type;
 }

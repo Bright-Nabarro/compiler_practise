@@ -39,13 +39,16 @@ UnsignedInt		(unsigned\s+int)|(unsigned)
 	loc.step();
 %}
 
+
 {blank}			LOC_UPDATE_NORMAL(loc);
 {LineComment}	LOC_UPDATE_NORMAL(loc);
 {LegacyComment} LOC_UPDATE_NORMAL(loc);
+
 {SignedInt}		LOC_UPDATE_RET_ACTION(loc, yy::parser::make_KW_SINT(loc));
 {UnsignedInt}	LOC_UPDATE_RET_ACTION(loc, yy::parser::make_KW_UINT(loc));
 "void"			LOC_UPDATE_RET_ACTION(loc, yy::parser::make_KW_VOID(loc));
 "return"		LOC_UPDATE_RET_ACTION(loc, yy::parser::make_KW_RETURN(loc)); 
+"const"			LOC_UPDATE_RET_ACTION(loc, yy::parser::make_KW_CONST(loc));
 
 {Ident}			LOC_UPDATE_RET_ACTION(loc, yy::parser::make_IDENT(std::string{yytext}, loc));
 {Number}		LOC_UPDATE_RET_ACTION(loc, yy::parser::make_INT_LITERAL(std::atoi(yytext), loc));
@@ -69,6 +72,7 @@ UnsignedInt		(unsigned\s+int)|(unsigned)
 "!="			LOC_UPDATE_RET_ACTION(loc, yy::parser::make_OP_NE(loc));
 "&&"			LOC_UPDATE_RET_ACTION(loc, yy::parser::make_OP_LAND(loc));
 "||"			LOC_UPDATE_RET_ACTION(loc, yy::parser::make_OP_LOR(loc));
+"="				LOC_UPDATE_RET_ACTION(loc, yy::parser::make_OP_ASSIGN(loc));
 .				{
 					driver.get_parser().error(loc, "expect token");
 					return yy::parser::make_YYerror(loc);
