@@ -31,17 +31,31 @@ public:
 private:
 	void handle(const CompUnit& node);
 	void handle(const FuncDef& node);
+
 	auto handle(const BuiltinType& node) -> llvm::Type*;
-	auto handle(const Ident& node) -> std::pair<llvm::Value*, std::string>;
+	auto handle(const ScalarType& node) -> llvm::Type*;
+
 	auto handle(const ParamList& node) -> std::vector<llvm::Type*>;
+
 	auto handle(const Block& node, llvm::Function* func,
 				std::string_view block_name) -> llvm::BasicBlock*;
+	
 	auto handle(const Param& node) -> llvm::Type*;
 	void handle(const Stmt& node);
 	auto handle(const Expr& expr) -> llvm::Value*;
 	auto handle(const PrimaryExpr& node) -> llvm::Value*;
 	auto handle(const UnaryExpr& node) -> llvm::Value*;
+
 	auto handle(const Number& num) -> llvm::Value*;
+	auto handle(const Ident& node) -> std::pair<llvm::Value*, std::string>;
+
+	auto handle(const Decl& node) -> llvm::Value*;
+	auto handle(const ConstDecl& node) -> llvm::Value*; 
+	auto handle(const ConstDef& node) -> llvm::Value*;
+	auto handle(const ConstDefList& node) -> llvm::Value*;
+	auto handle(const ConstInitVal& node) -> llvm::Value*;
+	auto handle(const ConstExpr& node) -> llvm::Value*;
+	auto handle(const LVal& node) -> llvm::Value*;
 
 	/// @note 在上层会传入所有的BinaryExpr, 无需在实现文件中显式实例化声明
 	template<typename BinaryExpr>

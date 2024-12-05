@@ -4,6 +4,7 @@
 #include <easylog.hpp>
 #include "base_ast.hpp"
 #include "stmt_ast.hpp"
+#include "decl_ast.hpp"
 
 namespace tinyc
 {

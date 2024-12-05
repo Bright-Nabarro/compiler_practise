@@ -15,10 +15,9 @@ BuiltinType		::= ScalarType | "void" ;
 # 声明
 Decl			::=  ConstDecl; 
 ConstDecl 		::= "const" ScalarType ConstDef ConstDefList ";";
-## ConstDef的辅助结构，用于填充ConstDecl的Vector, 没有对其实际的处理函数
-ConstDefList 	::= /* empty */ | ConstDefList ',' ConstDef
 #定义
 ConstDef		::= Ident "=" ConstInitVal; 
+ConstDefList 	::= /* empty */ | ConstDefList ',' ConstDef
 ConstInitVal 	::= ConstExpr; 
 ConstExpr		::= Expr;
 
