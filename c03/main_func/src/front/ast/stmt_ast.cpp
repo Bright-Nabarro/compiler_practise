@@ -11,25 +11,6 @@ auto Stmt::get_expr() const -> const Expr&
 { return *m_expr; }
 
 
-/// Block
-Block::Block(std::unique_ptr<Location> location, Vector stmts)
-	: BaseAST{ast_block, std::move(location)}, m_stmts{std::move(stmts)}
-{
-}
-
-auto Block::begin() const -> Vector::const_iterator
-{ return m_stmts.cbegin(); }
-
-auto Block::end() const -> Vector::const_iterator
-{ return m_stmts.cend(); }
-	
-auto Block::get_exprs() const -> const Vector&
-{ return m_stmts; }
-
-void Block::add_stmt(std::unique_ptr<Stmt> stmt)
-{ m_stmts.push_back(std::move(stmt)); }
-
-
 /// Param
 Param::Param(std::unique_ptr<Location> location, std::unique_ptr<BuiltinType> type,
 	  std::unique_ptr<Ident> id)
@@ -69,6 +50,85 @@ void ParamList::add_param(std::unique_ptr<Param> param)
 {
 	m_params.push_back(std::move(param));
 }
+
+/// BlockItem
+BlockItem::BlockItem(std::unique_ptr<Location> location, DeclPtr decl)
+	: BaseAST{ast_block_item, std::move(location)}, m_value{std::move(decl)}
+{
+}
+
+BlockItem::BlockItem(std::unique_ptr<Location> location, StmtPtr stmt)
+	: BaseAST{ast_block_item, std::move(location)}, m_value{std::move(stmt)}
+{
+}
+
+auto BlockItem::has_decl() const -> bool
+{
+	return std::holds_alternative<DeclPtr>(m_value);
+}
+
+auto BlockItem::has_stmt() const -> bool
+{
+	return std::holds_alternative<StmtPtr>(m_value);
+}
+
+auto BlockItem::get_decl() const -> const Decl&
+{
+	return *std::get<DeclPtr>(m_value); // 假设调用时 BlockItem 确定包含 Decl
+}
+
+auto BlockItem::get_stmt() const -> const Stmt&
+{
+	return *std::get<StmtPtr>(m_value); // 假设调用时 BlockItem 确定包含 Stmt
+}
+
+/// BlockItemList
+BlockItemList::BlockItemList(std::unique_ptr<Location> location)
+	: BaseAST{ast_block_item_list, std::move(location)}, m_block_items{}
+{
+}
+
+BlockItemList::BlockItemList(std::unique_ptr<Location> location,
+							 std::unique_ptr<BlockItem> block_item,
+							 std::unique_ptr<BlockItemList> block_item_list)
+	: BaseAST{ast_block_item_list, std::move(location)}, m_block_items{}
+{
+	m_block_items.push_back(std::move(block_item));
+	m_block_items.insert(
+		m_block_items.end(),
+		std::make_move_iterator(block_item_list->m_block_items.begin()),
+		std::make_move_iterator(block_item_list->m_block_items.end()));
+}
+
+auto BlockItemList::begin() const -> Vector::const_iterator
+{
+	return m_block_items.cbegin();
+}
+
+auto BlockItemList::end() const -> Vector::const_iterator
+{
+	return m_block_items.cend();
+}
+
+auto BlockItemList::get_vector() -> Vector&
+{
+	return m_block_items;
+}
+
+
+/// Block
+Block::Block(std::unique_ptr<Location> location,
+			 std::unique_ptr<BlockItemList> block_item_list)
+	: BaseAST{ast_block, std::move(location)},
+	  m_block_item_list{std::move(block_item_list)}
+{
+}
+
+auto Block::get_block_item_list() const -> const BlockItemList&
+{
+	return *m_block_item_list;
+}
+
 
 /// FuncDef
 FuncDef::FuncDef(std::unique_ptr<Location> location, std::unique_ptr<BuiltinType> type,

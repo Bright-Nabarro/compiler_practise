@@ -95,15 +95,15 @@ auto CodeGenVisitor::handle(const BuiltinType& node) -> llvm::Type*
 	return ret;
 }
 
-auto CodeGenVisitor::handle(const Ident& node) -> std::pair<llvm::Value*, std::string>
+auto CodeGenVisitor::handle(const Ident& node) -> std::string_view
 {
 	yq::debug("Ident[{}]Begin:", node.get_value());
 	
-	llvm::Value* value = nullptr;
-	std::string name = node.get_value();
+	std::string_view name = node.get_value();
 
 	yq::debug("Ident[{}]End:", node.get_value());
-	return { value, name };
+
+	return name;
 }
 
 auto CodeGenVisitor::handle(const ParamList& node) -> std::vector<llvm::Type*>
@@ -172,7 +172,7 @@ auto CodeGenVisitor::handle(const PrimaryExpr& node) -> llvm::Value*
 	}
 	else if (node.has_ident())
 	{
-		result = handle(node.get_ident()).first;
+		result = handle(node.get_lval());
 	}
 	else if (node.has_number())
 	{
@@ -216,6 +216,63 @@ auto CodeGenVisitor::handle(const Number& node) -> llvm::Value*
 	yq::debug("Number End");
 	return result;
 }
+
+auto CodeGenVisitor::handle(const Decl& node) -> llvm::Value*
+{
+	handle(node.get_const_decl());
+}
+
+auto CodeGenVisitor::handle(const ConstDecl& node)
+	-> std::vector<llvm::Value*>
+{
+	llvm::Type* type = handle(node.get_scalar_type());
+	auto value_list = handle(node.get_const_def_list(), type);
+}
+
+auto CodeGenVisitor::handle(const ConstDef& node, llvm::Type* type)
+	-> llvm::Value*
+{
+	yq::debug("{} Start", node.get_kind_str());
+
+	auto name = handle(node.get_ident());
+	
+	// 涉及隐式类型转换
+	auto* value = handle(node.get_const_int_val());
+	
+
+	yq::debug("{} End", node.get_kind_str());
+}
+
+auto CodeGenVisitor::handle(const ConstDefList& node, llvm::Type* type)
+	-> std::vector<llvm::Value*>
+{
+	std::vector<llvm::Value*> result;
+	result.resize(node.size());
+
+	for (const auto& const_def_ptr : node )
+	{
+		result.push_back(handle(*const_def_ptr, type));	
+	}
+
+	return result;
+}
+
+auto CodeGenVisitor::handle(const ConstInitVal& node) -> llvm::Value*
+{
+}
+
+auto CodeGenVisitor::handle(const ConstExpr& node) -> llvm::Value*
+{
+	auto result = handle(node.get_expr());
+
+	return result;
+}
+
+auto CodeGenVisitor::handle(const LVal& node) -> llvm::Value*
+{
+	
+}
+
 
 auto CodeGenVisitor::unary_operate(const UnaryOp& op, llvm::Value* operand)
 	-> llvm::Value*

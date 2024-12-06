@@ -20,7 +20,7 @@ Ident::Ident(std::unique_ptr<Location> location, std::string value)
 {
 }
 
-auto Ident::get_value() const -> std::string
+auto Ident::get_value() const -> std::string_view
 { return m_value; }
 
 

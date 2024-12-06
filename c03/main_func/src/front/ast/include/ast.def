@@ -37,7 +37,10 @@ AST_KIND(ast_const_init_val, "Constant Initialization Value")
 AST_KIND(ast_lval, "Left Value")
 
 AST_KIND(ast_stmt, "Statement")
+
 AST_KIND(ast_block, "Block Statement")
+AST_KIND(ast_block_item_list, "Block Item List")
+AST_KIND(ast_block_item, "Block Item")
 
 // 基本类型
 AST_KIND(ast_scalar_type, "Scalar Type")

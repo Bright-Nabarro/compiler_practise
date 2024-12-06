@@ -88,6 +88,10 @@ auto ConstDecl::get_scalar_type() const -> const ScalarType&
 	return *m_scalar_type;
 }
 
+auto ConstDecl::get_const_def_list() const -> const ConstDefList&
+{
+	return *m_const_def_list;
+}
 
 /// Decl Implementation
 Decl::Decl(std::unique_ptr<Location> location,

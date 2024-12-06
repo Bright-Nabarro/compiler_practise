@@ -1,7 +1,9 @@
 #pragma once
 #include "base_ast.hpp"
 #include "expr_ast.hpp"
+#include "decl_ast.hpp"
 #include "base_components_ast.hpp"
+
 
 namespace tinyc
 {
@@ -20,30 +22,6 @@ public:
 
 private:
 	std::unique_ptr<Expr> m_expr;
-};
-
-
-/**
- * Block ::= "{" Stmt* "}";
- **/
-class Block : public BaseAST
-{
-public:
-	using Vector = std::vector<std::unique_ptr<Stmt>>;
-	Block(std::unique_ptr<Location> location, Vector stmts = Vector{});
-
-	TINYC_AST_FILL_CLASSOF(ast_block);
-
-	[[nodiscard]]
-	auto begin() const -> Vector::const_iterator;
-	[[nodiscard]]
-	auto end() const -> Vector::const_iterator;
-	[[nodiscard]]
-	auto get_exprs() const -> const Vector&;
-	void add_stmt(std::unique_ptr<Stmt> stmt);
-
-private:
-	Vector m_stmts;
 };
 
 
@@ -91,6 +69,71 @@ public:
 private:
 	Vector m_params;
 
+};
+
+
+///BlockItem		::= Decl | Stmt;
+class BlockItem: public BaseAST
+{
+public:
+	using DeclPtr = std::unique_ptr<Decl>;
+	using StmtPtr = std::unique_ptr<Stmt>;
+	using Variant = std::variant<DeclPtr, StmtPtr>;
+
+	TINYC_AST_FILL_CLASSOF(ast_block_item);
+
+	BlockItem(std::unique_ptr<Location> location, DeclPtr decl);
+	BlockItem(std::unique_ptr<Location> location, StmtPtr stmt);
+
+	[[nodiscard]]
+	auto has_decl() const -> bool;
+	[[nodiscard]]
+	auto has_stmt() const -> bool;
+	
+	[[nodiscard]]
+	auto get_decl() const -> const Decl&;
+	[[nodiscard]]
+	auto get_stmt() const -> const Stmt&;
+
+private:
+	Variant m_value;
+};
+
+
+/// BlockItemList 	::= /* empty */ | BlockItem BlockItemList
+class BlockItemList : public BaseAST
+{
+public:
+	using Vector = std::vector<std::unique_ptr<BlockItem>>;
+	TINYC_AST_FILL_CLASSOF(ast_block_item_list);
+	
+	BlockItemList(std::unique_ptr<Location> location);
+	BlockItemList(std::unique_ptr<Location> location,
+				  std::unique_ptr<BlockItem> block_item,
+				  std::unique_ptr<BlockItemList> block_item_list);
+
+	auto begin() const -> Vector::const_iterator;
+	auto end() const -> Vector::const_iterator;
+	
+	auto get_vector() -> Vector&;
+
+private:
+	Vector m_block_items;
+};
+
+
+/// Block       	::= "{" BlockItemList "}";
+class Block: public BaseAST
+{
+public:
+	TINYC_AST_FILL_CLASSOF(ast_block);
+	Block(std::unique_ptr<Location> location,
+		  std::unique_ptr<BlockItemList> block_item_list);
+
+	auto get_block_item_list() const -> const BlockItemList&;
+
+private:
+	std::unique_ptr<BlockItemList> m_block_item_list;
 };
 
 

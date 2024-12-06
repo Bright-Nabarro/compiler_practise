@@ -33,7 +33,7 @@ public:
 	Ident(std::unique_ptr<Location> location, std::string value);
 
 	[[nodiscard]]
-	auto get_value() const -> std::string;
+	auto get_value() const -> std::string_view;
 
 	TINYC_AST_FILL_CLASSOF(ast_ident)
 private:

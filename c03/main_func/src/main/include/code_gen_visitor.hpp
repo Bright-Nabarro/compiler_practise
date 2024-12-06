@@ -29,6 +29,8 @@ public:
 	{ return std::move(m_module); }
 
 private:
+	using SymbolTable = std::unordered_map<std::string_view, llvm::Value*>;
+
 	void handle(const CompUnit& node);
 	void handle(const FuncDef& node);
 
@@ -47,12 +49,13 @@ private:
 	auto handle(const UnaryExpr& node) -> llvm::Value*;
 
 	auto handle(const Number& num) -> llvm::Value*;
-	auto handle(const Ident& node) -> std::pair<llvm::Value*, std::string>;
+	auto handle(const Ident& node) -> std::string_view;
 
 	auto handle(const Decl& node) -> llvm::Value*;
-	auto handle(const ConstDecl& node) -> llvm::Value*; 
-	auto handle(const ConstDef& node) -> llvm::Value*;
-	auto handle(const ConstDefList& node) -> llvm::Value*;
+	auto handle(const ConstDecl& node) -> std::vector<llvm::Value*>; 
+	auto handle(const ConstDef& node, llvm::Type* type) -> llvm::Value*;
+	auto handle(const ConstDefList& node, llvm::Type* type)
+		-> std::vector<llvm::Value*>;
 	auto handle(const ConstInitVal& node) -> llvm::Value*;
 	auto handle(const ConstExpr& node) -> llvm::Value*;
 	auto handle(const LVal& node) -> llvm::Value*;

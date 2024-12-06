@@ -59,6 +59,10 @@ public:
 	[[nodiscard]]
 	auto end() const -> Vector::const_iterator;
 
+	[[nodiscard]] constexpr
+	auto size() const -> std::size_t
+	{ return m_const_defs.size(); }
+
 private:
 	[[nodiscard]]
 	auto get_vector() -> Vector&;
@@ -78,6 +82,8 @@ public:
 
 	[[nodiscard]]
 	auto get_scalar_type() const -> const ScalarType&;
+	[[nodiscard]]
+	auto get_const_def_list() const -> const ConstDefList&;
 	
 private:
 	std::unique_ptr<ScalarType> m_scalar_type;

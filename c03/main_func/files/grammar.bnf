@@ -14,6 +14,7 @@ BuiltinType		::= ScalarType | "void" ;
 
 # 声明
 Decl			::=  ConstDecl; 
+## ConstDefList有逗号分隔，无法将ConstDef省略
 ConstDecl 		::= "const" ScalarType ConstDef ConstDefList ";";
 #定义
 ConstDef		::= Ident "=" ConstInitVal; 
@@ -22,15 +23,16 @@ ConstInitVal 	::= ConstExpr;
 ConstExpr		::= Expr;
 
 # 块
-Block       ::= "{" {BlockItem} "}";
-BlockItem	::= Decl | Stmt;
+Block       	::= "{" BlockItemList "}";
+BlockItemList 	::= /* empty */ | BlockItem BlockItemList
+BlockItem		::= Decl | Stmt;
 
-LVal		::= Ident;
+LVal			::= Ident;
 
 # 语句
-Stmt        ::= "return" Expr ";";
+Stmt        	::= "return" Expr ";";
 
-Expr        ::= LOrExpr;
+Expr        	::= LOrExpr;
 
 # 以下优先级从高到低
 # https://zh.cppreference.com/w/c/language/operator_precedence
