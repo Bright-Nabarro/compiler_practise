@@ -5,16 +5,34 @@
 namespace tinyc
 {
 
+enum class conversion_error
+{
+	none = 0,
+	disable_lval_cvt,
+	disable_arr2ptr_cvt,
+	disable_func2ptr_cvt,
+	disable_compatible_types_cvt,
+	disable_int_promotion,
+	disable_bool_cvt,
+	disable_int_cvt,
+	disable_float2int_cvt,
+	disable_float_cvt,
+	disable_voidpointer_cvt,
+};
+
+
+
 /**
  * @note 依据 https://en.cppreference.com/w/c/language/conversion
  * @brief 处理隐式转换
  */
-class CImplicitConversionMgr
+class ImplicitConversionMgr
 {
 public:
-	CImplicitConversionMgr();
-	auto conversion(llvm::Value* value, llvm::Value* desire)
+	ImplicitConversionMgr();
+	auto value_conversion(llvm::Value* right, llvm::Type* left_type)
 		-> std::expected<llvm::Value*, std::string>;
+	auto arithmetic_conversion(llvm::Value* first, llvm::Value* second);
 	
 	///  左值转换
 	void set_lval_cvt(bool enable);
@@ -49,7 +67,6 @@ private:
 	bool m_enable_float2int_cvt;
 	bool m_enable_float_cvt;
 	bool m_enable_voidpointer_cvt;
-
 };
 
 }	//tinyc
