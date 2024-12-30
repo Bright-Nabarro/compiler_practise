@@ -77,13 +77,12 @@ namespace tinyc { class Driver; }
 
 %nterm <std::unique_ptr<tinyc::Stmt>>			Stmt
 %nterm <std::unique_ptr<tinyc::Block>>			Block
-%nterm <std::unique_ptr<tinyc::LVal>>			LVal
 %nterm <std::unique_ptr<tinyc::Decl>>			Decl
 %nterm <std::unique_ptr<tinyc::ConstDecl>>		ConstDecl
 %nterm <std::unique_ptr<tinyc::ConstDef>> 		ConstDef
 %nterm <std::unique_ptr<tinyc::ConstDefList>> 	ConstDefList
 %nterm <std::unique_ptr<tinyc::ConstInitVal>>	ConstInitVal
-%nterm <std::unique_ptr<tinyc::ConstExpr>>		Expr
+%nterm <std::unique_ptr<tinyc::ConstExpr>>		ConstExpr
 //type
 %nterm <std::unique_ptr<tinyc::ScalarType>>		ScalarType
 %nterm <std::unique_ptr<tinyc::BuiltinType>>	BuiltinType
@@ -253,10 +252,10 @@ Block
 		$$ = std::move(block_ptr);
 	};
 
-Lval
+LVal
 	: Ident {
 		assert_same_ptr(tinyc::Ident, $1);
-		$$ = std::make_unique<tinyc::Lval>(std::move($1));
+		$$ = std::make_unique<tinyc::LVal>(std::move($1));
 	};
 
 Stmt

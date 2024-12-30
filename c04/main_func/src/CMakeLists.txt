@@ -9,5 +9,6 @@ include(Utils)
 include(AddLLVM)
 
 add_subdirectory(front)
+add_subdirectory(semantix)
 add_subdirectory(main)
 
